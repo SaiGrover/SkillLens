@@ -12,6 +12,16 @@ const links = [
 
 export default function Landing() {
   const navigate = useNavigate()
+  const navigateFromLanding = (to: string) => {
+    const documentWithTransition = document as Document & {
+      startViewTransition?: (update: () => void) => void
+    }
+    if (documentWithTransition.startViewTransition) {
+      documentWithTransition.startViewTransition(() => navigate(to))
+      return
+    }
+    navigate(to)
+  }
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
@@ -27,7 +37,7 @@ export default function Landing() {
 
       <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-8">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigateFromLanding('/')}
           className="text-3xl font-normal tracking-tight text-foreground"
           style={{ fontFamily: "'Instrument Serif', serif" }}
         >
@@ -38,7 +48,7 @@ export default function Landing() {
           {links.map((link, index) => (
             <button
               key={link.label}
-              onClick={() => navigate(link.to)}
+              onClick={() => navigateFromLanding(link.to)}
               className={`text-sm transition-colors hover:text-foreground ${
                 index === 0 ? 'text-foreground' : 'text-muted-foreground'
               }`}
@@ -49,7 +59,7 @@ export default function Landing() {
         </div>
 
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigateFromLanding('/dashboard')}
           className="liquid-glass rounded-full px-6 py-2.5 text-sm text-foreground transition-transform hover:scale-[1.03]"
         >
           Begin Journey
@@ -70,7 +80,7 @@ export default function Landing() {
         </p>
 
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigateFromLanding('/dashboard')}
           className="liquid-glass animate-fade-rise-delay-2 mt-12 cursor-pointer rounded-full px-14 py-5 text-base text-foreground transition-transform hover:scale-[1.03]"
         >
           Begin Journey
