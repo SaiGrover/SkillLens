@@ -1,0 +1,6 @@
+cluster_id,archetype,centroid_pca_x,centroid_pca_y,mean_linkedin_demand,mean_salary_premium,mean_current_usage,mean_future_interest,mean_global_adoption,mean_growth_rate,mean_momentum_score,mean_volatility_score,mean_growth_consistency,mean_cagr,mean_trend_slope
+0,Obsolete,-1.049380271078365,0.22215061990898963,0.0554,0.4673,0.2461,0.2414,0.0,0.53,0.0,0.0,0.0,0.0,0.0
+1,At-Risk,0.5000237182329733,-0.6870250732198013,0.0434,0.6245,0.3849,0.3122,0.0,0.2038,0.0,0.0,0.0,0.0,0.0
+2,Stable,0.5481993829224499,4.652422152796575,0.5658,0.1593,0.3687,0.4487,0.0,0.5665,0.0,0.0,0.0,0.0,0.0
+3,Emerging,0.972420044406732,-0.3768369016835567,0.0374,0.8325,0.2975,0.6237,0.0,0.6646,0.0,0.0,0.0,0.0,0.0
+4,Future-Proof,3.68702938011779,0.46201490285828445,0.1377,0.6214,0.824,0.6446,0.0,0.2343,0.0,0.0,0.0,0.0,0.0
