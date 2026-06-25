@@ -17,8 +17,41 @@ const defaultQuickPrompts = [
   'What should I learn after SQL?',
   'Which skills are future-proof?',
   'Compare Python and Power BI.',
-  'Create a 6-month Data Analyst roadmap.',
+  'Recommend tools for a Data Analyst.',
   'Which skills are high-risk?',
+]
+
+const roleProfiles = [
+  {
+    role: 'Data Analyst',
+    match: ['data analyst', 'analytics analyst', 'business analyst'],
+    anchors: ['sql', 'excel', 'python', 'power bi', 'tableau', 'data visualization'],
+    reason: 'reporting, dashboards, SQL querying, spreadsheet modeling, and stakeholder insight delivery',
+  },
+  {
+    role: 'Data Scientist',
+    match: ['data scientist', 'ml scientist'],
+    anchors: ['python', 'statistics', 'machine learning', 'sql', 'pytorch', 'tensorflow'],
+    reason: 'statistical modeling, experimentation, feature engineering, and predictive workflows',
+  },
+  {
+    role: 'Cloud Engineer',
+    match: ['cloud engineer', 'cloud architect', 'devops'],
+    anchors: ['aws', 'azure', 'docker', 'kubernetes', 'linux', 'cloud security'],
+    reason: 'deploying, scaling, automating, and securing cloud infrastructure',
+  },
+  {
+    role: 'AI Engineer',
+    match: ['ai engineer', 'llm engineer', 'machine learning engineer'],
+    anchors: ['python', 'machine learning', 'deep learning', 'pytorch', 'tensorflow', 'natural language processing'],
+    reason: 'building AI systems, model workflows, data pipelines, and production inference',
+  },
+  {
+    role: 'Frontend Developer',
+    match: ['frontend', 'front end', 'ui developer'],
+    anchors: ['javascript', 'typescript', 'react', 'git', 'testing', 'github'],
+    reason: 'building interfaces, frontend systems, browser interactions, and product features',
+  },
 ]
 
 function toReference(skill: SkillSummary): SkillReference {
@@ -46,6 +79,30 @@ function findMentionedSkills(message: string, skills: SkillSummary[]) {
   return skills.filter((skill) => lower.includes(skill.name.toLowerCase())).slice(0, 3)
 }
 
+function findRoleProfile(message: string) {
+  const lower = message.toLowerCase()
+  return roleProfiles.find((profile) => profile.match.some((phrase) => lower.includes(phrase)))
+}
+
+function roleSkills(profile: typeof roleProfiles[number], skills: SkillSummary[]) {
+  const byAnchor = profile.anchors
+    .map((anchor) => skills.find((skill) => skill.name.toLowerCase() === anchor || skill.id.toLowerCase() === anchor.replace(/\s+/g, '-')))
+    .filter(Boolean) as SkillSummary[]
+  const ids = new Set(byAnchor.map((skill) => skill.id))
+  const categoryBackfill = skills
+    .filter((skill) => !ids.has(skill.id))
+    .filter((skill) => {
+      const category = (skill.category ?? '').toLowerCase()
+      if (profile.role.includes('Data')) return category.includes('data') || category.includes('database') || category.includes('program')
+      if (profile.role.includes('Cloud')) return category.includes('cloud') || category.includes('devops') || category.includes('security')
+      if (profile.role.includes('AI')) return category.includes('ai') || category.includes('machine') || category.includes('program')
+      if (profile.role.includes('Frontend')) return category.includes('program') || category.includes('software') || category.includes('tool')
+      return true
+    })
+    .sort((a, b) => (b.ses_score ?? 0) - (a.ses_score ?? 0))
+  return [...byAnchor, ...categoryBackfill].slice(0, 6)
+}
+
 async function getGroundedResponse(message: string): Promise<Message> {
   const response = await skillsApi.list({ per_page: 200, sort_by: 'ses_score', sort_dir: 'desc' })
   const skills = response.items ?? []
@@ -54,6 +111,7 @@ async function getGroundedResponse(message: string): Promise<Message> {
   const rising = [...skills].sort((a, b) => (b.growth_rate ?? 0) - (a.growth_rate ?? 0))
   const mentioned = findMentionedSkills(message, skills)
   const anchor = mentioned[0] ?? skills.find((skill) => skill.name.toLowerCase() === 'python') ?? ranked[0]
+  const roleProfile = findRoleProfile(message)
 
   if (lower.includes('compare') || /\bvs\b|versus/.test(lower)) {
     const pair = mentioned.length >= 2 ? mentioned.slice(0, 2) : ranked.slice(0, 2)
@@ -67,7 +125,7 @@ async function getGroundedResponse(message: string): Promise<Message> {
     }
   }
 
-  if (lower.includes('risk') || lower.includes('riviolet') || lower.includes('declin')) {
+  if (lower.includes('risk') || lower.includes('risky') || lower.includes('declin')) {
     const watch = [...skills].sort((a, b) => (a.ses_score ?? 1) - (b.ses_score ?? 1)).slice(0, 4)
     return {
       role: 'assistant',
@@ -78,16 +136,28 @@ async function getGroundedResponse(message: string): Promise<Message> {
     }
   }
 
-  if (lower.includes('roadmap') || lower.includes('learn') || lower.includes('after')) {
+  if (roleProfile || lower.includes('recommend') || lower.includes('suggest') || lower.includes('best tools') || lower.includes('best skills')) {
+    const profile = roleProfile ?? roleProfiles[0]
+    const picks = roleSkills(profile, skills)
+    return {
+      role: 'assistant',
+      id: Date.now() + 1,
+      queryType: 'skill-recommendation',
+      skills: picks.map(toReference),
+      content: `For ${profile.role}, SkillLens recommends ${picks.slice(0, 5).map((skill) => skill.name).join(', ')}. These fit best because the role needs ${profile.reason}; the ranking also considers SES, demand, salary value, and forecast trend so each tool has a purpose instead of being treated as universally useful.`,
+    }
+  }
+
+  if (lower.includes('learn') || lower.includes('after') || lower.includes('next')) {
     const recommendations = anchor
       ? [...skills].filter((skill) => skill.id !== anchor.id && (skill.category === anchor.category || (skill.growth_rate ?? 0) > 0.25)).sort((a, b) => (b.ses_score ?? 0) - (a.ses_score ?? 0)).slice(0, 4)
       : ranked.slice(0, 4)
     return {
       role: 'assistant',
       id: Date.now() + 1,
-      queryType: 'roadmap',
+      queryType: 'next-skill',
       skills: [anchor, ...recommendations].filter(Boolean).slice(0, 4).map(toReference),
-      content: `For a practical next step after ${anchor?.name ?? 'your current skill'}, spend the first stage building a small portfolio project with ${anchor?.name ?? 'a core skill'}. Then add ${recommendations.slice(0, 2).map((skill) => skill.name).join(' and ')} for breadth, followed by ${recommendations.slice(2, 4).map((skill) => skill.name).join(' and ') || 'a domain project'} for proof of application. The selected recommendations are drawn from the processed skill set using SES, growth, category fit, and forecast trend.`,
+      content: `After ${anchor?.name ?? 'your current skill'}, the strongest next options are ${recommendations.slice(0, 4).map((skill) => `${skill.name} (SES ${score(skill)})`).join(', ')}. Pick based on your requirement: choose same-category skills for depth, or higher-growth adjacent skills for mobility; these suggestions use SES, growth, category fit, and forecast trend from the processed dataset.`,
     }
   }
 
@@ -120,7 +190,7 @@ export default function Advisor() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Ask me about skills, career paths, salary signals, roadmap choices, or risk exposure. I will ground answers in SES rankings, forecast outputs, industry analytics, and skill archetypes.',
+      content: 'Ask me about skills, career paths, salary signals, tool choices, or risk exposure. I will ground answers in SES rankings, forecast outputs, industry analytics, and skill archetypes.',
       id: 0,
       queryType: 'welcome',
       skills: [],
@@ -157,7 +227,7 @@ export default function Advisor() {
           firstRising ? `Why is ${firstRising} growing so fast?` : defaultQuickPrompts[0],
           secondRising ? `How can I use ${secondRising} in a portfolio project?` : defaultQuickPrompts[1],
           'Compare Python and Power BI.',
-          'Create a 6-month Data Analyst roadmap.',
+          'Recommend tools for a Data Analyst.',
           atRisk ? `Why is ${atRisk} on the risk watch list?` : defaultQuickPrompts[4],
         ])
       })
@@ -233,7 +303,7 @@ export default function Advisor() {
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={(event) => event.key === 'Enter' && !event.shiftKey && send(input)}
-              placeholder="Ask about skills, careers, salaries, or roadmaps..."
+              placeholder="Ask about skills, careers, salaries, or role-fit tools..."
               className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-violet-400/40"
             />
             <button onClick={() => send(input)} disabled={!input.trim() || typing} className="rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 text-white transition-all hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-40">
@@ -245,7 +315,7 @@ export default function Advisor() {
 
       <aside className="space-y-4 overflow-y-auto">
         <Panel title="Current context" icon={Lightbulb}>
-          <InfoLine label="Selected goal" value={lastAssistant?.queryType === 'roadmap' ? 'Roadmap planning' : 'Skill strategy'} />
+          <InfoLine label="Selected goal" value={lastAssistant?.queryType === 'skill-recommendation' ? 'Role-fit recommendation' : 'Skill strategy'} />
           <InfoLine label="Current skills" value={recommended.map((skill) => skill.skill).join(', ') || 'Not selected'} />
           <InfoLine label="Risk warning" value="Check low confidence and declining trend skills before committing." />
         </Panel>

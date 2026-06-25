@@ -67,7 +67,7 @@ export default function Landing() {
 
         <button
           onClick={() => navigateFromLanding('/dashboard')}
-          className="liquid-glass rounded-full px-6 py-2.5 text-sm text-foreground transition-transform hover:scale-[1.03]"
+          className="landing-glass-button liquid-glass rounded-full px-6 py-2.5 text-sm text-foreground transition-transform hover:scale-[1.03]"
         >
           Begin Journey
         </button>
@@ -90,7 +90,7 @@ export default function Landing() {
 
         <button
           onClick={() => navigateFromLanding('/dashboard')}
-          className="liquid-glass animate-fade-rise-delay-2 mt-12 cursor-pointer rounded-full px-14 py-5 text-base text-foreground transition-transform hover:scale-[1.03]"
+          className="landing-glass-button liquid-glass animate-fade-rise-delay-2 mt-12 cursor-pointer rounded-full px-14 py-5 text-base text-foreground transition-transform hover:scale-[1.03]"
         >
           Begin Journey
         </button>
@@ -101,7 +101,7 @@ export default function Landing() {
             { icon: BrainCircuit, title: 'Career Advisor', detail: 'Grounded next-step guidance', to: '/advisor' },
             { icon: BarChart3, title: '3-Year Forecasts', detail: 'Confidence-aware outlooks', to: '/forecasts' },
           ].map(({ icon: Icon, title, detail, to }) => (
-            <button key={title} onClick={() => navigateFromLanding(to)} className="liquid-glass flex items-center gap-3 rounded-xl bg-[#1a0d31]/60 px-4 py-3 text-left backdrop-blur-md transition-transform hover:scale-[1.02]">
+            <button key={title} onClick={() => navigateFromLanding(to)} className="landing-glass-button liquid-glass flex items-center gap-3 rounded-xl bg-[#1a0d31]/60 px-4 py-3 text-left backdrop-blur-md transition-transform hover:scale-[1.02]">
               <Icon size={18} className="shrink-0 text-fuchsia-200" />
               <span><b className="block text-sm text-white">{title}</b><small className="text-xs text-white/60">{detail}</small></span>
             </button>

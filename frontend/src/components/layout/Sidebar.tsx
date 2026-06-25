@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Search, LineChart, Building2, Bot,
-  Map, FileText, FlaskConical, TrendingUp, BookOpen
+  Target, FileText, FlaskConical, TrendingUp, BookOpen
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { csvSnapshotMetadata } from '@/data/fallbackData'
@@ -27,7 +27,7 @@ const nav = [
     section: 'AI Tools',
     items: [
       { to: '/advisor', icon: Bot, label: 'Career Advisor' },
-      { to: '/roadmaps', icon: Map, label: 'Roadmaps' },
+      { to: '/recommender', icon: Target, label: 'Skill Recommender' },
     ],
   },
   {

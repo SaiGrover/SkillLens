@@ -15,13 +15,43 @@ function markCsvSnapshotMode() {
   window.dispatchEvent(new CustomEvent("skilllens:data-source", { detail: "csv-snapshot" }))
 }
 
+function skillSlug(name: string) {
+  const lower = name.trim().toLowerCase()
+  if (lower === "c#") return "c-sharp"
+  if (lower === "c++") return "c-plus-plus"
+  if (lower === "c/c++") return "c-c-plus-plus"
+  return lower.replace(/#/g, "sharp").replace(/\+/g, "plus").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+}
+
+function normalizeSkillIds<T extends SkillSummary>(items: T[]) {
+  const seen = new Set<string>()
+  return items.map((skill) => {
+    const rawId = skill.id || skillSlug(skill.name)
+    const preferredId = rawId === "c" && ["c#", "c++"].includes(skill.name.toLowerCase())
+      ? skillSlug(skill.name)
+      : rawId
+    let nextId = preferredId
+    if (seen.has(nextId)) nextId = skillSlug(skill.name)
+    let suffix = 2
+    while (seen.has(nextId)) {
+      nextId = `${skillSlug(skill.name)}-${suffix}`
+      suffix += 1
+    }
+    seen.add(nextId)
+    return nextId === skill.id ? skill : { ...skill, id: nextId }
+  })
+}
+
 // â”€â”€ Generic fetch wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const token = localStorage.getItem("token")
+  const controller = new AbortController()
+  const timeout = window.setTimeout(() => controller.abort(), 2500)
   try {
     const res = await fetch(`${BASE}${path}`, {
       ...init,
+      signal: init?.signal ?? controller.signal,
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -46,6 +76,8 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
       return fallback as T
     }
     throw error
+  } finally {
+    window.clearTimeout(timeout)
   }
 }
 
@@ -347,14 +379,17 @@ export const skillsApi = {
         .filter(([, v]) => v !== undefined && v !== null && v !== "")
         .map(([k, v]) => [k, String(v)])
     )
-    return api<PaginatedSkills>(`/api/skills?${qs}`)
+    return api<PaginatedSkills>(`/api/skills?${qs}`).then((result) => ({
+      ...result,
+      items: normalizeSkillIds(result.items ?? []),
+    }))
   },
   get:            (id: string)    => api<SkillDetail>(`/api/skills/${id}`),
   history:        (id: string)    => api<{ year: number; adoption_rate: number; demand: number }[]>(`/api/skills/${id}/history`),
   similar:        (id: string)    => api<{ id: string; name: string; ses_score?: number }[]>(`/api/skills/${id}/similar`),
   categories:     ()              => api<string[]>("/api/skills/categories"),
-  topRising:      (limit = 10)   => api<SkillSummary[]>(`/api/skills/top-rising?limit=${limit}`),
-  extinctionRisk: (limit = 10)   => api<SkillSummary[]>(`/api/skills/extinction-risk?limit=${limit}`),
+  topRising:      (limit = 10)   => api<SkillSummary[]>(`/api/skills/top-rising?limit=${limit}`).then(normalizeSkillIds),
+  extinctionRisk: (limit = 10)   => api<SkillSummary[]>(`/api/skills/extinction-risk?limit=${limit}`).then(normalizeSkillIds),
 }
 
 // â”€â”€ SES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

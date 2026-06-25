@@ -1908,6 +1908,342 @@
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Final product polish pass. This sits at EOF so older theme experiments cannot leak through. */
+.landing-glass-button {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.035)),
+    rgba(16, 8, 32, 0.3) !important;
+  backdrop-filter: blur(18px) saturate(142%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(142%) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.24),
+    0 18px 52px rgba(9, 3, 24, 0.38) !important;
+}
+
+.inner-shell.inner-shell {
+  --inside-ink: #f8f0ff;
+  --inside-muted: rgba(236, 220, 255, 0.68);
+  --inside-subtle: rgba(236, 220, 255, 0.42);
+  --inside-card: rgba(22, 12, 43, 0.74);
+  --inside-border: rgba(227, 166, 255, 0.16);
+  background:
+    radial-gradient(circle at 18% 3%, rgba(203, 76, 255, 0.24), transparent 31%),
+    radial-gradient(circle at 88% 7%, rgba(255, 140, 216, 0.13), transparent 30%),
+    linear-gradient(145deg, #07030f 0%, #170622 45%, #090414 100%) !important;
+  color: var(--inside-muted) !important;
+  font-family: "Manrope", "Inter", system-ui, sans-serif !important;
+}
+
+.inner-shell.inner-shell,
+.inner-shell.inner-shell button,
+.inner-shell.inner-shell input,
+.inner-shell.inner-shell select,
+.inner-shell.inner-shell textarea,
+.inner-shell.inner-shell table {
+  font-family: "Manrope", "Inter", system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+.inner-shell.inner-shell .app-content {
+  background:
+    linear-gradient(180deg, rgba(25, 8, 43, 0.28), rgba(8, 4, 18, 0.5)),
+    rgba(8, 4, 18, 0.3) !important;
+  backdrop-filter: blur(3px) !important;
+}
+
+.inner-shell.inner-shell .page-title,
+.inner-shell.inner-shell h1 {
+  color: transparent !important;
+  background: linear-gradient(92deg, #fff7ff 0%, #efb8ff 34%, #c084fc 68%, #ffd6f2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-weight: 800 !important;
+  text-shadow: 0 0 34px rgba(216, 112, 255, 0.24);
+}
+
+.inner-shell.inner-shell h2,
+.inner-shell.inner-shell .section-title {
+  color: #f9efff !important;
+  font-weight: 750 !important;
+}
+
+.inner-shell.inner-shell h3,
+.inner-shell.inner-shell h4,
+.inner-shell.inner-shell b {
+  color: #fff8ff;
+}
+
+.inner-shell.inner-shell p,
+.inner-shell.inner-shell td,
+.inner-shell.inner-shell li,
+.inner-shell.inner-shell label {
+  color: var(--inside-muted);
+}
+
+.inner-shell.inner-shell .page-subtitle,
+.inner-shell.inner-shell small {
+  color: var(--inside-subtle) !important;
+}
+
+.inner-shell.inner-shell .glass,
+.inner-shell.inner-shell .glass-strong,
+.inner-shell.inner-shell .skill-explorer-table-card,
+.inner-shell.inner-shell .skill-explorer-detail-panel,
+.inner-shell.inner-shell .industry-selector,
+.inner-shell.inner-shell .industry-overview,
+.inner-shell.inner-shell .card-hover,
+.inner-shell.inner-shell .skill-explorer-metric {
+  background:
+    linear-gradient(145deg, rgba(45, 17, 72, 0.82), rgba(15, 8, 32, 0.78)),
+    var(--inside-card) !important;
+  border-color: var(--inside-border) !important;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.08),
+    0 26px 70px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(174, 80, 255, 0.045) !important;
+}
+
+.inner-shell.inner-shell .card-hover,
+.inner-shell.inner-shell .skill-explorer-metric {
+  position: relative;
+  overflow: hidden;
+}
+
+.inner-shell.inner-shell .card-hover::after,
+.inner-shell.inner-shell .skill-explorer-metric::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  transform: translateX(-110%);
+  transition: transform 700ms ease;
+}
+
+.inner-shell.inner-shell .card-hover:hover::after,
+.inner-shell.inner-shell .skill-explorer-metric:hover::after {
+  transform: translateX(110%);
+}
+
+.inner-shell.inner-shell .card-hover:nth-of-type(1),
+.inner-shell.inner-shell .skill-explorer-metric:nth-of-type(1) {
+  background: linear-gradient(145deg, rgba(83, 30, 125, 0.92), rgba(34, 13, 65, 0.78)) !important;
+}
+
+.inner-shell.inner-shell .card-hover:nth-of-type(2),
+.inner-shell.inner-shell .skill-explorer-metric:nth-of-type(2) {
+  background: linear-gradient(145deg, rgba(110, 35, 104, 0.78), rgba(33, 13, 58, 0.82)) !important;
+}
+
+.inner-shell.inner-shell .card-hover:nth-of-type(3),
+.inner-shell.inner-shell .skill-explorer-metric:nth-of-type(3) {
+  background: linear-gradient(145deg, rgba(45, 28, 100, 0.82), rgba(24, 10, 51, 0.82)) !important;
+}
+
+.inner-shell.inner-shell .card-hover:nth-of-type(4),
+.inner-shell.inner-shell .skill-explorer-metric:nth-of-type(4) {
+  background: linear-gradient(145deg, rgba(113, 50, 45, 0.72), rgba(42, 15, 45, 0.82)) !important;
+}
+
+.inner-shell.inner-shell .card-hover:nth-of-type(5),
+.inner-shell.inner-shell .skill-explorer-metric:nth-of-type(5) {
+  background: linear-gradient(145deg, rgba(91, 38, 125, 0.82), rgba(30, 10, 55, 0.84)) !important;
+}
+
+.inner-shell.inner-shell .card-hover:nth-of-type(6),
+.inner-shell.inner-shell .skill-explorer-metric:nth-of-type(6) {
+  background: linear-gradient(145deg, rgba(62, 21, 91, 0.92), rgba(19, 8, 38, 0.84)) !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-data-pill,
+.inner-shell.inner-shell .top-mini-chip,
+.inner-shell.inner-shell .top-status-card {
+  background: rgba(49, 20, 76, 0.76) !important;
+  border-color: rgba(230, 172, 255, 0.2) !important;
+}
+
+.inner-shell.inner-shell input,
+.inner-shell.inner-shell select,
+.inner-shell.inner-shell textarea,
+.inner-shell.inner-shell .skill-explorer-select > button {
+  background: rgba(49, 20, 76, 0.62) !important;
+  border-color: rgba(231, 170, 255, 0.18) !important;
+  color: #fff8ff !important;
+}
+
+.inner-shell.inner-shell input::placeholder,
+.inner-shell.inner-shell textarea::placeholder {
+  color: rgba(237, 217, 255, 0.42) !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-table-card {
+  overflow: hidden !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-table-scroll {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-table-inner {
+  min-width: 1080px !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-table-grid {
+  display: grid;
+  grid-template-columns: 34px 36px minmax(160px, 1.5fr) minmax(130px, 1fr) minmax(82px, 0.62fr) minmax(132px, 0.9fr) minmax(110px, 0.78fr) minmax(78px, 0.55fr) minmax(104px, 0.72fr) minmax(96px, 0.68fr);
+  align-items: center;
+  gap: 14px;
+}
+
+.inner-shell.inner-shell .skills-guide-row {
+  display: grid;
+  grid-template-columns: minmax(230px, 1.55fr) minmax(150px, 0.9fr) minmax(92px, 0.55fr) minmax(130px, 0.72fr) minmax(100px, 0.62fr);
+  align-items: center;
+  gap: 14px;
+}
+
+.inner-shell.inner-shell .skill-explorer-table-head,
+.inner-shell.inner-shell table thead,
+.skills-guide-head {
+  background: rgba(8, 4, 18, 0.72) !important;
+  color: rgba(244, 221, 255, 0.48) !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-row,
+.inner-shell.inner-shell tbody tr {
+  background: rgba(13, 8, 30, 0.66) !important;
+  border-color: rgba(227, 166, 255, 0.08) !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-row:nth-child(odd),
+.inner-shell.inner-shell tbody tr:nth-child(odd) {
+  background: rgba(28, 12, 49, 0.42) !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-row:hover,
+.inner-shell.inner-shell tbody tr:hover {
+  background: rgba(77, 31, 120, 0.34) !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-row.selected,
+.inner-shell.inner-shell tbody tr.selected {
+  background:
+    linear-gradient(90deg, rgba(126, 63, 242, 0.35), rgba(49, 20, 76, 0.28)),
+    rgba(36, 16, 63, 0.8) !important;
+  box-shadow: inset 3px 0 #d946ef, inset 0 -1px rgba(216, 180, 254, 0.3), inset 0 1px rgba(216, 180, 254, 0.3) !important;
+}
+
+.inner-shell.inner-shell .skill-pill,
+.inner-shell.inner-shell .risk-pill,
+.skills-guide-category-pill {
+  border-color: rgba(232, 177, 255, 0.18) !important;
+  background: rgba(116, 51, 164, 0.22) !important;
+  color: #f5d0fe !important;
+}
+
+.inner-shell.inner-shell .risk-pill.low,
+.inner-shell.inner-shell .skill-pill.green {
+  border-color: rgba(192, 132, 252, 0.28) !important;
+  background: rgba(126, 34, 206, 0.24) !important;
+  color: #f0abfc !important;
+}
+
+.inner-shell.inner-shell .risk-pill.medium {
+  border-color: rgba(251, 191, 36, 0.26) !important;
+  background: rgba(120, 53, 15, 0.28) !important;
+  color: #fde68a !important;
+}
+
+.inner-shell.inner-shell .risk-pill.high {
+  border-color: rgba(251, 113, 133, 0.26) !important;
+  background: rgba(136, 19, 55, 0.24) !important;
+  color: #fecdd3 !important;
+}
+
+.inner-shell.inner-shell .score-ring {
+  background: conic-gradient(#d946ef var(--score), rgba(236, 72, 153, 0.22) 0) !important;
+}
+
+.skills-guide-table {
+  background:
+    linear-gradient(180deg, rgba(19, 10, 39, 0.92), rgba(8, 5, 20, 0.94)),
+    #090514 !important;
+  border-color: rgba(227, 166, 255, 0.14) !important;
+}
+
+.skills-guide-row {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(227, 166, 255, 0.08);
+}
+
+.skills-guide-head {
+  padding-block: 14px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em !important;
+}
+
+.skills-guide-category-pill {
+  display: inline-flex;
+  min-width: 130px;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.42rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.skill-recommender-card {
+  transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.skill-recommender-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(244, 114, 182, 0.28) !important;
+  box-shadow: 0 30px 78px rgba(0, 0, 0, 0.28), 0 0 34px rgba(217, 70, 239, 0.09) !important;
+}
+
+.inner-shell.inner-shell .text-emerald-300,
+.inner-shell.inner-shell .text-emerald-400,
+.inner-shell.inner-shell .text-teal-300,
+.inner-shell.inner-shell .text-teal-400,
+.inner-shell.inner-shell .text-cyan-300,
+.inner-shell.inner-shell .text-cyan-400,
+.inner-shell.inner-shell .text-blue-300,
+.inner-shell.inner-shell .text-blue-400,
+.inner-shell.inner-shell .text-sky-300,
+.inner-shell.inner-shell .text-sky-400 {
+  color: #f0abfc !important;
+}
+
+.inner-shell.inner-shell .bg-emerald-400,
+.inner-shell.inner-shell .bg-teal-400,
+.inner-shell.inner-shell .bg-cyan-400,
+.inner-shell.inner-shell .bg-blue-400 {
+  background-color: #d946ef !important;
+}
+
+@media (max-width: 900px) {
+  .inner-shell.inner-shell .skills-guide-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .inner-shell.inner-shell .skill-explorer-table-grid {
+    grid-template-columns: 34px 34px minmax(150px, 1.3fr) minmax(120px, 0.9fr) minmax(76px, 0.55fr) minmax(118px, 0.85fr) minmax(96px, 0.7fr) minmax(72px, 0.52fr) minmax(100px, 0.72fr) minmax(90px, 0.65fr);
+  }
+
+  .skills-guide-head {
+    display: none !important;
+  }
+
+  .skills-guide-category-pill {
+    min-width: 0;
+    justify-content: flex-start;
+  }
+}
+
 /* Interior theme final pass. This is intentionally scoped away from landing-* so
    the starting page keeps its original typography and video treatment. */
 .inner-shell.inner-shell {
@@ -2164,6 +2500,208 @@
   .inner-shell.inner-shell .top-nav-link {
     padding-inline: 0.62rem !important;
     font-size: 0.73rem !important;
+  }
+}
+
+/* Product polish pass: richer inner cards/tables plus landing button blur. */
+.landing-glass-button {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.035)),
+    rgba(18, 9, 30, 0.36) !important;
+  backdrop-filter: blur(18px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.2) !important;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.18),
+    0 18px 48px rgba(7, 2, 16, 0.38),
+    0 0 28px rgba(240, 171, 252, 0.14) !important;
+}
+
+.inner-shell.inner-shell .card-hover,
+.inner-shell.inner-shell .skill-explorer-metric {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(240, 171, 252, 0.2) !important;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(250, 204, 21, 0.13), transparent 32%),
+    linear-gradient(145deg, rgba(76, 18, 90, 0.52), rgba(33, 9, 43, 0.84) 52%, rgba(49, 10, 30, 0.74)) !important;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.12),
+    0 18px 46px rgba(10, 2, 18, 0.28) !important;
+}
+
+.inner-shell.inner-shell .card-hover::after,
+.inner-shell.inner-shell .skill-explorer-metric::after {
+  content: '';
+  position: absolute;
+  inset: auto -25% -42% 22%;
+  height: 70%;
+  background: radial-gradient(circle, rgba(217, 70, 239, 0.22), transparent 62%);
+  pointer-events: none;
+}
+
+.inner-shell.inner-shell .card-hover p:first-child,
+.inner-shell.inner-shell .skill-explorer-metric p {
+  color: #d8b4fe !important;
+}
+
+.inner-shell.inner-shell .card-hover p:nth-child(2),
+.inner-shell.inner-shell .skill-explorer-metric b {
+  background: linear-gradient(95deg, #fff7ed, #f0abfc 46%, #facc15);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  text-shadow: 0 0 24px rgba(217, 70, 239, 0.12);
+}
+
+.inner-shell.inner-shell .skill-explorer-data-pill {
+  border-color: rgba(250, 204, 21, 0.26) !important;
+  background: rgba(250, 204, 21, 0.09) !important;
+  color: #fde68a !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-data-pill span {
+  background: #facc15 !important;
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.72) !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-table-card {
+  background:
+    linear-gradient(180deg, rgba(32, 10, 44, 0.78), rgba(13, 5, 22, 0.82)) !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-table-grid {
+  grid-template-columns: 34px 32px minmax(150px,1.18fr) minmax(118px,0.78fr) 78px minmax(112px,0.78fr) 94px 72px 92px 84px !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-table-head {
+  background: rgba(10, 4, 18, 0.94) !important;
+  color: #c9add8 !important;
+  letter-spacing: 0.05em;
+}
+
+.inner-shell.inner-shell .skill-explorer-row {
+  min-height: 52px !important;
+  background: rgba(255, 255, 255, 0.012) !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-row:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.024) !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-row.selected {
+  background:
+    linear-gradient(90deg, rgba(217, 70, 239, 0.34), rgba(251, 113, 133, 0.11), rgba(250, 204, 21, 0.035)) !important;
+  box-shadow:
+    inset 3px 0 #f0abfc,
+    inset 0 0 0 1px rgba(240, 171, 252, 0.42) !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-row .skill-name b {
+  color: #fff7ed !important;
+}
+
+.inner-shell.inner-shell .skill-explorer-row .skill-name small {
+  color: #a993bd !important;
+}
+
+.inner-shell.inner-shell .skill-pill,
+.inner-shell.inner-shell .risk-pill {
+  border-radius: 999px !important;
+}
+
+.inner-shell.inner-shell .skill-pill.green,
+.inner-shell.inner-shell .risk-pill.low {
+  border-color: rgba(216, 180, 254, 0.24) !important;
+  background: rgba(216, 180, 254, 0.12) !important;
+  color: #f5d0fe !important;
+}
+
+.inner-shell.inner-shell .skill-pill.blue {
+  border-color: rgba(250, 204, 21, 0.22) !important;
+  background: rgba(250, 204, 21, 0.1) !important;
+  color: #fde68a !important;
+}
+
+.inner-shell.inner-shell .risk-pill.medium {
+  border-color: rgba(251, 191, 36, 0.28) !important;
+  background: rgba(251, 191, 36, 0.12) !important;
+  color: #fcd34d !important;
+}
+
+.inner-shell.inner-shell .risk-pill.high {
+  border-color: rgba(251, 113, 133, 0.3) !important;
+  background: rgba(251, 113, 133, 0.13) !important;
+  color: #fda4af !important;
+}
+
+.inner-shell.inner-shell .score-ring {
+  border-color: rgba(240, 171, 252, 0.82) !important;
+  background:
+    radial-gradient(circle, rgba(250, 204, 21, 0.09), transparent 64%),
+    rgba(217, 70, 239, 0.08) !important;
+  box-shadow: 0 0 30px rgba(217, 70, 239, 0.24);
+}
+
+.inner-shell.inner-shell .score-ring small {
+  color: #fde68a !important;
+}
+
+.skills-guide-table {
+  background:
+    linear-gradient(180deg, rgba(18, 7, 30, 0.88), rgba(8, 4, 16, 0.92)) !important;
+}
+
+.skills-guide-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(150px, 0.82fr) 82px 112px 24px;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.35rem;
+}
+
+.skills-guide-head {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 4, 18, 0.9);
+}
+
+.skills-guide-table details:nth-of-type(odd) summary {
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.skills-guide-category-pill {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(240, 171, 252, 0.22);
+  background: rgba(240, 171, 252, 0.08);
+  padding: 0.38rem 0.68rem;
+  color: #f3e8ff;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.skill-recommender-card {
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.skill-recommender-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(250, 204, 21, 0.24) !important;
+  background:
+    linear-gradient(145deg, rgba(52, 13, 62, 0.76), rgba(25, 8, 32, 0.76)) !important;
+}
+
+@media (max-width: 820px) {
+  .skills-guide-row {
+    grid-template-columns: minmax(170px, 1fr) 110px 58px 86px 18px;
+    gap: 0.65rem;
+    padding-inline: 0.85rem;
+  }
+
+  .skills-guide-category-pill {
+    padding-inline: 0.5rem;
+    font-size: 0.7rem;
   }
 }
 

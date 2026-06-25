@@ -7,7 +7,7 @@ import Skills from '@/pages/Skills'
 import SkillsGuide from '@/pages/SkillsGuide'
 import SkillDetail from '@/pages/SkillDetail'
 import Advisor from '@/pages/Advisor'
-import Roadmaps from '@/pages/Roadmaps'
+import Recommender from '@/pages/Recommender'
 import Global from '@/pages/Global'
 import Forecasts from '@/pages/Forecasts'
 import Industries from '@/pages/Industries'
@@ -25,7 +25,7 @@ export default function App() {
           <Route path="skills-guide" element={<SkillsGuide />} />
           <Route path="skills/:id" element={<SkillDetail />} />
           <Route path="advisor" element={<Advisor />} />
-          <Route path="roadmaps" element={<Roadmaps />} />
+          <Route path="recommender" element={<Recommender />} />
           <Route path="global" element={<Global />} />
           <Route path="forecasts" element={<Forecasts />} />
           <Route path="industries" element={<Industries />} />

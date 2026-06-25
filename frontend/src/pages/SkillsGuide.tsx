@@ -14,6 +14,10 @@ function forecastTone(trend?: string) {
   return 'text-violet-200'
 }
 
+function normalizedCategory(value?: string) {
+  return (value ?? 'Unassigned').trim().toLowerCase().replace(/[\s/-]+/g, '_')
+}
+
 export default function SkillsGuide() {
   const [skills, setSkills] = useState<SkillSummary[]>([])
   const [search, setSearch] = useState('')
@@ -53,7 +57,7 @@ export default function SkillsGuide() {
         [skill.name, skill.category, skill.archetype, skill.forecast_trend].some((value) =>
           value?.toLowerCase().includes(term),
         )
-      return textMatch && (category === 'All' || (skill.category ?? 'Unassigned') === category)
+      return textMatch && (category === 'All' || normalizedCategory(skill.category) === normalizedCategory(category))
     })
   }, [skills, search, category])
 
@@ -110,10 +114,13 @@ export default function SkillsGuide() {
             ))}
           </div>
         </div>
+        <p className="mt-3 text-xs text-white/42">
+          Showing {filtered.length} skills{category !== 'All' ? ` in ${formatCategoryLabel(category)}` : ''}. Skill name and category are separate: for example, "Data Analysis" is a skill inside the Data Analytics category.
+        </p>
       </section>
 
-      <section className="overflow-hidden rounded-xl border border-white/8 bg-[#071024]/90 shadow-[0_24px_60px_rgba(0,0,0,0.35)]">
-        <div className="grid grid-cols-[minmax(240px,1.3fr)_minmax(140px,0.75fr)_72px_100px_24px] gap-4 border-b border-white/8 px-5 py-3 section-label">
+      <section className="skills-guide-table overflow-hidden rounded-xl border border-white/8 bg-[#071024]/90 shadow-[0_24px_60px_rgba(0,0,0,0.35)]">
+        <div className="skills-guide-row skills-guide-head section-label">
           <span>Skill</span>
           <span>Category</span>
           <span>SES</span>
@@ -126,14 +133,14 @@ export default function SkillsGuide() {
             const guide = buildSkillGuide(skill)
             return (
               <details key={skill.id} className="group">
-                <summary className="grid cursor-pointer list-none grid-cols-[minmax(240px,1.3fr)_minmax(140px,0.75fr)_72px_100px_24px] gap-4 px-5 py-2.5 text-sm transition-colors hover:bg-white/[0.04] [&::-webkit-details-marker]:hidden">
+                <summary className="skills-guide-row cursor-pointer list-none text-sm transition-colors hover:bg-white/[0.04] [&::-webkit-details-marker]:hidden">
                   <span className="min-w-0">
                     <b className="block text-base font-semibold text-[var(--text-primary)]">{skill.name}</b>
                     <small className="mt-0.5 block text-xs leading-relaxed text-[var(--text-subtle)]">
-                      {skill.archetype ?? 'Tracked skill'}
+                      {skill.id} - {skill.archetype ?? 'Tracked skill'}
                     </small>
                   </span>
-                  <span className="self-center text-[13px] text-white/68">{formatCategoryLabel(skill.category)}</span>
+                  <span className="self-center"><span className="skills-guide-category-pill">{formatCategoryLabel(skill.category)}</span></span>
                   <span className="self-center text-[15px] font-bold tabular-nums text-fuchsia-200">{score(skill.ses_score)}</span>
                   <span className={`self-center text-[13px] capitalize ${forecastTone(skill.forecast_trend)}`}>
                     {skill.forecast_trend ?? 'Tracked'}

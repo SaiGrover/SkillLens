@@ -80,7 +80,7 @@ const stages = [
     description:
       'Separate useful technical skills from irrelevant terms using NLP-based classification. Organize skills into meaningful categories such as Programming, AI/ML, Data Science, Cloud Computing, DevOps, Cybersecurity, and Software Engineering for structured display across the platform.',
     input: 'Expanded skill universe containing technical skills, soft skills, certifications, domain knowledge, and noise',
-    output: 'Classified skill taxonomy with category labels, ready for Skill Explorer, Industries, Roadmaps, and Career Advisor pages',
+    output: 'Classified skill taxonomy with category labels, ready for Skill Explorer, Industries, Skill Recommender, and Career Advisor pages',
   },
   {
     title: 'Feature Engineering',
@@ -168,9 +168,9 @@ const stages = [
     color: 'from-violet-500 to-purple-400',
     glow: 'rgba(139,92,246,0.25)',
     description:
-      'Provide a conversational AI layer on top of HSEP intelligence that answers career questions using SES rankings, forecasts, archetypes, industry analytics, salary signals, and roadmap logic - producing grounded, explainable, and data-backed career guidance.',
+      'Provide a conversational AI layer on top of HSEP intelligence that answers career questions using SES rankings, forecasts, archetypes, industry analytics, salary signals, and role-fit recommendation logic - producing grounded, explainable, and data-backed career guidance.',
     input: 'User question plus retrieved SES rankings, forecast records, archetype data, industry analytics, and related skills',
-    output: 'Grounded career guidance with source citations, next-skill recommendations, and structured learning roadmaps',
+    output: 'Grounded career guidance with source citations, next-skill recommendations, and role-fit tool suggestions',
   },
   {
     title: 'Explainability Layer',
@@ -188,7 +188,7 @@ const stages = [
     color: 'from-indigo-500 to-purple-400',
     glow: 'rgba(99,102,241,0.25)',
     description:
-      'Power multiple website pages - Dashboard, Skill Explorer, Forecasts, Industries, Career Advisor, Roadmaps, Reports, and Methodology - transforming raw workforce data into an interactive, explainable career intelligence platform.',
+      'Power multiple website pages - Dashboard, Skill Explorer, Forecasts, Industries, Career Advisor, Skill Recommender, Reports, and Methodology - transforming raw workforce data into an interactive, explainable career intelligence platform.',
     input: 'Complete HSEP intelligence: SES rankings, forecasts, industry analytics, archetypes, recommendations, and explainability data',
     output: 'Interactive web platform with searchable skills, visual forecasts, industry rankings, AI-assisted career guidance, and exportable reports',
   },
@@ -285,7 +285,6 @@ const methodologyResources: Record<string, { notebooks: MethodologyArtifact[]; d
   'SES Computation': {
     notebooks: [{ label: '12_SES_Computation.ipynb', href: '/methodology/notebooks/12_SES_Computation.ipynb' }],
     datasets: [{ label: 'ses_rankings.csv', href: '/methodology/datasets/ses_rankings.csv', note: 'ranked SES output' }],
-    preview: { src: '/methodology/previews/ses_distribution.png', alt: 'SES distribution from the original generated dataset', caption: 'Original SES distribution output from the generated dataset.' },
   },
   'Industry Analytics': {
     notebooks: [{ label: '13_Industry_Analytics.ipynb', href: '/methodology/notebooks/13_Industry_Analytics.ipynb' }],
@@ -293,7 +292,6 @@ const methodologyResources: Record<string, { notebooks: MethodologyArtifact[]; d
       { label: 'industry_analytics.csv', href: '/methodology/datasets/industry_analytics.csv', note: 'aggregated industry metrics' },
       { label: 'industry_skill_map.csv', href: '/methodology/datasets/industry_skill_map.csv', note: 'skill-to-industry mapping' },
     ],
-    preview: { src: '/methodology/previews/industry_analytics.png', alt: 'Industry analytics output from the original notebook', caption: 'Original industry analytics output from the generated dataset.' },
   },
   'Skill Ranking by Industry': {
     notebooks: [{ label: '13_Industry_Analytics.ipynb', href: '/methodology/notebooks/13_Industry_Analytics.ipynb' }],

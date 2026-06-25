@@ -2,14 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
-  BarChart3, Bot, Check, ChevronDown, ChevronLeft, ChevronRight, Download, Info, Map,
+  BarChart3, Bot, Check, ChevronDown, ChevronLeft, ChevronRight, Download, Info, Target,
   BrainCircuit, Cloud, Code2, Database, Plus, Search, Shield, Sparkles, Star, TrendingUp, X
 } from 'lucide-react'
 import { advisorApi, IndustrySummary, industriesApi, SkillSummary, skillsApi } from '@/services/api'
 import { cn } from '@/lib/utils'
 
 type SortKey = 'relevance' | 'ses' | 'demand' | 'salary' | 'risk'
-type DetailTab = 'overview' | 'forecast' | 'salary' | 'related' | 'roadmap'
+type DetailTab = 'overview' | 'forecast' | 'salary' | 'related' | 'fit'
 
 const pageSize = 10
 const skillDescriptionCache = new globalThis.Map<string, string>()
@@ -220,9 +220,9 @@ export default function Skills() {
     setShowCompare(true)
   }
 
-  const addToRoadmap = (skill: SkillSummary) => {
-    window.localStorage.setItem('skilllens:roadmap-skill', skill.name)
-    navigate('/roadmaps')
+  const openRecommender = (skill: SkillSummary) => {
+    window.localStorage.setItem('skilllens:recommender-skill', skill.name)
+    navigate(`/recommender?skill=${encodeURIComponent(skill.id)}`)
   }
 
   const askAdvisor = (skill: SkillSummary) => {
@@ -392,7 +392,7 @@ export default function Skills() {
             skills={skills}
             isSaved={savedIds.includes(selected.id)}
             onSave={() => toggleSaved(selected.id)}
-            onRoadmap={() => addToRoadmap(selected)}
+            onRecommend={() => openRecommender(selected)}
             onCompare={() => openCompare(selected.id)}
             onAskAdvisor={() => askAdvisor(selected)}
             onExport={() => exportCsv([selected])}
@@ -455,7 +455,7 @@ function SkillPanel({
   skills,
   isSaved,
   onSave,
-  onRoadmap,
+  onRecommend,
   onCompare,
   onAskAdvisor,
   onExport,
@@ -464,7 +464,7 @@ function SkillPanel({
   skills: SkillSummary[]
   isSaved: boolean
   onSave: () => void
-  onRoadmap: () => void
+  onRecommend: () => void
   onCompare: () => void
   onAskAdvisor: () => void
   onExport: () => void
@@ -555,14 +555,14 @@ function SkillPanel({
       </p>
 
       <div className="detail-actions">
-        <button onClick={onRoadmap}><Map size={13} /> Add to Roadmap</button>
+        <button onClick={onRecommend}><Target size={13} /> Use in Recommender</button>
         <button onClick={onCompare}><BarChart3 size={13} /> Compare</button>
         <button onClick={onAskAdvisor}><Bot size={13} /> Ask AI</button>
         <button onClick={onExport}><Download size={13} /> Report</button>
       </div>
 
       <div className="detail-tabs">
-        {(['overview', 'forecast', 'salary', 'related', 'roadmap'] as DetailTab[]).map((item) => (
+        {(['overview', 'forecast', 'salary', 'related', 'fit'] as DetailTab[]).map((item) => (
           <button key={item} onClick={() => setTab(item)} className={cn(tab === item && 'active')}>
             {item}
           </button>
@@ -630,10 +630,14 @@ function SkillPanel({
         </div>
       )}
 
-      {tab === 'roadmap' && (
+      {tab === 'fit' && (
         <div className="detail-card detail-tab-card">
-          <b>Roadmap starter</b>
-          {['Foundation practice', `Build a ${skill.name} mini project`, 'Add portfolio proof', 'Pair with adjacent high-SES skills'].map((step, index) => (
+          <b>Where this skill fits best</b>
+          {[
+            `${skill.name} is strongest for ${formatFitCategory(skill.category)} work.`,
+            `Pair it with ${related.slice(0, 2).map((item) => item.name).join(' and ') || 'adjacent high-SES skills'} for a more complete profile.`,
+            `Use the Skill Recommender to test whether it fits your exact role or requirement.`,
+          ].map((step, index) => (
             <p key={step}><span>{index + 1}.</span> {step}</p>
           ))}
         </div>
@@ -664,6 +668,16 @@ function Pill({ children, tone }: { children: ReactNode; tone?: 'green' | 'blue'
 
 function RiskPill({ tier }: { tier: string }) {
   return <span className={cn('risk-pill', tier.toLowerCase())}>{tier}</span>
+}
+
+function formatFitCategory(category?: string) {
+  const value = category?.replace(/_/g, ' / ') ?? 'your target'
+  if (/data/i.test(value)) return 'analytics, reporting, and data workflow'
+  if (/cloud|devops/i.test(value)) return 'infrastructure, deployment, and reliability'
+  if (/ai|machine/i.test(value)) return 'AI, modeling, and intelligent-product'
+  if (/security/i.test(value)) return 'security, risk, and protection'
+  if (/program|software/i.test(value)) return 'software-building and product engineering'
+  return `${value.toLowerCase()}`
 }
 
 function Ring({ value }: { value: number }) {
