@@ -17,6 +17,6 @@ export function getRiskColor(risk: number) {
 
 export function getDemandColor(demand: number) {
   if (demand >= 85) return 'text-emerald-400'
-  if (demand >= 65) return 'text-cyan-400'
+  if (demand >= 65) return 'text-fuchsia-400'
   return 'text-yellow-400'
 }

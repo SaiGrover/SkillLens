@@ -23,6 +23,8 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
+from data_quality import canonical_skill
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("build_knowledge_base")
 
@@ -37,11 +39,10 @@ VECTOR_COLS = [
 
 # SES tier → plain-English risk label for narratives
 TIER_LABEL = {
-    "Elite":          "an elite skill with very high market demand and strong long-term outlook",
-    "Future-Proof":   "a future-proof skill with growing adoption and strong career value",
-    "Stable":         "a stable skill with consistent demand and moderate risk",
-    "At-Risk":        "an at-risk skill showing declining demand that should be supplemented",
-    "Extinction Risk":"an extinction-risk skill with very low demand and poor forecasts",
+    "Very Safe": "a high-safety skill with strong combined workforce signals",
+    "Safe": "a skill with favourable combined workforce signals",
+    "Moderate": "a skill with mixed workforce signals that should be interpreted with its forecast confidence",
+    "Risky": "a skill with weaker combined workforce signals that should be supplemented",
 }
 
 TREND_LABEL = {
@@ -78,7 +79,7 @@ def _narrative(row: pd.Series) -> str:
 
     return (
         f"{row['skill'].title()} is {tier_desc} with a Skill Extinction Score (SES) of "
-        f"{ses:.1f} out of 100. "
+        f"{ses * 100:.1f} out of 100. "
         f"It is classified as '{arch}' in the HSEP archetype system.{forecast_part} "
         f"Key demand signals: LinkedIn demand index {row.get('linkedin_demand', 0):.2f}, "
         f"salary premium {row.get('salary_premium', 0):.2f}, "
@@ -92,23 +93,19 @@ def main() -> None:
     ses       = pd.read_csv(DATA / "ses_rankings.csv")
     forecasts = pd.read_csv(DATA / "forecast_results.csv")
     clusters  = pd.read_csv(DATA / "cluster_assignments.csv")
-    master    = pd.read_csv(DATA / "master_skill_dataset_v8.csv")
+    master    = pd.read_csv(DATA / "canonical_skill_master.csv")
 
     for df in [ses, forecasts, clusters, master]:
         df["skill"] = df["skill"].astype(str).str.strip().str.lower()
 
-    # Optional: industry analytics
+    # Industry mapping uses the source taxonomy rather than presentation-only
+    # top-skill lists, so every skill can retain all of its industries.
     industry_skill_map: dict[str, list[str]] = {}
-    industry_path = DATA / "industry_analytics.csv"
+    industry_path = DATA / "industry_skill_map.csv"
     if industry_path.exists():
         ind = pd.read_csv(industry_path)
         for _, row in ind.iterrows():
-            try:
-                skills = json.loads(row["top_skills"])
-                for sk in skills:
-                    industry_skill_map.setdefault(sk.lower(), []).append(row["name"])
-            except Exception:
-                pass
+            industry_skill_map.setdefault(canonical_skill(row["skill"]), []).append(str(row["industry"]))
         logger.info(f"Industry map loaded: {len(industry_skill_map)} skill→industry entries")
 
     # ── Merge all sources ─────────────────────────────────────────────────────
@@ -159,7 +156,7 @@ def main() -> None:
             "current_usage":    round(float(row.get("current_usage") or 0), 4),
             "future_interest":  round(float(row.get("future_interest") or 0), 4),
             "growth_rate":      round(float(row.get("growth_rate") or 0), 4),
-            "global_adoption":  round(float(row.get("global_adoption") or 0), 4),
+            "global_adoption":  round(float(row.get("global_adoption_score") or 0), 4),
 
             # Forecasts
             "forecast_1y":     _safe_float(row.get("forecast_1y")),

@@ -1,62 +1,28 @@
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-
-interface SalarySeries {
-  key: string
-  name: string
-  color: string
-}
-
-const defaultSeries: SalarySeries[] = [
-  { key: 'python', name: 'Python', color: '#34d399' },
-  { key: 'javascript', name: 'JavaScript', color: '#38bdf8' },
-  { key: 'kubernetes', name: 'Kubernetes', color: '#a78bfa' },
-  { key: 'react', name: 'React', color: '#fb923c' },
-]
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="glass rounded-lg p-3 border border-white/10">
-      <p className="text-xs text-white/50 mb-2">{label}</p>
-      {payload.map((p: any) => (
-        <p key={p.dataKey} className="text-sm font-medium" style={{ color: p.color }}>
-          {p.name}: ${p.value}k
-        </p>
-      ))}
+    <div className="glass rounded-lg border border-white/10 p-3">
+      <p className="text-xs text-white/50">{label}</p>
+      <p className="mt-1 text-sm font-medium text-fuchsia-200">{payload[0].value} / 100 salary value index</p>
     </div>
   )
 }
 
-export default function SalaryChart({ data, series = defaultSeries }: { data: any[]; series?: SalarySeries[] }) {
+export default function SalaryChart({ data }: { data: { skill: string; premium: number }[] }) {
   return (
-    <div className="glass rounded-xl p-5 border border-white/5">
-      <h3 className="text-sm font-semibold text-white/80 mb-4">Salary Trends (USD thousands)</h3>
+    <div className="glass rounded-xl border border-white/5 p-5">
+      <h3 className="text-sm font-semibold text-white/80">Salary Value Signals</h3>
+      <p className="mb-4 mt-1 text-xs text-white/35">Normalized compensation feature from the processed dataset, not an estimated salary or percentage premium.</p>
       <ResponsiveContainer width="100%" height={220}>
-        <AreaChart data={data}>
-          <defs>
-            {series.map((item) => (
-              <linearGradient key={item.key} id={`${item.key}Grad`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={item.color} stopOpacity={0.3} />
-                <stop offset="95%" stopColor={item.color} stopOpacity={0} />
-              </linearGradient>
-            ))}
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-          <XAxis dataKey="year" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+          <XAxis dataKey="skill" tick={{ fill: 'rgba(255,255,255,0.38)', fontSize: 11 }} axisLine={false} tickLine={false} />
+          <YAxis domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
           <Tooltip content={<CustomTooltip />} />
-          {series.map((item, index) => (
-            <Area
-              key={item.key}
-              type="monotone"
-              dataKey={item.key}
-              stroke={item.color}
-              fill={index === 0 ? `url(#${item.key}Grad)` : 'none'}
-              strokeWidth={2}
-              name={item.name}
-            />
-          ))}
-        </AreaChart>
+          <Bar dataKey="premium" name="Salary value index" fill="#a78bfa" radius={[5, 5, 0, 0]} />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   )

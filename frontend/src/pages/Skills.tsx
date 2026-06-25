@@ -3,15 +3,16 @@ import type { ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   BarChart3, Bot, Check, ChevronDown, ChevronLeft, ChevronRight, Download, Info, Map,
-  Plus, Search, Sparkles, Star, TrendingUp, X
+  BrainCircuit, Cloud, Code2, Database, Plus, Search, Shield, Sparkles, Star, TrendingUp, X
 } from 'lucide-react'
-import { SkillSummary, skillsApi } from '@/services/api'
+import { advisorApi, IndustrySummary, industriesApi, SkillSummary, skillsApi } from '@/services/api'
 import { cn } from '@/lib/utils'
 
 type SortKey = 'relevance' | 'ses' | 'demand' | 'salary' | 'risk'
 type DetailTab = 'overview' | 'forecast' | 'salary' | 'related' | 'roadmap'
 
 const pageSize = 10
+const skillDescriptionCache = new globalThis.Map<string, string>()
 const categoryChips = [
   { label: 'All Skills', values: ['All'] },
   { label: 'Programming', values: ['Programming', 'Software Engineering'] },
@@ -29,8 +30,8 @@ function demandScore(skill: SkillSummary) {
   return Math.round((skill.linkedin_demand ?? 0) * 100)
 }
 
-function salaryEstimate(skill: SkillSummary) {
-  return Math.round((skill.salary_premium ?? 0.3) * 120000 + 45000)
+function salaryValueIndex(skill: SkillSummary) {
+  return Math.round((skill.salary_premium ?? 0) * 100)
 }
 
 function riskScore(skill: SkillSummary) {
@@ -59,18 +60,25 @@ function matchesCategory(skill: SkillSummary, selected: string) {
   return normalized(selected) === normalized(skill.category)
 }
 
-function sparklinePoints(skill: SkillSummary) {
-  const base = Math.max(12, demandScore(skill))
-  const growth = pct(skill.growth_rate)
-  return Array.from({ length: 18 }, (_, index) => {
-    const wave = Math.sin(index * 1.28 + skill.name.length) * 5
-    const trend = (growth / 100) * index * 2.6
-    return Math.max(8, Math.min(96, base * 0.62 + wave + trend + index * 1.05))
-  })
+function fallbackSkillDescription(skill: SkillSummary) {
+  const score = pct(skill.ses_score)
+  const demand = demandScore(skill)
+  const trend = (skill.forecast_trend ?? 'stable').toLowerCase()
+  const strength = score >= 70 ? 'strong relative safety signals' : score >= 50 ? 'a balanced but mixed signal profile' : 'a lower relative safety signal that benefits from careful pairing'
+  return `${skill.name} is used in ${skill.category ?? 'the tracked workforce domain'} and currently shows ${strength}. Its ${trend} outlook is informed by a demand index of ${demand}/100, salary value, adoption, and forecast features; learn it alongside a complementary higher-SES skill that fits your target role.`
+}
+
+function skillVisual(category?: string) {
+  const normalizedCategory = normalized(category)
+  if (normalizedCategory.includes('ai') || normalizedCategory.includes('machine')) return { Icon: BrainCircuit, tone: 'from-fuchsia-500/75 to-violet-500/75' }
+  if (normalizedCategory.includes('cloud') || normalizedCategory.includes('devops')) return { Icon: Cloud, tone: 'from-violet-500/75 to-fuchsia-500/75' }
+  if (normalizedCategory.includes('data') || normalizedCategory.includes('database')) return { Icon: Database, tone: 'from-emerald-500/75 to-teal-500/75' }
+  if (normalizedCategory.includes('security')) return { Icon: Shield, tone: 'from-amber-500/75 to-orange-500/75' }
+  return { Icon: Code2, tone: 'from-violet-500/75 to-indigo-500/75' }
 }
 
 function exportCsv(rows: SkillSummary[]) {
-  const header = ['skill', 'category', 'ses_score', 'risk_tier', 'archetype', 'forecast_trend', 'salary_estimate', 'demand_score']
+  const header = ['skill', 'category', 'ses_score', 'risk_tier', 'archetype', 'forecast_trend', 'salary_value_index_0_to_100', 'demand_index']
   const body = rows.map((skill) => [
     skill.name,
     skill.category ?? '',
@@ -78,7 +86,7 @@ function exportCsv(rows: SkillSummary[]) {
     riskTier(skill),
     skill.archetype ?? '',
     skill.forecast_trend ?? '',
-    salaryEstimate(skill),
+    salaryValueIndex(skill),
     demandScore(skill),
   ])
   const csv = [header, ...body].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
@@ -97,6 +105,8 @@ export default function Skills() {
   const [categories, setCategories] = useState<string[]>(['All Skills'])
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All Skills')
+  const [industry, setIndustry] = useState('All')
+  const [industries, setIndustries] = useState<IndustrySummary[]>([])
   const [risk, setRisk] = useState('All')
   const [trend, setTrend] = useState('All')
   const [sortBy, setSortBy] = useState<SortKey>('relevance')
@@ -111,14 +121,16 @@ export default function Skills() {
     async function loadSkills() {
       try {
         setLoading(true)
-        const [skillRes, categoryRes] = await Promise.all([
+        const [skillRes, categoryRes, industryRes] = await Promise.all([
           skillsApi.list({ per_page: 200, sort_by: 'ses_score', sort_dir: 'desc' }),
           skillsApi.categories(),
+          industriesApi.list().catch(() => []),
         ])
         const items = skillRes.items ?? []
         setSkills(items)
         setSelectedId(null)
         setCategories(Array.from(new Set(['All Skills', ...categoryChips.map((chip) => chip.label), ...categoryRes.filter(Boolean)])))
+        setIndustries(industryRes)
       } catch (err) {
         console.error('Error loading Skill Explorer:', err)
       } finally {
@@ -152,20 +164,25 @@ export default function Skills() {
     return skills
       .filter((skill) => !q || [skill.name, skill.category, skill.archetype, skill.forecast_trend].some((value) => value?.toLowerCase().includes(q)))
       .filter((skill) => matchesCategory(skill, category))
+      .filter((skill) => {
+        if (industry === 'All') return true
+        const selectedIndustry = industries.find((item) => item.name === industry)
+        return selectedIndustry?.top_skills?.some((name) => normalized(name) === normalized(skill.name)) ?? false
+      })
       .filter((skill) => risk === 'All' || riskTier(skill) === risk)
       .filter((skill) => trend === 'All' || skill.forecast_trend === trend)
       .sort((a, b) => {
         if (sortBy === 'ses') return (b.ses_score ?? 0) - (a.ses_score ?? 0)
         if (sortBy === 'demand') return demandScore(b) - demandScore(a)
-        if (sortBy === 'salary') return salaryEstimate(b) - salaryEstimate(a)
+        if (sortBy === 'salary') return salaryValueIndex(b) - salaryValueIndex(a)
         if (sortBy === 'risk') return riskScore(b) - riskScore(a)
         return (b.ses_score ?? 0) + (b.linkedin_demand ?? 0) - ((a.ses_score ?? 0) + (a.linkedin_demand ?? 0))
       })
-  }, [skills, search, category, risk, trend, sortBy])
+  }, [skills, search, category, industry, industries, risk, trend, sortBy])
 
   useEffect(() => {
     setPage(1)
-  }, [search, category, risk, trend, sortBy])
+  }, [search, category, industry, risk, trend, sortBy])
 
   useEffect(() => {
     if (!filtered.length) {
@@ -179,7 +196,7 @@ export default function Skills() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
   const pageRows = filtered.slice((page - 1) * pageSize, page * pageSize)
   const compareSkills = skills.filter((skill) => compareIds.includes(skill.id))
-  const avgSalary = skills.length ? Math.round(skills.reduce((sum, skill) => sum + salaryEstimate(skill), 0) / skills.length) : 0
+  const avgSalaryValue = skills.length ? Math.round(skills.reduce((sum, skill) => sum + salaryValueIndex(skill), 0) / skills.length) : 0
   const avgDemand = skills.length ? Math.round(skills.reduce((sum, skill) => sum + demandScore(skill), 0) / skills.length) : 0
 
   const toggleCompare = (skillId: string) => {
@@ -210,6 +227,7 @@ export default function Skills() {
 
   const askAdvisor = (skill: SkillSummary) => {
     window.localStorage.setItem('skilllens:advisor-prompt', `Explain the SES score and forecast outlook for ${skill.name}.`)
+    window.localStorage.setItem('skilllens:advisor-context', skill.name)
     navigate('/advisor')
   }
 
@@ -233,7 +251,7 @@ export default function Skills() {
           <span className="absolute right-4 top-1/2 -translate-y-1/2 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white/35">Ctrl K</span>
         </div>
         <SelectBox label="Category" value={category} values={categories} onChange={setCategory} />
-        <SelectBox label="Industry" value="All" values={['All']} onChange={() => {}} />
+        <SelectBox label="Industry" value={industry} values={['All', ...industries.map((item) => item.name)]} onChange={setIndustry} />
         <SelectBox label="Risk Tier" value={risk} values={['All', 'Low', 'Medium', 'High']} onChange={setRisk} />
         <SelectBox label="Forecast Trend" value={trend} values={trends} onChange={setTrend} />
         <SelectBox label="Sort By" value={sortBy} values={['relevance', 'ses', 'demand', 'salary', 'risk']} onChange={(value) => setSortBy(value as SortKey)} />
@@ -250,11 +268,11 @@ export default function Skills() {
 
           <div className="skill-explorer-metrics">
             <MetricCard title="Total Skills" value={skills.length} detail="Across all categories" tone="violet" />
-            <MetricCard title="Future-Proof" value={skills.filter(isFutureProof).length} detail={`${Math.round((skills.filter(isFutureProof).length / Math.max(1, skills.length)) * 100)}% of total`} tone="cyan" />
+            <MetricCard title="Future-Proof" value={skills.filter(isFutureProof).length} detail={`${Math.round((skills.filter(isFutureProof).length / Math.max(1, skills.length)) * 100)}% of total`} tone="fuchsia" />
             <MetricCard title="Growing" value={skills.filter((skill) => normalized(skill.forecast_trend) === 'growing').length} detail="Positive forecast trend" tone="emerald" />
             <MetricCard title="High-Risk" value={skills.filter((skill) => riskTier(skill) === 'High').length} detail="Lower SES signals" tone="amber" />
-            <MetricCard title="Avg Salary" value={`$${Math.round(avgSalary / 1000)}K`} detail="Data-derived estimate" tone="pink" />
-            <MetricCard title="Avg Demand Score" value={avgDemand} detail="LinkedIn demand score" tone="cyan" />
+            <MetricCard title="Avg Salary Value" value={`${avgSalaryValue} / 100`} detail="normalized compensation signal" tone="pink" />
+            <MetricCard title="Avg Demand Score" value={avgDemand} detail="LinkedIn demand score" tone="fuchsia" />
           </div>
 
           <section className="skill-explorer-table-card glass">
@@ -287,9 +305,9 @@ export default function Skills() {
                   {[
                     ['SES', (skill: SkillSummary) => pct(skill.ses_score)],
                     ['Demand', demandScore],
-                    ['Salary', (skill: SkillSummary) => `$${Math.round(salaryEstimate(skill) / 1000)}K`],
+                    ['Salary Value', (skill: SkillSummary) => `${salaryValueIndex(skill)} / 100`],
                     ['Risk', riskTier],
-                    ['Future Interest', (skill: SkillSummary) => `${pct((skill as any).future_interest ?? skill.forecast_1y)}%`],
+                    ['Future Interest', (skill: SkillSummary) => `${pct((skill as any).future_interest)}%`],
                     ['Global Adoption', (skill: SkillSummary) => `${pct((skill as any).global_adoption ?? (skill as any).global_adoption_score)}%`],
                   ].flatMap(([label, getter]) => [
                     <span key={`${label}-label`}>{label as string}</span>,
@@ -315,7 +333,7 @@ export default function Skills() {
                   <span>Archetype</span>
                   <span>Forecast <Info size={11} /></span>
                   <span>Demand</span>
-                  <span>Salary</span>
+                  <span>Salary Value</span>
                   <span>Risk Tier</span>
                 </div>
 
@@ -346,9 +364,9 @@ export default function Skills() {
                     <span>{skill.category ?? 'Unassigned'}</span>
                     <span className="ses-cell">{pct(skill.ses_score)} <Ring value={pct(skill.ses_score)} /></span>
                     <span><Pill tone="green">{skill.archetype ?? 'Tracked'}</Pill></span>
-                    <span><Sparkline values={sparklinePoints(skill)} trend={skill.forecast_trend} /></span>
+                    <span><Pill tone="blue">{skill.forecast_trend ?? 'N/A'}</Pill></span>
                     <span>{demandScore(skill)}</span>
-                    <span>${Math.round(salaryEstimate(skill) / 1000)}K</span>
+                    <span>{salaryValueIndex(skill)} / 100</span>
                     <span><RiskPill tier={riskTier(skill)} /></span>
                   </div>
                 ))}
@@ -428,7 +446,6 @@ function MetricCard({ title, value, detail, tone }: { title: string; value: stri
       <p>{title}</p>
       <b>{value}</b>
       <span>{detail}</span>
-      <Sparkline values={[20, 26, 25, 30, 28, 32, 31, 35, 40, 37, 45, 48]} height={26} />
     </div>
   )
 }
@@ -454,20 +471,77 @@ function SkillPanel({
 }) {
   const [tab, setTab] = useState<DetailTab>('overview')
   const [showWhy, setShowWhy] = useState(false)
+  const [description, setDescription] = useState(() => skillDescriptionCache.get(skill.id) ?? '')
+  const [descriptionLoading, setDescriptionLoading] = useState(!skillDescriptionCache.has(skill.id))
+  const [history, setHistory] = useState<{ year: number; demand: number }[]>([])
   const related = skills.filter((item) => item.id !== skill.id && item.category === skill.category).slice(0, 4)
   const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Education']
   const reasons = [
     `LinkedIn demand score: ${demandScore(skill)}/100`,
     `Global adoption signal: ${pct((skill as any).global_adoption ?? (skill as any).global_adoption_score)}%`,
-    `Future interest signal: ${pct((skill as any).future_interest ?? skill.forecast_1y)}%`,
-    `Salary premium signal: +${pct(skill.salary_premium)}%`,
+    `Future interest signal: ${pct((skill as any).future_interest)}%`,
+    `Salary value index: ${salaryValueIndex(skill)} out of 100`,
     `Forecast trend: ${skill.forecast_trend ?? 'Tracked'} via ${skill.forecast_method ?? 'dataset method'}`,
   ]
+  const visual = skillVisual(skill.category)
+  const CategoryIcon = visual.Icon
+  const currentDemand = demandScore(skill)
+  const fallbackProjection = [
+    Math.max(0, currentDemand - Math.round(pct(skill.growth_rate) * 0.25)),
+    currentDemand,
+    Math.max(0, Math.min(100, currentDemand + Math.round(pct(skill.growth_rate) * 0.5))),
+    Math.max(0, Math.min(100, currentDemand + pct(skill.growth_rate))),
+  ]
+  const projectedDemand = useMemo(() => {
+    if (!history.length) return fallbackProjection
+    const rawForecast = skill.forecast_1y ?? history[history.length - 1].demand
+    const peak = Math.max(1, ...history.map((item) => item.demand), rawForecast)
+    const recent = history.slice(-3).map((item) => Math.round(item.demand / peak * 100))
+    const oneYear = Math.round(rawForecast / peak * 100)
+    const twoYear = Math.max(0, Math.min(100, oneYear + Math.round(pct(skill.growth_rate) * 0.5)))
+    return [...recent, oneYear, twoYear, Math.max(0, Math.min(100, oneYear + pct(skill.growth_rate)))]
+  }, [fallbackProjection, history, skill.forecast_1y, skill.growth_rate])
+
+  useEffect(() => {
+    let cancelled = false
+    const cached = skillDescriptionCache.get(skill.id)
+    if (cached) {
+      setDescription(cached)
+      setDescriptionLoading(false)
+      return () => { cancelled = true }
+    }
+
+    setDescription('')
+    setDescriptionLoading(true)
+    advisorApi.chat(`Write exactly two concise sentences explaining what ${skill.name} is used for and why its workforce outlook matters. Ground it in this data only: category ${skill.category ?? 'Unassigned'}, SES ${pct(skill.ses_score)}/100, demand ${demandScore(skill)}/100, forecast ${skill.forecast_trend ?? 'tracked'}. Do not mention being an AI or repeat the prompt.`)
+      .then((response) => response.reply?.replace(/\s+/g, ' ').trim())
+      .then((summary) => {
+        const next = summary && summary.length > 45 ? summary : fallbackSkillDescription(skill)
+        skillDescriptionCache.set(skill.id, next)
+        if (!cancelled) setDescription(next)
+      })
+      .catch(() => {
+        const next = fallbackSkillDescription(skill)
+        skillDescriptionCache.set(skill.id, next)
+        if (!cancelled) setDescription(next)
+      })
+      .finally(() => { if (!cancelled) setDescriptionLoading(false) })
+
+    return () => { cancelled = true }
+  }, [skill])
+
+  useEffect(() => {
+    let cancelled = false
+    skillsApi.history(skill.id)
+      .then((rows) => { if (!cancelled) setHistory(rows.map(({ year, demand }) => ({ year, demand }))) })
+      .catch(() => { if (!cancelled) setHistory([]) })
+    return () => { cancelled = true }
+  }, [skill.id])
 
   return (
     <aside className="skill-explorer-detail-panel glass">
       <div className="detail-top">
-        <div className="skill-logo">{skill.name.slice(0, 2).toUpperCase()}</div>
+        <div className={cn('skill-logo bg-gradient-to-br', visual.tone)}><CategoryIcon size={24} aria-label={`${skill.category ?? 'Skill'} icon`} /></div>
         <div>
           <h2>{skill.name}</h2>
           <div className="detail-tags"><Pill tone="blue">{skill.category ?? 'Unassigned'}</Pill><Pill tone="green">{isFutureProof(skill) ? 'Future-Proof' : skill.forecast_trend ?? 'Tracked'}</Pill></div>
@@ -477,7 +551,7 @@ function SkillPanel({
         </button>
       </div>
       <p className="detail-description">
-        {skill.name} is tracked in {skill.category ?? 'the skill dataset'} with a {skill.forecast_trend ?? 'measured'} forecast trend, SES score of {pct(skill.ses_score)}, and demand score of {demandScore(skill)}.
+        {descriptionLoading ? 'Building a data-grounded skill summary...' : description}
       </p>
 
       <div className="detail-actions">
@@ -498,7 +572,7 @@ function SkillPanel({
       <div className="detail-score-grid">
         <div className="score-ring"><b>{pct(skill.ses_score)}</b><span>SES Score</span><small>{skill.ses_tier ?? 'Scored'}</small></div>
         <InfoTile label="Demand Score" value={demandScore(skill)} detail="LinkedIn signal" />
-        <InfoTile label="Salary Premium" value={`+${pct(skill.salary_premium)}%`} detail="vs market avg" />
+        <InfoTile label="Salary Value Index" value={`${salaryValueIndex(skill)} / 100`} detail="normalized dataset signal" />
         <InfoTile label="Forecast Trend" value={skill.forecast_trend ?? 'N/A'} detail={`${pct(skill.growth_rate)}% growth`} />
         <InfoTile label="Global Adoption" value={`${pct((skill as any).global_adoption ?? (skill as any).global_adoption_score)}%`} detail="dataset signal" />
         <InfoTile className="wide" label="Future Interest" value={pct((skill as any).future_interest ?? skill.forecast_1y)} detail="forecast feature" />
@@ -516,8 +590,8 @@ function SkillPanel({
       {tab === 'overview' && (
         <div className="detail-two-col">
           <div className="detail-card wide-card">
-            <div className="detail-card-head"><b>Demand History</b><span><TrendingUp size={13} /> {pct(skill.growth_rate)}%</span></div>
-            <Sparkline values={sparklinePoints(skill)} height={96} trend={skill.forecast_trend} filled />
+            <div className="detail-card-head"><b>Measured Trend Signal</b><span><TrendingUp size={13} /> {pct(skill.growth_rate)}%</span></div>
+            <p className="mt-3 text-sm leading-relaxed text-white/55">{skill.forecast_trend ?? 'No'} forecast trend is derived from the canonical multi-year demand data using {skill.forecast_method ?? 'the recorded'} method.</p>
           </div>
           <div className="detail-card">
             <b>Related Skills</b>
@@ -528,18 +602,23 @@ function SkillPanel({
 
       {tab === 'forecast' && (
         <div className="detail-card detail-tab-card">
-          <b>Forecast outlook</b>
+          <div className="detail-card-head"><b>Forecast outlook</b><span>{skill.forecast_method ?? 'Feature-Based'}</span></div>
+          <div className="mt-4 rounded-lg border border-white/8 bg-[#10071d]/70 p-3">
+            <div className="flex items-center justify-between gap-3 text-xs text-white/45"><span>Relative demand index</span><span>Current to 3-year outlook</span></div>
+            <div className="mt-2 h-16"><Sparkline values={projectedDemand} trend={skill.forecast_trend} height={64} filled /></div>
+            <div className="mt-1 flex justify-between text-[10px] text-white/35"><span>{history.length ? 'History' : 'Current'}</span><span>{history.length ? 'History' : '1Y'}</span><span>1Y</span><span>3Y</span></div>
+          </div>
           <InfoTile label="Trend" value={skill.forecast_trend ?? 'N/A'} detail="model label" />
           <InfoTile label="Method" value={skill.forecast_method ?? 'Feature-Based'} detail="forecast model" />
           <InfoTile label="Expected Growth" value={`+${pct(skill.growth_rate)}%`} detail="processed trend" />
+          <p className="mt-3 text-xs leading-relaxed text-white/42">The path is a relative index based on the current demand signal and recorded growth rate; confidence bands are available on the Forecasts page.</p>
         </div>
       )}
 
       {tab === 'salary' && (
         <div className="detail-card detail-tab-card">
           <b>Salary signal</b>
-          <InfoTile label="Estimated Salary" value={`$${Math.round(salaryEstimate(skill) / 1000)}K`} detail="dataset-derived estimate" />
-          <InfoTile label="Premium" value={`+${pct(skill.salary_premium)}%`} detail="relative signal" />
+          <InfoTile label="Salary Value Index" value={`${salaryValueIndex(skill)} / 100`} detail="normalized dataset signal" />
           <InfoTile label="Demand" value={demandScore(skill)} detail="market pull" />
         </div>
       )}
@@ -547,7 +626,7 @@ function SkillPanel({
       {tab === 'related' && (
         <div className="detail-card">
           <b>Related skills</b>
-          {related.map((item) => <p key={item.id}>{item.name}<ChevronRight size={13} /></p>)}
+          {related.map((item) => <p key={item.id}><span className="flex items-center gap-2"><Ring value={pct(item.ses_score)} />{item.name}<small className="text-white/35">SES {pct(item.ses_score)} Â· Demand {demandScore(item)}</small></span><ChevronRight size={13} /></p>)}
         </div>
       )}
 
@@ -594,7 +673,7 @@ function Ring({ value }: { value: number }) {
 
 function Sparkline({ values, trend, height = 34, filled = false }: { values: number[]; trend?: string; height?: number; filled?: boolean }) {
   const width = 126
-  const color = normalized(trend) === 'declining' ? '#fb923c' : normalized(trend) === 'stable' ? '#a78bfa' : '#22d3ee'
+  const color = normalized(trend) === 'declining' ? '#fb923c' : normalized(trend) === 'stable' ? '#a78bfa' : '#d8b4fe'
   const max = Math.max(...values)
   const min = Math.min(...values)
   const points = values.map((value, index) => {

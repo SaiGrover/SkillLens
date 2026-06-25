@@ -34,11 +34,11 @@ class Settings(BaseSettings):
 
     # ── Data paths ────────────────────────────────────────────────────────────
     DATA_DIR:       str = "data/processed"
-    SKILLS_CSV:     str = "data/processed/expanded_skill_master.csv"
+    SKILLS_CSV:     str = "data/processed/canonical_skill_master.csv"
     SES_CSV:        str = "data/processed/ses_rankings.csv"
     CLUSTERS_CSV:   str = "data/processed/cluster_assignments.csv"
     FORECASTS_CSV:  str = "data/processed/forecast_results.csv"
-    HISTORY_CSV:    str = "data/processed/skill_demand_history_clean.csv"
+    HISTORY_CSV:    str = "data/processed/canonical_skill_demand_history.csv"
     INDUSTRY_CSV:   str = "data/processed/industry_analytics.csv"
 
     # Career Advisor knowledge base (built by build_knowledge_base.py)

@@ -61,11 +61,11 @@ async def seed(session: AsyncSession) -> None:
     # ── Load CSVs ─────────────────────────────────────────────────────────────
     logger.info("Loading pipeline outputs…")
 
-    master    = pd.read_csv(DATA / "master_skill_dataset_v8.csv")
+    master    = pd.read_csv(DATA / "canonical_skill_master.csv")
     ses       = pd.read_csv(DATA / "ses_rankings.csv")
     clusters  = pd.read_csv(DATA / "cluster_assignments.csv")
     forecasts = pd.read_csv(DATA / "forecast_results.csv")  # one row per skill
-    history   = pd.read_csv(DATA / "skill_demand_history_clean.csv")
+    history   = pd.read_csv(DATA / "canonical_skill_demand_history.csv")
 
     for df in [master, ses, clusters, forecasts, history]:
         df["skill"] = df["skill"].astype(str).str.strip().str.lower()
@@ -95,7 +95,7 @@ async def seed(session: AsyncSession) -> None:
             "salary_premium":     safe_float(row.get("salary_premium")),
             "current_usage":      safe_float(row.get("current_usage")),
             "future_interest":    safe_float(row.get("future_interest")),
-            "global_adoption":    safe_float(row.get("global_adoption")),
+            "global_adoption":    safe_float(row.get("global_adoption_score")),
             "growth_rate":        safe_float(row.get("growth_rate")),
             "momentum_score":     safe_float(row.get("momentum_score")),
             "volatility_score":   safe_float(row.get("volatility_score")),

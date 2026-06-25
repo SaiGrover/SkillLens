@@ -27,13 +27,14 @@ from sklearn.preprocessing import MinMaxScaler
 from statsmodels.tsa.holtwinters import Holt, ExponentialSmoothing
 import logging
 
+from data_quality import HISTORY_CSV, MASTER_CSV, build_canonical_inputs
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("build_forecasts")
 
 # ── Config ────────────────────────────────────────────────────────────────────
 DATA          = Path("data/processed")
-HISTORY_CSV   = DATA / "skill_demand_history_clean.csv"
-SKILLS_CSV    = DATA / "expanded_skill_master.csv"
+SKILLS_CSV    = MASTER_CSV
 OUTPUT_CSV    = DATA / "forecast_results.csv"
 
 HORIZONS = [1, 2, 3]   # years ahead
@@ -155,6 +156,7 @@ def assign_trend_label(row: pd.Series) -> str:
 
 def main() -> None:
     logger.info("Loading data…")
+    build_canonical_inputs()
     history = pd.read_csv(HISTORY_CSV)
     skills  = pd.read_csv(SKILLS_CSV)
 

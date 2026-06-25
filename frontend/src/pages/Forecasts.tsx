@@ -11,7 +11,7 @@ import { forecastApi, LeaderboardEntry, MethodDistribution, skillsApi } from '@/
 const trendColors: Record<string, string> = {
   explosive: '#ec4899',
   growing: '#22c55e',
-  stable: '#38bdf8',
+  stable: '#c084fc',
   declining: '#f59e0b',
 }
 
@@ -27,10 +27,9 @@ function indexScale(entries: LeaderboardEntry[], key: 'forecast_1y' | 'forecast_
   }
 }
 
-function cleanGrowth(value: number) {
-  if (!Number.isFinite(value)) return 0
-  if (Math.abs(value) > 500) return Math.round(Math.sign(value) * Math.log10(Math.abs(value)) * 12)
-  return Math.round(value * 10) / 10
+function formatGrowth(value: number) {
+  const rounded = Number.isFinite(value) ? Math.round(value * 10) / 10 : 0
+  return `${rounded >= 0 ? '+' : ''}${rounded}%`
 }
 
 export default function Forecasts() {
@@ -126,19 +125,19 @@ export default function Forecasts() {
           <LineChart size={28} className="text-violet-300" strokeWidth={1.75} /> Forecasts
         </h1>
         <p className="page-subtitle">
-          Forecast outputs normalized into 0-100 index values, with confidence and model method shown beside each skill.
+          Relative 0-100 demand indices derived from the canonical CSV snapshot. Raw forecast demand estimates remain available in exports.
         </p>
       </div>
 
       <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
-        <MetricCard title="Forecasted Skills" value={leaderboard.length} detail="ranked future-proof skills" icon={<BrainCircuit size={18} />} />
+        <MetricCard title="Ranked Forecasts" value={leaderboard.length} detail="top demand projections" icon={<BrainCircuit size={18} />} />
         <MetricCard title="Forecast Confidence" value={`${avgConfidence}%`} detail="average model confidence" icon={<ArrowUpRight size={18} />} />
         <MetricCard title="Explosive Trends" value={explosiveCount} detail="highest growth bucket" icon={<TrendingUp size={18} />} />
         <MetricCard title="Growing Trends" value={growingCount} detail="positive forecast bucket" icon={<TrendingDown size={18} />} />
       </div>
 
-      <div className="glass rounded-xl border border-white/5 p-3">
-        <div className="grid gap-3 md:grid-cols-[auto_repeat(4,minmax(150px,1fr))] md:items-center">
+      <div className="glass overflow-visible rounded-xl border border-white/5 p-3">
+        <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-[auto_repeat(4,minmax(150px,1fr))] 2xl:items-center">
           <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-white/35">
             <SlidersHorizontal size={14} /> Filters
           </div>
@@ -152,13 +151,13 @@ export default function Forecasts() {
       <div className="grid xl:grid-cols-[1.35fr_0.75fr] gap-6">
         <div className="glass rounded-xl border border-white/5 p-5">
           <h3 className="text-sm font-semibold text-white/85 mb-1">1Y vs 3Y Forecast Index</h3>
-          <p className="mb-4 text-xs text-white/35">Index scale: 0-100. The purple band shows forecast uncertainty from model confidence.</p>
+          <p className="mb-4 text-xs text-white/35">Index scale: 0-100 across the canonical snapshot. The purple band shows forecast uncertainty from model confidence.</p>
           <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="oneYear" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.28} />
-                  <stop offset="95%" stopColor="#38bdf8" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#c084fc" stopOpacity={0.28} />
+                  <stop offset="95%" stopColor="#c084fc" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="threeYear" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#a78bfa" stopOpacity={0.32} />
@@ -172,10 +171,10 @@ export default function Forecasts() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
               <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} angle={-18} textAnchor="end" height={60} />
               <YAxis domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: '#071020', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10 }} />
+              <Tooltip contentStyle={{ background: '#10071d', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10 }} />
               <Area type="monotone" dataKey="upperBand" name="Confidence upper" stroke="transparent" fill="url(#confidenceBand)" stackId="band" />
-              <Area type="monotone" dataKey="lowerBand" name="Confidence lower" stroke="transparent" fill="#020412" stackId="band" />
-              <Area type="monotone" dataKey="oneYear" name="1-year" stroke="#38bdf8" fill="url(#oneYear)" strokeWidth={2} />
+              <Area type="monotone" dataKey="lowerBand" name="Confidence lower" stroke="transparent" fill="#080411" stackId="band" />
+              <Area type="monotone" dataKey="oneYear" name="1-year" stroke="#c084fc" fill="url(#oneYear)" strokeWidth={2} />
               <Area type="monotone" dataKey="threeYear" name="3-year" stroke="#a78bfa" fill="url(#threeYear)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
@@ -188,7 +187,7 @@ export default function Forecasts() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis dataKey="trend" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: '#071020', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10 }} />
+              <Tooltip contentStyle={{ background: '#10071d', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10 }} />
               <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                 {trends.map((item) => <Cell key={item.trend} fill={trendColors[item.trend.toLowerCase()] ?? '#8b5cf6'} />)}
               </Bar>
@@ -199,9 +198,8 @@ export default function Forecasts() {
 
       <div className="grid xl:grid-cols-[1fr_0.72fr] gap-6">
         <div className="glass rounded-xl border border-white/5 overflow-hidden">
-          <div className="grid grid-cols-[1.25fr_repeat(6,0.65fr)] gap-3 border-b border-white/5 px-5 py-3 text-xs uppercase tracking-wider text-white/35">
+          <div className="grid grid-cols-[1.35fr_repeat(6,minmax(0,0.78fr))] gap-3 border-b border-white/5 px-5 py-3 text-xs uppercase tracking-wider text-white/35">
             <span>Skill</span>
-            <span>Current</span>
             <span>1Y Index</span>
             <span>3Y Index</span>
             <span>Growth</span>
@@ -212,17 +210,15 @@ export default function Forecasts() {
           {filteredLeaderboard.slice(0, 12).map((item) => {
             const oneYear = oneYearIndex(item.forecast_1y)
             const threeYear = threeYearIndex(item.forecast_3y)
-            const current = Math.max(0, Math.round((oneYear - (threeYear - oneYear) * 0.45) * 10) / 10)
             return (
-            <div key={item.skill_id} className="grid grid-cols-[1.25fr_repeat(6,0.65fr)] gap-3 border-b border-white/5 px-5 py-3 text-sm last:border-b-0">
+            <div key={item.skill_id} className="grid grid-cols-[1.35fr_repeat(6,minmax(0,0.78fr))] gap-3 border-b border-white/5 px-5 py-3 text-sm last:border-b-0">
               <div>
                 <p className="font-medium text-white">{item.skill_name}</p>
                 <p className="text-xs text-white/35">{item.skill_id}</p>
               </div>
-              <span className="text-white/65">{current.toFixed(1)}</span>
-              <span className="text-cyan-300">{oneYear.toFixed(1)}</span>
+              <span className="text-fuchsia-300">{oneYear.toFixed(1)}</span>
               <span className="text-violet-300">{threeYear.toFixed(1)}</span>
-              <span className="text-emerald-300">+{cleanGrowth(item.growth_pct)}%</span>
+              <span className={item.growth_pct < 0 ? 'text-amber-300' : 'text-emerald-300'}>{formatGrowth(item.growth_pct)}</span>
               <span className="capitalize text-white/65">{item.forecast_trend}</span>
               <span className="text-white/55">{item.forecast_method}</span>
               <span className="text-emerald-300">{Math.round(item.confidence * 100)}%</span>
@@ -255,14 +251,14 @@ function FilterButtons({ label, value, options, onChange }: { label: string; val
   return (
     <div className="min-w-0">
       <p className="mb-1 text-[10px] uppercase tracking-wider text-white/30">{label}</p>
-      <div className="flex gap-1 overflow-x-auto">
+      <div className="flex flex-wrap gap-1 overflow-visible">
         {options.map((option) => (
           <button
             key={option}
             onClick={() => onChange(option)}
             className={`shrink-0 rounded-full border px-2.5 py-1 text-xs transition-colors ${
               value === option
-                ? 'border-cyan-400/40 bg-cyan-400/15 text-cyan-200'
+                ? 'border-fuchsia-400/40 bg-fuchsia-400/15 text-fuchsia-200'
                 : 'border-white/10 bg-white/[0.03] text-white/45 hover:text-white/75'
             }`}
           >

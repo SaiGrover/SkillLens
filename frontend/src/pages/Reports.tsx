@@ -49,7 +49,7 @@ export default function Reports() {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-semibold text-white">Project report pack</p>
-            <p className="mt-1 text-xs text-white/40">Six editable PowerPoint exports from the supplied `backend/data/Reports` folder.</p>
+            <p className="mt-1 text-xs text-white/40">Six presentation-ready report decks covering forecasts, industry intelligence, salary signals, risk, regional demand, and career guidance.</p>
           </div>
           <a
             href="/reports/SkillLens_Report_Pack.zip"

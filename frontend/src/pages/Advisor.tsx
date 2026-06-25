@@ -13,7 +13,7 @@ interface Message {
   queryType?: string
 }
 
-const quickPrompts = [
+const defaultQuickPrompts = [
   'What should I learn after SQL?',
   'Which skills are future-proof?',
   'Compare Python and Power BI.',
@@ -67,7 +67,7 @@ async function getGroundedResponse(message: string): Promise<Message> {
     }
   }
 
-  if (lower.includes('risk') || lower.includes('risky') || lower.includes('declin')) {
+  if (lower.includes('risk') || lower.includes('riviolet') || lower.includes('declin')) {
     const watch = [...skills].sort((a, b) => (a.ses_score ?? 1) - (b.ses_score ?? 1)).slice(0, 4)
     return {
       role: 'assistant',
@@ -128,6 +128,8 @@ export default function Advisor() {
   ])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
+  const [quickPrompts, setQuickPrompts] = useState(defaultQuickPrompts)
+  const [sourceSkill, setSourceSkill] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const lastAssistant = [...messages].reverse().find((message) => message.role === 'assistant')
@@ -135,9 +137,31 @@ export default function Advisor() {
 
   useEffect(() => {
     const pendingPrompt = window.localStorage.getItem('skilllens:advisor-prompt')
+    const context = window.localStorage.getItem('skilllens:advisor-context')
+    if (context) {
+      setSourceSkill(context)
+      window.localStorage.removeItem('skilllens:advisor-context')
+    }
     if (!pendingPrompt) return
     setInput(pendingPrompt)
     window.localStorage.removeItem('skilllens:advisor-prompt')
+  }, [])
+
+  useEffect(() => {
+    Promise.all([skillsApi.topRising(2), skillsApi.extinctionRisk(1)])
+      .then(([rising, risk]) => {
+        const firstRising = rising[0]?.name
+        const secondRising = rising[1]?.name
+        const atRisk = risk[0]?.name
+        setQuickPrompts([
+          firstRising ? `Why is ${firstRising} growing so fast?` : defaultQuickPrompts[0],
+          secondRising ? `How can I use ${secondRising} in a portfolio project?` : defaultQuickPrompts[1],
+          'Compare Python and Power BI.',
+          'Create a 6-month Data Analyst roadmap.',
+          atRisk ? `Why is ${atRisk} on the risk watch list?` : defaultQuickPrompts[4],
+        ])
+      })
+      .catch(() => undefined)
   }, [])
 
   useEffect(() => {
@@ -169,7 +193,7 @@ export default function Advisor() {
   }
 
   return (
-    <div className="grid h-[calc(100vh-2rem)] gap-4 xl:grid-cols-[minmax(0,1fr)_330px] animate-fade-in">
+    <div className="grid min-h-[calc(100vh-12rem)] gap-4 xl:grid-cols-[minmax(0,1fr)_330px] animate-fade-in">
       <section className="glass flex min-h-0 flex-col overflow-hidden rounded-xl border border-white/5">
         <div className="border-b border-white/6 p-4">
           <div className="flex items-center justify-between gap-3">
@@ -178,6 +202,7 @@ export default function Advisor() {
                 <Bot size={26} className="text-violet-300" strokeWidth={1.75} /> AI Career Advisor
               </h1>
               <p className="page-subtitle !mt-1">Grounded answers using SES rankings, forecasts, industries, and archetypes.</p>
+              {sourceSkill && <p className="mt-2 text-xs text-fuchsia-200">Context from Skill Explorer: {sourceSkill}</p>}
             </div>
             <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-medium text-emerald-200">
               <Sparkles size={12} /> RAG ready
@@ -211,7 +236,7 @@ export default function Advisor() {
               placeholder="Ask about skills, careers, salaries, or roadmaps..."
               className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30 focus:border-violet-400/40"
             />
-            <button onClick={() => send(input)} disabled={!input.trim() || typing} className="rounded-xl bg-gradient-to-r from-violet-600 to-cyan-600 px-4 text-white transition-all hover:from-violet-500 hover:to-cyan-500 disabled:opacity-40">
+            <button onClick={() => send(input)} disabled={!input.trim() || typing} className="rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 text-white transition-all hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-40">
               <Send size={18} />
             </button>
           </div>
@@ -245,7 +270,7 @@ export default function Advisor() {
 
         <Panel title="Evidence sources" icon={Database}>
           {['SES Rankings', 'Forecast Results', 'Industry Analytics', 'Skill Archetypes'].map((source) => (
-            <span key={source} className="mb-2 mr-2 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-1 text-xs text-cyan-200">
+            <span key={source} className="mb-2 mr-2 inline-flex rounded-full border border-fuchsia-400/20 bg-fuchsia-400/10 px-2.5 py-1 text-xs text-fuchsia-200">
               {source}
             </span>
           ))}
@@ -261,7 +286,7 @@ function MessageBubble({ msg }: { msg: Message }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex gap-3 ${isAI ? '' : 'flex-row-reverse'}`}>
-      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${isAI ? 'bg-gradient-to-br from-violet-600 to-cyan-500' : 'bg-white/10'}`}>
+      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${isAI ? 'bg-gradient-to-br from-violet-600 to-fuchsia-500' : 'bg-white/10'}`}>
         {isAI ? <Bot size={16} className="text-white" /> : <User size={16} className="text-white/72" />}
       </div>
       <div className={`max-w-[78%] ${isAI ? '' : 'items-end'} flex flex-col gap-2`}>
@@ -297,7 +322,7 @@ function MessageBubble({ msg }: { msg: Message }) {
 function TypingBubble() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3">
-      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-cyan-500">
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-500">
         <Bot size={16} className="text-white" />
       </div>
       <div className="rounded-2xl border border-white/8 bg-white/[0.045] px-4 py-3">
@@ -312,7 +337,7 @@ function TypingBubble() {
 function Panel({ title, icon: Icon, children }: { title: string; icon: ElementType; children: ReactNode }) {
   return (
     <section className="glass rounded-xl border border-white/5 p-4">
-      <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white/84"><Icon size={15} className="text-cyan-300" />{title}</h3>
+      <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white/84"><Icon size={15} className="text-fuchsia-300" />{title}</h3>
       {children}
     </section>
   )

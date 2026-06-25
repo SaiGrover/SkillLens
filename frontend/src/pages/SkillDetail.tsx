@@ -92,7 +92,7 @@ export default function SkillDetail() {
         </button>
         <div>
           <h1 className="page-title">{skill.name}</h1>
-          <p className="page-subtitle !mt-1">{skill.category ?? 'Unassigned'} · Updated Live</p>
+          <p className="page-subtitle !mt-1">{skill.category ?? 'Unassigned'} Â· Updated Live</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
           <span className="px-3 py-1.5 rounded-full bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium">
@@ -107,7 +107,7 @@ export default function SkillDetail() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Current Demand', value: `${demand}%`, icon: <TrendingUp size={18} />, color: 'text-violet-400' },
-          { label: 'Future Demand', value: `${futureDemand}%`, icon: <Zap size={18} />, color: 'text-cyan-400' },
+          { label: 'Future Demand', value: `${futureDemand}%`, icon: <Zap size={18} />, color: 'text-fuchsia-400' },
           { label: 'Avg Salary', value: `$${(salary/1000).toFixed(0)}k`, icon: <DollarSign size={18} />, color: 'text-emerald-400' },
           { label: 'Automation Risk', value: `${automation}%`, icon: <AlertTriangle size={18} />, color: automation > 25 ? 'text-red-400' : 'text-amber-400' },
         ].map(({ label, value, icon, color }) => (
@@ -133,7 +133,7 @@ export default function SkillDetail() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
               <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} domain={['auto', 'auto']} />
-              <Tooltip contentStyle={{ background: '#0a0f1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }} />
+              <Tooltip contentStyle={{ background: '#0d0619', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }} />
               <Area type="monotone" dataKey="value" stroke="#a78bfa" fill="url(#demGrad)" strokeWidth={2} name={skill.name} />
             </AreaChart>
           </ResponsiveContainer>
@@ -146,7 +146,7 @@ export default function SkillDetail() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
               <XAxis type="number" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }} axisLine={false} tickLine={false} domain={[0, 100]} />
               <YAxis type="category" dataKey="name" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: '#0a0f1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }} />
+              <Tooltip contentStyle={{ background: '#0d0619', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }} />
               <Bar dataKey="adoption" fill="#8b5cf6" radius={[0, 4, 4, 0]} name="Adoption %" />
             </BarChart>
           </ResponsiveContainer>
@@ -173,7 +173,7 @@ export default function SkillDetail() {
         </div>
         <div className="glass rounded-xl p-5 border border-white/5">
           <h3 className="font-semibold text-white mb-4 text-sm">Learning Path</h3>
-          {['Beginner (0–3 mo)', 'Intermediate (3–6 mo)', 'Advanced (6–12 mo)', 'Expert (12+ mo)'].map((stage, i) => (
+          {['Beginner (0â€“3 mo)', 'Intermediate (3â€“6 mo)', 'Advanced (6â€“12 mo)', 'Expert (12+ mo)'].map((stage, i) => (
             <div key={stage} className="flex items-center gap-3 mb-3">
               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${i < 2 ? 'bg-violet-600 text-white' : 'bg-white/10 text-white/30'}`}>{i+1}</div>
               <span className="text-sm text-white/60">{stage}</span>
@@ -185,12 +185,12 @@ export default function SkillDetail() {
           <ul className="space-y-2">
             {certs.map(c => (
               <li key={c} className="flex items-center gap-2 text-sm text-white/60">
-                <span className="text-emerald-400">✓</span>{c}
+                <span className="text-emerald-400">âœ“</span>{c}
               </li>
             ))}
           </ul>
-          <div className="mt-4 p-3 bg-cyan-600/10 rounded-lg border border-cyan-500/20">
-            <p className="text-xs text-cyan-300">Lifecycle: <strong>{skill.lifecycle ?? 'Stable'}</strong></p>
+          <div className="mt-4 p-3 bg-fuchsia-600/10 rounded-lg border border-fuchsia-500/20">
+            <p className="text-xs text-fuchsia-300">Lifecycle: <strong>{skill.lifecycle ?? 'Stable'}</strong></p>
           </div>
         </div>
       </div>

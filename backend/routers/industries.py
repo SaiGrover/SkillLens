@@ -81,7 +81,7 @@ async def industry_top_skills(
         select(Skill)
         .join(SESScore, Skill.id == SESScore.skill_id)
         .where(Skill.id.in_(skill_ids))
-        .options(selectinload(Skill.ses_score), selectinload(Skill.cluster))
+        .options(selectinload(Skill.ses_score), selectinload(Skill.cluster), selectinload(Skill.forecast))
         .order_by(SESScore.ses_score.desc())
         .limit(limit)
     )
@@ -92,6 +92,9 @@ async def industry_top_skills(
             "ses_score": s.ses_score.ses_score if s.ses_score else None,
             "ses_tier": s.ses_score.ses_tier if s.ses_score else None,
             "archetype": s.cluster.archetype if s.cluster else None,
+            "linkedin_demand": s.linkedin_demand,
+            "forecast_trend": s.forecast.forecast_trend if s.forecast else None,
+            "salary_premium": s.salary_premium,
         }
         for s in skills
     ]

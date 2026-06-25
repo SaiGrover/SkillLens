@@ -51,6 +51,8 @@ services:
         python pipelines/build_forecasts.py &&
         python pipelines/build_ses.py &&
         python pipelines/build_industry_analytics.py &&
+        python pipelines/build_knowledge_base.py &&
+        python pipelines/validate_data.py &&
         python pipelines/build_skill_master.py
       "
     profiles: ["pipeline"]  # run with: docker compose --profile pipeline up pipeline

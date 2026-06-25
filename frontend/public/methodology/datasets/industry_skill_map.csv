@@ -1,0 +1,140 @@
+industry,skill,ses_score,ses_tier,archetype,forecast_1y,forecast_3y,forecast_trend
+AI/ML,machine learning,0.375987,Safe,Stable,29392.5242,33117.179,Growing
+AI/ML,deep learning,0.372985,Safe,Stable,10808.699,12187.7352,Growing
+AI/ML,artificial intelligence,0.311539,Safe,Stable,8278.3062,9054.961,Stable
+AI/ML,natural language processing,0.354731,Safe,Stable,20326.6557,22729.2289,Growing
+AI/ML,computer vision,0.362742,Safe,Stable,5920.9769,6689.2795,Growing
+AI/ML,pytorch,0.325448,Safe,,4980.5688,5025.3529,Stable
+AI/ML,tensorflow,0.369537,Safe,Stable,38243.8795,47061.6384,Growing
+AI/ML,keras,,,,,,
+AI/ML,scikit-learn,,,,,,
+AI/ML,llm,,,,,,
+AI/ML,langchain,,,,,,
+AI/ML,rag,,,,,,
+AI/ML,hugging face,,,,,,
+AI/ML,reinforcement learning,,,,,,
+AI/ML,mlops,,,,,,
+AI/ML,xgboost,,,,,,
+AI/ML,lightgbm,,,,,,
+Data Science,python,0.720562,Very Safe,Future-Proof,217685.3807,223311.0592,Stable
+Data Science,r,,,,,,
+Data Science,statistics,0.32735,Safe,Growing,24666.1912,26382.4651,Stable
+Data Science,statistical analysis,0.331152,Safe,Growing,17878.7137,18874.7519,Stable
+Data Science,data science,0.324929,Safe,Stable,6939.0423,7731.6831,Growing
+Data Science,pandas,,,,,,
+Data Science,numpy,,,,,,
+Data Science,jupyter,,,,,,
+Data Science,data visualization,0.336435,Safe,Growing,15320.3641,16968.5333,Growing
+Data Science,tableau,0.325272,Safe,Growing,5934.4557,6549.5393,Growing
+Data Science,power bi,0.339839,Safe,Growing,30255.9606,34604.0068,Growing
+Data Science,machine learning,0.375987,Safe,Stable,29392.5242,33117.179,Growing
+Data Science,scikit-learn,,,,,,
+Data Science,xgboost,,,,,,
+Data Science,feature engineering,,,,,,
+Data Science,a/b testing,0.326707,Safe,Growing,18394.5153,20617.0422,Growing
+Data Science,hypothesis testing,,,,,,
+Data Science,matplotlib,,,,,,
+Data Science,seaborn,,,,,,
+Software Engineering,python,0.720562,Very Safe,Future-Proof,217685.3807,223311.0592,Stable
+Software Engineering,java,0.383787,Safe,High-Risk,134525.8347,129748.607,Declining
+Software Engineering,javascript,0.767596,Very Safe,Future-Proof,279247.8901,306270.9869,Stable
+Software Engineering,typescript,0.548743,Safe,Future-Proof,95606.0002,97846.0004,Stable
+Software Engineering,c++,0.302795,Safe,High-Risk,19693.0896,23651.9493,Growing
+Software Engineering,c#,0.27378,Moderate,High-Risk,21453.384,27530.514,Growing
+Software Engineering,golang,0.321208,Safe,High-Risk,19125.1138,23005.1151,Growing
+Software Engineering,rust,,,,,,
+Software Engineering,kotlin,,,,,,
+Software Engineering,swift,,,,,,
+Software Engineering,react,0.393296,Safe,High-Risk,137701.7883,153978.5729,Growing
+Software Engineering,angular,0.260313,Moderate,High-Risk,63630.1616,56569.2329,Declining
+Software Engineering,node.js,0.286531,Moderate,High-Risk,19501.8988,23680.6061,Growing
+Software Engineering,django,,,,,,
+Software Engineering,fastapi,,,,,,
+Software Engineering,flask,,,,,,
+Software Engineering,spring,,,,,,
+Software Engineering,microservices,0.37392,Safe,Growing,27449.5875,30796.2526,Growing
+Software Engineering,system design,0.326694,Safe,Growing,12638.6944,13643.7687,Stable
+Software Engineering,agile,0.338827,Safe,Growing,13300.7579,14466.9929,Stable
+Software Engineering,git,0.336004,Safe,High-Risk,73433.3709,82420.0136,Growing
+Software Engineering,software development,0.357165,Safe,Growing,17856.8358,18938.9705,Stable
+Software Engineering,software engineering,0.385506,Safe,Growing,33131.2569,36185.3795,Stable
+Software Engineering,unit testing,0.338734,Safe,Growing,19036.5251,20653.6823,Stable
+Software Engineering,agile methodologies,0.33612,Safe,Growing,11293.8952,12498.7098,Growing
+Software Engineering,objectoriented programming,0.248082,Moderate,High-Risk,18841.2203,22899.1961,Growing
+Cloud & DevOps,aws,0.476512,Safe,High-Risk,203971.4463,217203.7061,Stable
+Cloud & DevOps,azure,0.364026,Safe,,159472.8501,175920.9546,Growing
+Cloud & DevOps,gcp,0.305938,Safe,High-Risk,64115.8136,66027.1249,Stable
+Cloud & DevOps,google cloud,0.277657,Moderate,High-Risk,15086.2309,18379.9695,Growing
+Cloud & DevOps,microsoft azure,0.237975,Moderate,High-Risk,15840.3558,19283.3479,Growing
+Cloud & DevOps,cloud computing,0.263448,Moderate,High-Risk,16048.1134,19863.5763,Growing
+Cloud & DevOps,docker,0.570093,Safe,Future-Proof,99577.8683,108705.9541,Stable
+Cloud & DevOps,kubernetes,0.365308,Safe,Stable,58599.0,65485.0,Growing
+Cloud & DevOps,terraform,0.357901,Safe,Growing,5841.6099,5728.1614,Declining
+Cloud & DevOps,ansible,,,,,,
+Cloud & DevOps,jenkins,0.246454,Moderate,High-Risk,7918.8433,8875.3392,Growing
+Cloud & DevOps,ci/cd,0.268113,Moderate,High-Risk,22697.9405,25955.0625,Growing
+Cloud & DevOps,devops,0.281233,Moderate,High-Risk,26078.9477,28778.2793,Growing
+Cloud & DevOps,gitlab,0.244297,Moderate,High-Risk,8044.2616,8963.2154,Growing
+Cloud & DevOps,github,0.359217,Safe,Stable,17859.4225,19214.1224,Stable
+Cloud & DevOps,azure devops,0.256882,Moderate,High-Risk,15192.9862,17950.1222,Growing
+Cloud & DevOps,pulumi,,,,,,
+Cloud & DevOps,cloud security,0.339118,Safe,Growing,10935.0235,12183.9916,Growing
+Cloud & DevOps,linux,0.281741,Moderate,High-Risk,29461.8903,31918.8519,Stable
+Cloud & DevOps,bash/shell (all shells),,,,,,
+Data Engineering,sql,0.684792,Very Safe,Future-Proof,208242.1689,223507.8726,Stable
+Data Engineering,postgresql,0.570765,Safe,Future-Proof,113615.1307,118570.8706,Stable
+Data Engineering,mysql,0.357123,Safe,High-Risk,109154.6149,115235.9883,Stable
+Data Engineering,nosql,0.251304,Moderate,High-Risk,29046.9035,32244.7406,Growing
+Data Engineering,mongodb,0.307605,Safe,High-Risk,88465.7925,95854.4047,Stable
+Data Engineering,cassandra,,,,,,
+Data Engineering,redis,,,,,,
+Data Engineering,apache spark,,,,,,
+Data Engineering,apache kafka,,,,,,
+Data Engineering,hadoop,0.244039,Moderate,High-Risk,12565.4187,12811.7716,Stable
+Data Engineering,snowflake,0.330356,Safe,Growing,323.7142,0.0,Declining
+Data Engineering,etl,0.247898,Moderate,High-Risk,22659.6741,24547.1266,Stable
+Data Engineering,data engineering,0.248138,Moderate,High-Risk,22377.8764,24979.8946,Growing
+Data Engineering,data pipelines,0.278306,Moderate,High-Risk,14620.1987,17055.8333,Growing
+Data Engineering,data architecture,0.277565,Moderate,High-Risk,12311.9188,14475.7531,Growing
+Data Engineering,data modeling,0.240065,Moderate,High-Risk,19097.1242,21005.0265,Stable
+Data Engineering,dbt,,,,,,
+Data Engineering,airflow,,,,,,
+Data Engineering,data governance,0.270338,Moderate,High-Risk,9859.6307,13911.686,Explosive
+Data Engineering,elasticsearch,,,,,,
+Data Engineering,dynamodb,,,,,,
+Data Analytics,sql,0.684792,Very Safe,Future-Proof,208242.1689,223507.8726,Stable
+Data Analytics,excel,0.366911,Safe,Growing,12667.473,13370.5747,Stable
+Data Analytics,power bi,0.339839,Safe,Growing,30255.9606,34604.0068,Growing
+Data Analytics,tableau,0.325272,Safe,Growing,5934.4557,6549.5393,Growing
+Data Analytics,data analysis,0.519976,Safe,Future-Proof,17373.4729,18188.7957,Stable
+Data Analytics,data analytics,0.347114,Safe,Growing,17447.9541,18791.6868,Stable
+Data Analytics,python,0.720562,Very Safe,Future-Proof,217685.3807,223311.0592,Stable
+Data Analytics,r,,,,,,
+Data Analytics,business intelligence,0.356392,Safe,Growing,29321.8908,31587.8099,Stable
+Data Analytics,data visualization,0.336435,Safe,Growing,15320.3641,16968.5333,Growing
+Data Analytics,statistics,0.32735,Safe,Growing,24666.1912,26382.4651,Stable
+Data Analytics,microsoft excel,0.325524,Safe,Growing,11280.0779,12343.5015,Stable
+Data Analytics,looker,,,,,,
+Data Analytics,qlik,,,,,,
+Cybersecurity,cybersecurity,0.342621,Safe,Growing,24806.6703,27437.5535,Growing
+Cybersecurity,cyber security,0.318421,Safe,Growing,4680.348,5101.3139,Stable
+Cybersecurity,information security,0.319598,Safe,Growing,10299.8656,11012.0968,Stable
+Cybersecurity,network security,0.334206,Safe,Growing,18769.9922,20774.2699,Growing
+Cybersecurity,cloud security,0.339118,Safe,Growing,10935.0235,12183.9916,Growing
+Cybersecurity,penetration testing,0.349534,Safe,Growing,26502.5786,29536.706,Growing
+Cybersecurity,ethical hacking,,,,,,
+Cybersecurity,siem,,,,,,
+Cybersecurity,soc,,,,,,
+Cybersecurity,identity and access management,,,,,,
+Systems Engineering,electrical engineering,0.323331,Safe,Growing,13859.1489,14773.4543,Stable
+Systems Engineering,mechanical engineering,0.320664,Safe,Growing,21374.1985,23402.067,Stable
+Systems Engineering,systems engineering,0.325531,Safe,Growing,17084.1319,17946.5634,Stable
+Systems Engineering,computer engineering,0.324381,Safe,Growing,12088.6619,13308.983,Growing
+Systems Engineering,embedded systems,0.327384,Safe,Growing,29697.3735,32848.3726,Growing
+Systems Engineering,robotics,0.297964,Moderate,Growing,10145.1856,11175.6704,Growing
+Systems Engineering,plc programming,0.204132,Moderate,High-Risk,20515.8536,25041.3587,Growing
+Systems Engineering,electronics,0.288586,Moderate,Growing,18190.6706,19829.2544,Stable
+Systems Engineering,matlab,0.289249,Moderate,Growing,12531.8674,13606.7755,Stable
+Systems Engineering,autocad,,,,,,
+Systems Engineering,vhdl,,,,,,
+Systems Engineering,fpga,,,,,,

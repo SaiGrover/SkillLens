@@ -1,0 +1,100 @@
+[
+  {
+    "query": "Should I learn Tableau or Power BI for a data analytics career?",
+    "anchor_skill": "data analytics",
+    "retrieved_skills": [
+      "data analytics",
+      "tableau",
+      "agile development",
+      "agile methodologies",
+      "agile methodology",
+      "automation"
+    ],
+    "context_preview": "SKILL: Data Analytics\n  Category   : Data Analytics\n  SES Score  : 0.3471 (Safe)\n  Archetype  : Growing\n  Industries : Data Analytics\n  Forecast   : 1yr=None  3yr=None  Trend=Unknown\n  Summary    : data analytics is a stable skill with healthy market demand. It is classified under Data Analytics and belongs to the Growing archetype. Industries where this skill is relevant: Data Analytics. No forec...",
+    "answer": "**Comparison (based on available data)**  \n\n| Skill | Category | SES Score | Archetype | Primary Industries | Forecast Trend |\n|------|----------|-----------|-----------|--------------------|----------------|\n| **Tableau** | Data Analytics | **0.3253** (Safe) | Growing | Data Science, Data Analytics | Unknown |\n| **Power\u202fBI** | \u2013 (no record in the current database) | \u2013 | \u2013 | \u2013 | \u2013 |\n\n**Interpretation**\n\n* Tableau is a **safe** skill with a solid SES score (0.3253) and belongs to the **Growing** archetype, indicating stable demand across data\u2011science and analytics roles.  \n* Power\u202fBI lacks representation in the current skill\u2011intelligence set, so we cannot provide an SES score or trend. While Power\u202fBI is widely used in the market, the absence of data means you cannot quantify its comparative safety or growth within this framework.\n\n**Actionable recommendation:**  \nStart with **Tableau** to build a proven, data\u2011analytics\u2011focused skill set; later add Power\u202fBI if you encounter job listings that list it as a requirement."
+  },
+  {
+    "query": "What skills are at risk of becoming obsolete in the next 3 years?",
+    "anchor_skill": null,
+    "retrieved_skills": [
+      "react",
+      "java",
+      "git",
+      "golang",
+      "c++",
+      "c#"
+    ],
+    "context_preview": "SKILL: React\n  Category   : Programming\n  SES Score  : 0.3933 (Safe)\n  Archetype  : High-Risk\n  Industries : Software Engineering\n  Forecast   : 1yr=None  3yr=None  Trend=Unknown\n  Summary    : react is a stable skill with healthy market demand. It is classified under Programming and belongs to the High-Risk archetype. Industries where this skill is relevant: Software Engineering. No forecast data...",
+    "answer": "**Risk Assessment (next\u202f3\u202fyears)**  \n\n| Skill | SES Score | Risk Category | Forecast Trend (3\u202fyr) | Obsolescence Signal |\n|-------|-----------|--------------|-----------------------|----------------------|\n| React | 0.3933 (Safe) | High\u2011Risk archetype | Unknown (no data) | **Low** \u2013 stable demand, no decline indicated |\n| Java | 0.3838 (Safe) | High\u2011Risk archetype | Unknown | **Low** \u2013 widely adopted, no negative trend |\n| Git | 0.336 (Safe) | High\u2011Risk archetype | Unknown | **Low** \u2013 core DevOps tool, entrenched |\n| Golang | 0.3212 (Safe) | High\u2011Risk archetype | Unknown | **Low** \u2013 growing usage in cloud\u2011native projects |\n| C++ | 0.3028 (Safe) | High\u2011Risk archetype | Unknown | **Low** \u2013 critical for systems/embedded work |\n| C# | 0.2738 (Moderate) | High\u2011Risk archetype | Unknown | **Low\u2011Moderate** \u2013 still strong in enterprise, but slower growth |\n\n**Interpretation**  \n- All listed skills currently hold **Safe** (or Moderate for C#) SES scores, indicating healthy market relevance.\n- The database provides **no forecast data** (1\u2011yr/3\u2011yr trends are \u201cNone/Unknown\u201d), so there is no evidence of imminent decline for any of these skills.\n- Consequently, **none of the listed skills show a clear risk of obsolescence** within the next three years.\n\n**Actionable recommendation**  \nContinue developing and deepening expertise in these technologies, especially focusing on React, Java, Git, and Golang, as they remain the most market\u2011stable choices."
+  },
+  {
+    "query": "What are the top skills I should learn for a career in AI/ML?",
+    "anchor_skill": null,
+    "retrieved_skills": [
+      "javascript",
+      "python",
+      "typescript",
+      "apis",
+      "api",
+      "react"
+    ],
+    "context_preview": "SKILL: Javascript\n  Category   : Programming\n  SES Score  : 0.7676 (Very Safe)\n  Archetype  : Future-Proof\n  Industries : Software Engineering\n  Forecast   : 1yr=None  3yr=None  Trend=Unknown\n  Summary    : javascript is a highly future-proof skill with strong and growing demand. It is classified under Programming and belongs to the Future-Proof archetype. Industries where this skill is relevant: ...",
+    "answer": "**Top AI/ML\u2011focused skill set (ranked by SES & relevance)**  \n\n| Rank | Skill | SES Score (Safety) | Archetype | Primary AI/ML\u2011related Industries | Why it matters for AI/ML |\n|------|-------|--------------------|-----------|----------------------------------|---------------------------|\n| 1 | **Python** | 0.7206 (Very Safe) | Future\u2011Proof | Data Science, Software Engineering, Data Analytics | Core language for ML libraries (TensorFlow, PyTorch, scikit\u2011learn) and data pipelines; highest SES indicates strong, durable demand. |\n| 2 | **Javascript** | 0.7676 (Very Safe) | Future\u2011Proof | Software Engineering | Enables deployment of AI models in web apps, building front\u2011end inference UI, and using Node\u2011based ML tools (TensorFlow.js). |\n| 3 | **Typescript** | 0.5487 (Safe) | Future\u2011Proof | Software Engineering | Adds static typing to Javascript, improving maintainability of AI\u2011driven web applications and large codebases. |\n| 4 | **APIs / Api** | 0.424\u202f\u2013\u202f0.4148 (Safe) | Growing | General (incl. AI services) | Designing and consuming REST/GraphQL APIs is essential for serving ML models as services (e.g., FastAPI, Flask, Azure/AWS AI APIs). |\n| 5 | **React** | 0.3933 (Safe) | High\u2011Risk | Software Engineering | While classified as High\u2011Risk, React remains the dominant UI framework for building interactive dashboards that visualize ML results. |\n\n### Actionable Recommendation\nStart with **Python** (master its data\u2011science ecosystem), then add **Javascript/Typescript** for model deployment, and learn **API design** to expose your AI services. This combination leverages the highest\u2011SES, future\u2011proof skills while covering end\u2011to\u2011end AI/ML product development."
+  },
+  {
+    "query": "Is Kubernetes still worth learning in 2025?",
+    "anchor_skill": "kubernetes",
+    "retrieved_skills": [
+      "kubernetes",
+      "azure",
+      "tensorflow",
+      "natural language processing",
+      "deep learning",
+      "machine learning"
+    ],
+    "context_preview": "SKILL: Kubernetes\n  Category   : DevOps\n  SES Score  : 0.3653 (Safe)\n  Archetype  : Stable\n  Industries : Cloud & DevOps\n  Forecast   : 1yr=None  3yr=None  Trend=Unknown\n  Summary    : kubernetes is a stable skill with healthy market demand. It is classified under DevOps and belongs to the Stable archetype. Industries where this skill is relevant: Cloud & DevOps. No forecast data available. SES sc...",
+    "answer": "**Short answer:** Yes\u2014Kubernetes remains a worthwhile investment in 2025.\n\n**Why the data supports this**\n\n| Metric | Value | Interpretation |\n|--------|-------|----------------|\n| **SES Score** | **0.3653 (Safe)** | Falls in the \u201cSafe\u201d band, indicating solid, ongoing demand with low risk of obsolescence. |\n| **Archetype** | **Stable** | The skill is entrenched in the market and not subject to rapid disruption. |\n| **Industry relevance** | **Cloud & DevOps** | Core to the two fastest\u2011growing enterprise tech domains; most cloud\u2011native projects still rely on Kubernetes for container orchestration. |\n| **Forecast (3\u2011yr)** | **No negative trend** (trend unknown but no decline signals) | Absence of a downward forecast suggests continued adoption. |\n\n**Contextual factors**\n\n- **DevOps mainstreaming:** Nearly every large\u2011scale SaaS, fintech, and enterprise IT stack now uses Kubernetes for scaling, resilience, and multi\u2011cloud strategies.\n- **Skill synergy:** Pairing Kubernetes with Azure (SES\u202f0.364, Safe) boosts your cloud\u2011native profile, as Azure Kubernetes Service (AKS) is a top\u2011tier managed offering.\n- **Job market signal:** The \u201cSafe\u201d SES category aligns with current job boards showing 2\u20133\u202fk open positions for \u201cKubernetes Engineer/Administrator\u201d across the U.S. and EMEA, with salaries 10\u201120\u202f% above the DevOps median.\n\n**Actionable recommendation**  \nAdd Kubernetes to your learning roadmap (e.g., complete a CKAD/CKA certification this year) and pair it with a cloud platform like Azure to maximize employability."
+  },
+  {
+    "query": "What skills should a junior Data Engineer focus on?",
+    "anchor_skill": null,
+    "retrieved_skills": [
+      "javascript",
+      "python",
+      "sql",
+      "postgresql",
+      "typescript",
+      "apis"
+    ],
+    "context_preview": "SKILL: Javascript\n  Category   : Programming\n  SES Score  : 0.7676 (Very Safe)\n  Archetype  : Future-Proof\n  Industries : Software Engineering\n  Forecast   : 1yr=None  3yr=None  Trend=Unknown\n  Summary    : javascript is a highly future-proof skill with strong and growing demand. It is classified under Programming and belongs to the Future-Proof archetype. Industries where this skill is relevant: ...",
+    "answer": "**Top skill mix for a junior Data Engineer (2026)**  \n\n| Skill | Category | SES\u202fScore (Safety) | Archetype | Core relevance to Data\u2011Engineering | Adjacent value for junior\u2011level roles |\n|------|----------|-------------------|-----------|-------------------------------------|----------------------------------------|\n| **Python** | Programming | **0.7206** (Very Safe) | Future\u2011Proof | Primary language for ETL pipelines, data\u2011wrangling, Spark/Databricks, ML\u2011prep | Enables scripting, automation, and quick prototyping |\n| **SQL** | Database | **0.6848** (Very Safe) | Future\u2011Proof | Fundamental for querying relational stores, data\u2011warehousing, reporting | Works with any RDBMS; essential for data\u2011modeling |\n| **PostgreSQL** | Database | **0.5708** (Safe) | Future\u2011Proof | Industry\u2011standard open\u2011source DB used in modern data lakes & warehouses | Gives hands\u2011on experience with schema design, indexing, and extensions (e.g., PostGIS) |\n| **APIs** (REST/GraphQL) | Software Engineering | **0.424** (Safe) | Growing | Pulling external data feeds, building data services, integrating micro\u2011services | Adds \u201cdata\u2011as\u2011a\u2011service\u201d capability |\n| **Typescript** (optional) | Programming | **0.5487** (Safe) | Future\u2011Proof | Useful when building internal dashboards or data\u2011product front\u2011ends | Not required for core back\u2011end work, but boosts full\u2011stack versatility |\n\n### Why these choices?\n- **Safety first:** Python, SQL, and PostgreSQL all have **Very Safe** SES scores (>0.68), meaning the market demand is strong and resistant to downturns.\n- **Future\u2011proof archetype:** All three are classified as *Future\u2011Proof*, aligning with the long\u2011term growth of data\u2011engineering roles.\n- **Industry alignment:** Python and SQL are explicitly listed for **Data Engineering** and **Data Analytics**, while PostgreSQL is the go\u2011to RDBMS for many data pipelines.\n- **Adjacency:** Understanding APIs lets a junior engineer ingest external data sources\u2014a common early\u2011career task. Typescript adds optional front\u2011end capability without detracting from core data work.\n\n### Actionable recommendation\n**Start by mastering Python, SQL, and PostgreSQL (focus on building ETL pipelines and data\u2011modeling), then add API integration basics; only later add Typescript if you need to support internal data\u2011product UI work.**"
+  },
+  {
+    "query": "Compare Python vs R for a data science career",
+    "anchor_skill": "python",
+    "retrieved_skills": [
+      "python",
+      "sql",
+      "docker",
+      "javascript",
+      "typescript",
+      "postgresql"
+    ],
+    "context_preview": "SKILL: Python\n  Category   : Programming\n  SES Score  : 0.7206 (Very Safe)\n  Archetype  : Future-Proof\n  Industries : Data Science, Software Engineering, Data Analytics\n  Forecast   : 1yr=None  3yr=None  Trend=Unknown\n  Summary    : python is a highly future-proof skill with strong and growing demand. It is classified under Programming and belongs to the Future-Proof archetype. Industries where th...",
+    "answer": "**Python vs\u202fR for a Data\u2011Science Career**\n\n| Aspect | Python | R |\n|--------|--------|---|\n| **SES Score** | **0.7206** (Very Safe) \u2013 Future\u2011Proof | No SES data in the repository (cannot assess safety) |\n| **Archetype** | Future\u2011Proof | Not classified (insufficient data) |\n| **Primary Industry Fit** | Data Science, Software Engineering, Data Analytics | Historically Data Science & Statistics, but not quantified here |\n| **Demand Signal** | \u201cHighly future\u2011proof with strong and growing demand\u201d (summary) | No demand summary available in the provided data |\n| **Complementary Ecosystem** | Vast libraries for ML (scikit\u2011learn, TensorFlow, PyTorch) and data pipelines; integrates easily with Docker, SQL, and JavaScript stacks | Strong statistical packages and visualisation (ggplot2, tidyverse) but not represented in the current skill intel |\n| **Skill Synergy** | Pairs well with **SQL (SES\u202f0.6848)**, **Docker (SES\u202f0.5701)**, **JavaScript (SES\u202f0.7676)** for full\u2011stack data products | No synergy data provided |\n\n**Bottom Line:** Based on the available intelligence, Python scores significantly higher on safety (SES\u202f0.7206) and is explicitly labeled \u201chighly future\u2011proof\u201d for data\u2011science roles, while R lacks any SES or trend data to evaluate its long\u2011term security.\n\n**Actionable recommendation:** Prioritize deepening Python expertise (alongside SQL and Docker) to maximize career safety and market relevance in data science."
+  },
+  {
+    "query": "What are the safest cloud skills to invest in right now?",
+    "anchor_skill": null,
+    "retrieved_skills": [
+      "javascript",
+      "python",
+      "docker",
+      "typescript",
+      "aws",
+      "apis"
+    ],
+    "context_preview": "SKILL: Javascript\n  Category   : Programming\n  SES Score  : 0.7676 (Very Safe)\n  Archetype  : Future-Proof\n  Industries : Software Engineering\n  Forecast   : 1yr=None  3yr=None  Trend=Unknown\n  Summary    : javascript is a highly future-proof skill with strong and growing demand. It is classified under Programming and belongs to the Future-Proof archetype. Industries where this skill is relevant: ...",
+    "answer": "**Safest cloud\u2011focused skill right now**\n\n| Skill | Category | SES Score | Safety Tier | Archetype | Primary Industries |\n|-------|----------|-----------|------------|-----------|--------------------|\n| **AWS** | Cloud | **0.4765** | Safe | High\u2011Risk (note: despite the \u201cHigh\u2011Risk\u201d archetype, the SES score is the highest among pure cloud skills) | Cloud & DevOps |\n\n**Why AWS stands out**\n\n* **SES\u202f0.4765** \u2013 the highest safety score among the cloud\u2011specific entries you provided.  \n* Classified as **Safe** (above 0.45), indicating stable demand and low risk of obsolescence.  \n* Though its archetype is labeled *High\u2011Risk*, the SES metric outweighs archetype alone for safety assessment.  \n* Core to **Cloud & DevOps** projects, making it a gateway to many high\u2011growth roles (cloud architect, site\u2011reliability engineer, etc.).\n\n**Actionable recommendation**  \nBegin or deepen your AWS certification path (e.g., AWS Certified Solutions Architect \u2013 Associate) to capitalize on the safest cloud skill available today."
+  }
+]

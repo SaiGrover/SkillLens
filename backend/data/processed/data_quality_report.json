@@ -1,0 +1,33 @@
+{
+  "raw_skill_rows": 114,
+  "canonical_skill_rows": 111,
+  "merged_skill_alias_rows": 3,
+  "raw_history_rows": 2304,
+  "canonical_history_rows": 2255,
+  "history_alias_rows_collapsed": 49,
+  "master_skills_without_history": [
+    "api",
+    "apis",
+    "coding",
+    "database",
+    "database management",
+    "databases",
+    "information technology",
+    "programming",
+    "programming languages",
+    "testing"
+  ],
+  "global_adoption_scale": "min-max normalized to [0, 1] from source composite counts",
+  "alias_map": {
+    "cyber security": "cybersecurity",
+    "nodejs": "node.js",
+    "couch db": "couchdb",
+    "digital ocean": "digitalocean",
+    "powerbi": "power bi",
+    "ms excel": "excel",
+    "microsoft excel": "excel",
+    "amazon web services": "aws",
+    "google cloud platform": "google cloud",
+    "github.com": "github"
+  }
+}

@@ -5,7 +5,7 @@ import * as THREE from 'three'
 
 const skillNodes = [
   { label: 'Python', pos: [0, 0, 0] as [number,number,number], color: '#a78bfa', size: 0.18 },
-  { label: 'LLM', pos: [1.5, 1, 0.5] as [number,number,number], color: '#22d3ee', size: 0.15 },
+  { label: 'LLM', pos: [1.5, 1, 0.5] as [number,number,number], color: '#d8b4fe', size: 0.15 },
   { label: 'Rust', pos: [-1.5, 0.8, -0.5] as [number,number,number], color: '#34d399', size: 0.12 },
   { label: 'K8s', pos: [0.8, -1.2, 1] as [number,number,number], color: '#fb923c', size: 0.11 },
   { label: 'React', pos: [-0.8, -1, -1] as [number,number,number], color: '#f472b6', size: 0.13 },

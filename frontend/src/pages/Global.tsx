@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { Component, useState, useEffect } from 'react'
+import type { ErrorInfo, ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { Globe, TrendingUp } from 'lucide-react'
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts'
@@ -7,7 +8,23 @@ import { globalApi, RegionData } from '@/services/api'
 
 const SkillNetwork = lazy(() => import('@/components/three/SkillNetwork'))
 
-const regionColors = ['#a78bfa','#22d3ee','#34d399','#fb923c','#f472b6','#60a5fa','#f87171']
+const regionColors = ['#a78bfa','#d8b4fe','#34d399','#fb923c','#f472b6','#60a5fa','#f87171']
+
+class NetworkBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.warn('Skill network switched to 2D fallback:', error, info.componentStack)
+  }
+
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children
+  }
+}
 
 interface MappedRegion {
   region: string
@@ -67,7 +84,7 @@ export default function Global() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="page-title flex items-center gap-2.5"><Globe size={26} className="text-cyan-300" strokeWidth={1.75} /> Global Demand Analytics</h1>
+        <h1 className="page-title flex items-center gap-2.5"><Globe size={26} className="text-fuchsia-300" strokeWidth={1.75} /> Global Demand Analytics</h1>
         <p className="page-subtitle">Skill demand across major world regions</p>
       </div>
 
@@ -78,9 +95,11 @@ export default function Global() {
             <h3 className="text-sm font-semibold text-white/80">Skill Network Visualization</h3>
           </div>
           <div className="h-[340px]">
-            <Suspense fallback={<div className="h-full flex items-center justify-center text-white/20 text-sm">Loading 3D...</div>}>
-              <SkillNetwork />
-            </Suspense>
+            <NetworkBoundary fallback={<NetworkFallback regions={regions} />}>
+              <Suspense fallback={<div className="h-full flex flex-col items-center justify-center gap-3 text-sm text-white/45"><span className="h-7 w-7 animate-spin rounded-full border-2 border-violet-400/40 border-t-fuchsia-300" />3D network loading...</div>}>
+                <SkillNetwork />
+              </Suspense>
+            </NetworkBoundary>
           </div>
         </div>
 
@@ -122,11 +141,11 @@ export default function Global() {
       </div>
 
       <div className="glass rounded-xl p-5 border border-white/5">
-        <h3 className="text-sm font-semibold text-white/80 mb-4 flex items-center gap-2"><TrendingUp size={16} className="text-cyan-400" /> Global Hot Skills</h3>
+        <h3 className="text-sm font-semibold text-white/80 mb-4 flex items-center gap-2"><TrendingUp size={16} className="text-fuchsia-400" /> Global Hot Skills</h3>
         <div className="grid md:grid-cols-4 gap-3">
           {[
             { skill: 'LLM Engineering', regions: 5, trend: '+78%', color: 'violet' },
-            { skill: 'Cybersecurity', regions: 5, trend: '+31%', color: 'cyan' },
+            { skill: 'Cybersecurity', regions: 5, trend: '+31%', color: 'fuchsia' },
             { skill: 'Cloud (AWS/GCP)', regions: 5, trend: '+22%', color: 'emerald' },
             { skill: 'Data Science', regions: 4, trend: '+25%', color: 'amber' },
           ].map(({ skill, regions, trend, color }) => (
@@ -137,6 +156,18 @@ export default function Global() {
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  )
+}
+
+function NetworkFallback({ regions }: { regions: MappedRegion[] }) {
+  const top = [...regions].sort((left, right) => right.demand - left.demand).slice(0, 6)
+  return (
+    <div className="flex h-full flex-col justify-center gap-4 px-6 py-5">
+      <div><p className="text-sm font-semibold text-white/80">2D demand network</p><p className="mt-1 text-xs text-white/40">WebGL is unavailable on this device, so this accessible fallback shows the same regional signals.</p></div>
+      <div className="space-y-3">
+        {top.map((region, index) => <div key={region.region} className="grid grid-cols-[88px_1fr_36px] items-center gap-3 text-xs"><span className="truncate text-white/60">{region.region}</span><div className="h-2 overflow-hidden rounded-full bg-white/8"><div className="h-full rounded-full" style={{ width: `${Math.min(100, region.demand)}%`, background: regionColors[index % regionColors.length] }} /></div><span className="text-right text-white/70">{region.demand}</span></div>)}
       </div>
     </div>
   )

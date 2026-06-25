@@ -43,7 +43,7 @@ function ParticleRing() {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial size={0.015} color="#22d3ee" transparent opacity={0.6} />
+      <pointsMaterial size={0.015} color="#d8b4fe" transparent opacity={0.6} />
     </points>
   )
 }
@@ -53,7 +53,7 @@ export default function NeuralGlobe() {
     <Canvas camera={{ position: [0, 0, 5], fov: 60 }}>
       <ambientLight intensity={0.2} />
       <pointLight position={[10, 10, 10]} intensity={1} color="#a78bfa" />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#22d3ee" />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#d8b4fe" />
       <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
       <AnimatedSphere />
       <ParticleRing />

@@ -39,7 +39,7 @@ export default function SkillCard({
             <span>Current Demand</span><span>{demand}%</span>
           </div>
           <div className="h-1.5 bg-white/10 rounded-full">
-            <div className="h-1.5 bg-gradient-to-r from-violet-500 to-cyan-400 rounded-full" style={{ width: `${clampPct(demand)}%` }} />
+            <div className="h-1.5 bg-gradient-to-r from-violet-500 to-fuchsia-400 rounded-full" style={{ width: `${clampPct(demand)}%` }} />
           </div>
         </div>
         <div>
@@ -47,7 +47,7 @@ export default function SkillCard({
             <span>Future Demand</span><span>{futureDemand}%</span>
           </div>
           <div className="h-1.5 bg-white/10 rounded-full">
-            <div className="h-1.5 bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-full" style={{ width: `${clampPct(futureDemand)}%` }} />
+            <div className="h-1.5 bg-gradient-to-r from-emerald-500 to-fuchsia-400 rounded-full" style={{ width: `${clampPct(futureDemand)}%` }} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 pt-1">
@@ -78,7 +78,7 @@ export default function SkillCard({
         </div>
         <div className="text-center">
           <p className="text-xs text-white/30">Future</p>
-          <p className="text-sm font-semibold text-cyan-400">{futureDemand}%</p>
+          <p className="text-sm font-semibold text-fuchsia-400">{futureDemand}%</p>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { BookOpen, ChevronDown, Search, Sparkles, Target, TrendingUp } from 'lucide-react'
-import { SkillSummary, skillsApi } from '@/services/api'
+import { approachApi, forecastApi, MethodDistribution, PipelineStats, SkillSummary, skillsApi } from '@/services/api'
 import { buildSkillGuide, formatCategoryLabel } from '@/lib/skillGuideContent'
 
 function score(value?: number) {
@@ -11,7 +11,7 @@ function forecastTone(trend?: string) {
   const label = trend?.toLowerCase() ?? ''
   if (label.includes('explosive') || label.includes('growing')) return 'text-emerald-300'
   if (label.includes('declin')) return 'text-rose-300'
-  return 'text-sky-200'
+  return 'text-violet-200'
 }
 
 export default function SkillsGuide() {
@@ -19,12 +19,20 @@ export default function SkillsGuide() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState<PipelineStats | null>(null)
+  const [methods, setMethods] = useState<MethodDistribution[]>([])
 
   useEffect(() => {
     async function load() {
       try {
-        const result = await skillsApi.list({ per_page: 200, sort_by: 'ses_score', sort_dir: 'desc' })
+        const [result, statsResult, methodResult] = await Promise.all([
+          skillsApi.list({ per_page: 200, sort_by: 'ses_score', sort_dir: 'desc' }),
+          approachApi.stats().catch(() => null),
+          forecastApi.methodDistribution().catch(() => []),
+        ])
         setSkills(result.items ?? [])
+        setStats(statsResult)
+        setMethods(methodResult)
       } finally {
         setLoading(false)
       }
@@ -61,13 +69,18 @@ export default function SkillsGuide() {
     <div className="mx-auto max-w-6xl space-y-6 animate-fade-in">
       <header>
         <h1 className="page-title flex items-center gap-3">
-          <BookOpen size={30} className="text-cyan-300" strokeWidth={1.75} />
+          <BookOpen size={30} className="text-fuchsia-300" strokeWidth={1.75} />
           Skill Guide
         </h1>
         <p className="page-subtitle max-w-3xl">
-          A detailed reference for all {skills.length} skills in the processed HSEP dataset — what each skill is,
+          A detailed reference for all {skills.length} skills in the processed HSEP dataset - what each skill is,
           where it is used, and how workforce signals rank its career outlook.
         </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <span className="rounded-full border border-fuchsia-400/20 bg-fuchsia-400/10 px-3 py-1 text-xs text-fuchsia-100">{stats?.total_skills ?? skills.length} canonical skills</span>
+          <span className="rounded-full border border-violet-400/20 bg-violet-400/10 px-3 py-1 text-xs text-violet-100">{stats?.history_records.toLocaleString() ?? '...'} skill-year records</span>
+          <span className="rounded-full border border-fuchsia-400/20 bg-fuchsia-400/10 px-3 py-1 text-xs text-fuchsia-100">{methods.length || '...'} forecast methods in use</span>
+        </div>
       </header>
 
       <section className="glass rounded-xl border border-white/8 p-4 md:p-5">
@@ -78,7 +91,7 @@ export default function SkillsGuide() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Find a skill, category, archetype, or forecast..."
-              className="w-full rounded-lg border border-white/12 bg-white/[0.05] py-3 pl-11 pr-4 text-sm text-white outline-none placeholder:text-white/38 focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/20"
+              className="w-full rounded-lg border border-white/12 bg-white/[0.05] py-3 pl-11 pr-4 text-sm text-white outline-none placeholder:text-white/38 focus:border-fuchsia-400/50 focus:ring-1 focus:ring-fuchsia-400/20"
             />
           </div>
           <div className="flex flex-wrap gap-2">
@@ -88,7 +101,7 @@ export default function SkillsGuide() {
                 onClick={() => setCategory(item)}
                 className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${
                   category === item
-                    ? 'border-cyan-400/40 bg-cyan-400/14 text-cyan-100'
+                    ? 'border-fuchsia-400/40 bg-fuchsia-400/14 text-fuchsia-100'
                     : 'border-white/10 bg-white/[0.04] text-white/58 hover:border-white/18 hover:text-white/82'
                 }`}
               >
@@ -100,11 +113,12 @@ export default function SkillsGuide() {
       </section>
 
       <section className="overflow-hidden rounded-xl border border-white/8 bg-[#071024]/90 shadow-[0_24px_60px_rgba(0,0,0,0.35)]">
-        <div className="grid grid-cols-[minmax(180px,1fr)_150px_90px_120px] gap-4 border-b border-white/8 px-5 py-3.5 section-label">
+        <div className="grid grid-cols-[minmax(240px,1.3fr)_minmax(140px,0.75fr)_72px_100px_24px] gap-4 border-b border-white/8 px-5 py-3 section-label">
           <span>Skill</span>
           <span>Category</span>
           <span>SES</span>
           <span>Forecast</span>
+          <span />
         </div>
 
         <div className="divide-y divide-white/6">
@@ -112,24 +126,19 @@ export default function SkillsGuide() {
             const guide = buildSkillGuide(skill)
             return (
               <details key={skill.id} className="group">
-                <summary className="grid cursor-pointer list-none grid-cols-[minmax(180px,1fr)_150px_90px_120px] gap-4 px-5 py-3.5 text-sm transition-colors hover:bg-white/[0.04] [&::-webkit-details-marker]:hidden">
-                  <span className="flex min-w-0 items-start justify-between gap-3">
-                    <span>
-                      <b className="block text-base font-semibold text-[var(--text-primary)]">{skill.name}</b>
-                      <small className="mt-1 block text-xs leading-relaxed text-[var(--text-subtle)]">
-                        {skill.archetype ?? 'Tracked skill'}
-                      </small>
-                    </span>
-                    <ChevronDown
-                      size={16}
-                      className="mt-1 shrink-0 text-white/35 transition-transform duration-200 group-open:rotate-180"
-                    />
+                <summary className="grid cursor-pointer list-none grid-cols-[minmax(240px,1.3fr)_minmax(140px,0.75fr)_72px_100px_24px] gap-4 px-5 py-2.5 text-sm transition-colors hover:bg-white/[0.04] [&::-webkit-details-marker]:hidden">
+                  <span className="min-w-0">
+                    <b className="block text-base font-semibold text-[var(--text-primary)]">{skill.name}</b>
+                    <small className="mt-0.5 block text-xs leading-relaxed text-[var(--text-subtle)]">
+                      {skill.archetype ?? 'Tracked skill'}
+                    </small>
                   </span>
                   <span className="self-center text-[13px] text-white/68">{formatCategoryLabel(skill.category)}</span>
-                  <span className="self-center text-[15px] font-bold tabular-nums text-cyan-200">{score(skill.ses_score)}</span>
+                  <span className="self-center text-[15px] font-bold tabular-nums text-fuchsia-200">{score(skill.ses_score)}</span>
                   <span className={`self-center text-[13px] capitalize ${forecastTone(skill.forecast_trend)}`}>
                     {skill.forecast_trend ?? 'Tracked'}
                   </span>
+                  <ChevronDown size={16} className="self-center text-white/35 transition-transform duration-200 group-open:rotate-180" />
                 </summary>
 
                 <div className="border-t border-white/6 bg-gradient-to-b from-white/[0.035] to-white/[0.015] px-5 py-5">
@@ -151,7 +160,7 @@ export default function SkillsGuide() {
                         <ul className="space-y-2">
                           {guide.useCases.map((item) => (
                             <li key={item} className="flex gap-2.5 text-[14px] leading-relaxed text-white/72">
-                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400/80" />
+                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-fuchsia-400/80" />
                               {item}
                             </li>
                           ))}
@@ -178,7 +187,7 @@ export default function SkillsGuide() {
 
                       <div className="flex flex-wrap gap-2">
                         <MetricPill label="Demand" value={`${score(skill.linkedin_demand)}/100`} />
-                        <MetricPill label="Salary premium" value={`+${score(skill.salary_premium)}%`} />
+                        <MetricPill label="Salary value" value={`${score(skill.salary_premium)}/100`} />
                         <MetricPill label="Safety tier" value={skill.ses_tier ?? 'Not classified'} />
                         <MetricPill label="Forecast method" value={skill.forecast_method ?? 'Dataset projection'} />
                         {skill.lifecycle && <MetricPill label="Lifecycle" value={skill.lifecycle} />}

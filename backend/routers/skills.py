@@ -108,8 +108,8 @@ async def list_skills(
     lifecycle: Optional[str] = Query(None),
     forecast_trend: Optional[str] = Query(None, description="Explosive | Growing | Stable | Declining"),
     forecast_method: Optional[str] = Query(None, description="Holt | ExponentialSmoothing | FeatureBased"),
-    min_ses: Optional[float] = Query(None, ge=0, le=100),
-    max_ses: Optional[float] = Query(None, ge=0, le=100),
+    min_ses: Optional[float] = Query(None, ge=0, le=1),
+    max_ses: Optional[float] = Query(None, ge=0, le=1),
     min_growth: Optional[float] = Query(None),
     sort_by: str = Query(
         "ses_score",

@@ -24,7 +24,7 @@ async def pipeline_stats(db: AsyncSession = Depends(get_db)):
     total_forecasts = (await db.execute(select(func.count(Forecast.skill_id)))).scalar()
 
     avg_confidence = (await db.execute(select(func.avg(Forecast.confidence)))).scalar()
-    forecast_accuracy = round((avg_confidence or 0.942) * 100, 1)
+    forecast_confidence = round((avg_confidence or 0) * 100, 1)
 
     archetype_counts = (
         await db.execute(
@@ -44,13 +44,15 @@ async def pipeline_stats(db: AsyncSession = Depends(get_db)):
         "total_skills": total_skills,
         "history_records": total_history,
         "forecast_records": total_forecasts,
-        "forecast_accuracy_pct": forecast_accuracy,
-        "survey_years_covered": 9,       # 2017–2025
+        # This is confidence derived from historical coverage, not accuracy
+        # validated against unseen ground truth.
+        "forecast_accuracy_pct": forecast_confidence,
+        "survey_years_covered": 13,      # 2013–2025
         "job_postings_processed": 123849,
         "archetype_distribution": {r[0]: r[1] for r in archetype_counts},
         "ses_tier_distribution": {r[0]: r[1] for r in tier_counts},
-        "pipeline_version": "v8",
-        "last_updated": "2025-06-01",
+        "pipeline_version": "canonical-2026",
+        "last_updated": "2026-06-21",
     }
 
 
@@ -75,13 +77,13 @@ async def model_metrics(db: AsyncSession = Depends(get_db)):
     }
 
     return {
-        "ensemble_mape": round(1 - (avg_confidence or 0.942), 4),
-        "ensemble_accuracy_pct": round((avg_confidence or 0.942) * 100, 1),
+        "ensemble_mape": None,
+        "ensemble_accuracy_pct": round((avg_confidence or 0) * 100, 1),
         "model_weights": method_weights or {
             "holt": 0.34,
             "exponentialsmoothing": 0.33,
             "featurebased": 0.33,
         },
         "horizons": [1, 2, 3],
-        "validation_method": "Hybrid forecast confidence aggregated by method",
+        "validation_method": "Hybrid forecast confidence aggregated by method; not held-out accuracy",
     }

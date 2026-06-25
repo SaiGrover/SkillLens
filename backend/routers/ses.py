@@ -22,10 +22,9 @@ router = APIRouter()
 # Archetype → cluster score
 ARCHETYPE_SCORE = {
     "Future-Proof": 1.00,
-    "Emerging":     0.85,
-    "Stable":       0.65,
-    "At-Risk":      0.35,
-    "Obsolete":     0.10,
+    "Growing":      0.75,
+    "Stable":       0.55,
+    "High-Risk":    0.25,
 }
 
 FEATURE_WEIGHTS = {
@@ -38,11 +37,10 @@ FEATURE_WEIGHTS = {
 }
 
 SES_TIERS = [
-    (85, "Elite"),
-    (70, "Future-Proof"),
-    (50, "Stable"),
-    (30, "At-Risk"),
-    (0,  "Extinction Risk"),
+    (0.70, "Very Safe"),
+    (0.45, "Safe"),
+    (0.30, "Moderate"),
+    (0, "Risky"),
 ]
 
 
@@ -50,7 +48,7 @@ def compute_ses_tier(score: float) -> str:
     for threshold, label in SES_TIERS:
         if score >= threshold:
             return label
-    return "Extinction Risk"
+    return "Risky"
 
 
 # ── Pydantic schemas ─────────────────────────────────────────────────────────
@@ -149,7 +147,7 @@ async def ses_distribution(db: AsyncSession = Depends(get_db)):
     )
     rows = result.fetchall()
     total = sum(r[1] for r in rows)
-    tier_order = ["Elite", "Future-Proof", "Stable", "At-Risk", "Extinction Risk"]
+    tier_order = ["Very Safe", "Safe", "Moderate", "Risky"]
     row_map = {r[0]: r for r in rows}
 
     return [
@@ -196,18 +194,18 @@ async def explain_ses(skill_id: str, db: AsyncSession = Depends(get_db)):
 
     # Cluster score
     archetype_label   = cluster.archetype if cluster else "Stable"
-    cluster_component = ARCHETYPE_SCORE.get(archetype_label, 0.65)
+    cluster_component = ARCHETYPE_SCORE.get(archetype_label, 0.55)
 
     recomputed_ses = (
         0.40 * raw_feature
         + 0.35 * forecast_component
         + 0.25 * cluster_component
-    ) * 100
+    )
 
     stored_ses = ses.ses_score if ses else round(recomputed_ses, 2)
 
     narrative = (
-        f"{skill.name} has an SES of {round(stored_ses, 1)}. "
+        f"{skill.name} has an SES of {round(stored_ses * 100, 1)} out of 100. "
         f"Its Feature Score ({round(raw_feature * 100, 1)}) reflects "
         f"{'strong' if raw_feature > 0.7 else 'moderate' if raw_feature > 0.4 else 'weak'} "
         f"current market demand. "
@@ -226,11 +224,11 @@ async def explain_ses(skill_id: str, db: AsyncSession = Depends(get_db)):
         ses_tier=ses.ses_tier if ses else compute_ses_tier(recomputed_ses),
         breakdown={
             "feature_score_raw":     round(raw_feature, 4),
-            "feature_weighted":      round(raw_feature * 0.40 * 100, 2),
+            "feature_weighted":      round(raw_feature * 0.40, 4),
             "forecast_score_raw":    round(forecast_component, 4),
-            "forecast_weighted":     round(forecast_component * 0.35 * 100, 2),
+            "forecast_weighted":     round(forecast_component * 0.35, 4),
             "cluster_score_raw":     round(cluster_component, 4),
-            "cluster_weighted":      round(cluster_component * 0.25 * 100, 2),
+            "cluster_weighted":      round(cluster_component * 0.25, 4),
         },
         feature_contributions=feature_contribs,
         forecast_meta={

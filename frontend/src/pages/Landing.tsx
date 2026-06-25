@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { BarChart3, BrainCircuit, Compass } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 const videoUrl = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4'
@@ -12,6 +14,7 @@ const links = [
 
 export default function Landing() {
   const navigate = useNavigate()
+  const [videoUnavailable, setVideoUnavailable] = useState(false)
   const navigateFromLanding = (to: string) => {
     const documentWithTransition = document as Document & {
       startViewTransition?: (update: () => void) => void
@@ -24,22 +27,26 @@ export default function Landing() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
+    <main className="relative min-h-screen overflow-hidden bg-[#0b0618] text-foreground">
+      <div aria-hidden="true" className="bg-grid absolute inset-0 z-0 opacity-35" />
       <video
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 z-0 h-full w-full object-cover"
+        onError={() => setVideoUnavailable(true)}
+        className={`absolute inset-0 z-0 h-full w-full object-cover transition-opacity duration-700 ${videoUnavailable ? 'opacity-0' : 'opacity-100'}`}
       >
         <source src={videoUrl} type="video/mp4" />
       </video>
+      <noscript>
+        <img src="/landing-poster.svg" alt="SkillLens AI workforce intelligence" className="absolute inset-0 h-full w-full object-cover" />
+      </noscript>
 
       <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-8">
         <button
           onClick={() => navigateFromLanding('/')}
-          className="text-3xl font-normal tracking-tight text-foreground"
-          style={{ fontFamily: "'Instrument Serif', serif" }}
+          className="landing-logo text-3xl tracking-tight text-foreground"
         >
           SkillLens<sup className="text-xs">®</sup>
         </button>
@@ -66,17 +73,19 @@ export default function Landing() {
         </button>
       </nav>
 
-      <section className="relative z-10 flex min-h-[calc(100vh-96px)] flex-col items-center justify-center px-6 py-[90px] pb-40 pt-32 text-center">
+      <section className="relative z-10 flex min-h-[calc(100vh-96px)] flex-col items-center justify-center px-6 py-16 pt-24 text-center">
         <h1
-          className="animate-fade-rise max-w-7xl text-5xl font-normal leading-[0.95] tracking-[-2.46px] text-foreground sm:text-7xl md:text-8xl"
-          style={{ fontFamily: "'Instrument Serif', serif" }}
+          className="landing-display animate-fade-rise max-w-7xl text-5xl leading-[0.95] tracking-[-2.46px] text-foreground sm:text-7xl md:text-8xl"
         >
-          Where skills rise <em className="not-italic text-muted-foreground">through uncertainty.</em>
+          Where skills rise <em className="heading-shine not-italic">through uncertainty.</em>
         </h1>
 
         <p className="animate-fade-rise-delay mt-8 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           SkillLens helps deep thinkers, bold builders, and quiet career strategists see which skills are gaining strength,
           which are fading, and where focused learning can turn into real advantage.
+        </p>
+        <p className="animate-fade-rise-delay mt-3 text-xs font-medium uppercase tracking-[0.14em] text-white/60">
+          AI-powered workforce intelligence platform
         </p>
 
         <button
@@ -85,6 +94,20 @@ export default function Landing() {
         >
           Begin Journey
         </button>
+
+        <div className="animate-fade-rise-delay-2 mt-8 grid w-full max-w-4xl gap-3 sm:grid-cols-3">
+          {[
+            { icon: Compass, title: 'Skill Explorer', detail: 'Compare workforce signals', to: '/skills' },
+            { icon: BrainCircuit, title: 'Career Advisor', detail: 'Grounded next-step guidance', to: '/advisor' },
+            { icon: BarChart3, title: '3-Year Forecasts', detail: 'Confidence-aware outlooks', to: '/forecasts' },
+          ].map(({ icon: Icon, title, detail, to }) => (
+            <button key={title} onClick={() => navigateFromLanding(to)} className="liquid-glass flex items-center gap-3 rounded-xl bg-[#1a0d31]/60 px-4 py-3 text-left backdrop-blur-md transition-transform hover:scale-[1.02]">
+              <Icon size={18} className="shrink-0 text-fuchsia-200" />
+              <span><b className="block text-sm text-white">{title}</b><small className="text-xs text-white/60">{detail}</small></span>
+            </button>
+          ))}
+        </div>
+        <p className="mt-5 text-xs font-medium tracking-wide text-white/55">111 canonical skills <span className="mx-2 text-fuchsia-200/70">·</span> 8 workforce industries <span className="mx-2 text-fuchsia-200/70">·</span> 3-year confidence-aware forecasts</p>
       </section>
     </main>
   )

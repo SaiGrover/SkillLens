@@ -57,11 +57,28 @@ docker compose up --build
 
 The frontend is served at `http://localhost:5173`. Its Nginx layer forwards `/api` requests to the backend container. PostgreSQL is available on port `5432` and the API on port `8000`.
 
-Run the optional data pipeline only when rebuilding processed outputs:
+Run the optional canonical data pipeline when rebuilding processed outputs:
 
 ```bash
 docker compose --profile pipeline up pipeline
 ```
+
+For a local data rebuild, the pipeline order is:
+
+```powershell
+cd backend
+python pipelines/build_clusters.py
+python pipelines/build_forecasts.py
+python pipelines/build_ses.py
+python pipelines/build_industry_analytics.py
+python pipelines/build_knowledge_base.py
+python pipelines/validate_data.py
+python pipelines/generate_frontend_fallback.py
+```
+
+The first step resolves source aliases and writes `canonical_skill_master.csv`.
+The validation step fails on mismatched skill joins, unresolved aliases, invalid
+score ranges, or incomplete forecast horizons.
 
 ## Hosted deployment
 

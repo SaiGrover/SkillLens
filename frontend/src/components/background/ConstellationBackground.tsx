@@ -11,7 +11,7 @@ type Particle = {
   color: string
 }
 
-const colors = ['#7ec8e3', '#8b9cf7', '#a78bfa', '#93c5fd', '#c4b5fd', '#67e8f9']
+const colors = ['#c084fc', '#a855f7', '#d8b4fe', '#e879f9', '#c4b5fd', '#f5d0fe']
 
 function random(min: number, max: number) {
   return Math.random() * (max - min) + min
@@ -78,9 +78,9 @@ export default function ConstellationBackground() {
       ctx.clearRect(0, 0, width, height)
 
       const bg = ctx.createRadialGradient(width * 0.5, height * 0.35, 0, width * 0.5, height * 0.5, Math.max(width, height))
-      bg.addColorStop(0, 'rgba(8, 18, 45, 0.9)')
-      bg.addColorStop(0.55, 'rgba(4, 8, 28, 0.96)')
-      bg.addColorStop(1, 'rgba(2, 4, 18, 1)')
+      bg.addColorStop(0, 'rgba(39, 11, 67, 0.9)')
+      bg.addColorStop(0.55, 'rgba(20, 7, 38, 0.96)')
+      bg.addColorStop(1, 'rgba(8, 4, 17, 1)')
       ctx.fillStyle = bg
       ctx.fillRect(0, 0, width, height)
 
@@ -141,7 +141,7 @@ export default function ConstellationBackground() {
           const strength = (1 - dist / 230) ** 2
           const gradient = ctx.createLinearGradient(mouse.x, mouse.y, particle.x, particle.y)
           gradient.addColorStop(0, `rgba(167, 139, 250, ${strength * 0.9})`)
-          gradient.addColorStop(1, `rgba(103, 232, 249, ${strength * 0.45})`)
+          gradient.addColorStop(1, `rgba(233, 213, 255, ${strength * 0.45})`)
 
           ctx.globalAlpha = 1
           ctx.strokeStyle = gradient
@@ -196,9 +196,9 @@ export default function ConstellationBackground() {
   }, [])
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden bg-[#020412]">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden bg-[#080411]">
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-80 mix-blend-screen" aria-hidden="true" />
-      <div className="absolute inset-0 bg-[#020412]/20" />
+      <div className="absolute inset-0 bg-[#080411]/20" />
       <div className="absolute inset-y-0 left-1/4 hidden w-px bg-white/[0.04] md:block" />
       <div className="absolute inset-y-0 left-1/2 hidden w-px bg-white/[0.04] md:block" />
       <div className="absolute inset-y-0 left-3/4 hidden w-px bg-white/[0.04] md:block" />

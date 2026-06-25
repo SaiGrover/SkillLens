@@ -1,10 +1,10 @@
 import { cn } from '@/lib/utils'
 
-interface BadgeProps { label: string; color?: 'violet' | 'cyan' | 'emerald' | 'amber' | 'red'; className?: string }
+interface BadgeProps { label: string; color?: 'violet' | 'fuchsia' | 'emerald' | 'amber' | 'red'; className?: string }
 
 const colorMap = {
   violet: 'bg-violet-600/15 border-violet-500/25 text-violet-300',
-  cyan: 'bg-cyan-600/15 border-cyan-500/25 text-cyan-300',
+  fuchsia: 'bg-fuchsia-600/15 border-fuchsia-500/25 text-fuchsia-300',
   emerald: 'bg-emerald-600/15 border-emerald-500/25 text-emerald-300',
   amber: 'bg-amber-600/15 border-amber-500/25 text-amber-300',
   red: 'bg-red-600/15 border-red-500/25 text-red-300',
