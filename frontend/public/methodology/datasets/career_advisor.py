@@ -1,6 +1,6 @@
 ﻿
 """
-career_advisor.py â€” HSEP Career Advisor (importable module)
+career_advisor.py - HSEP Career Advisor (importable module)
 Usage:
     from career_advisor import career_advisor
     result = career_advisor("Should I learn Kubernetes?")
@@ -30,7 +30,7 @@ VECTOR_COLS = [
 ]
 
 SYSTEM_PROMPT = (
-    "You are HSEP Career Advisor â€” a precise, data-driven career "
+    "You are HSEP Career Advisor - a precise, data-driven career "
     "intelligence assistant. Ground every recommendation in the provided "
     "skill context. Cite SES scores, tiers, and forecast trends when relevant."
 )

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer,
@@ -7,6 +6,7 @@ import {
 } from 'recharts'
 import { ArrowUpRight, BrainCircuit, LineChart, SlidersHorizontal, TrendingDown, TrendingUp } from 'lucide-react'
 import { forecastApi, LeaderboardEntry, MethodDistribution, skillsApi } from '@/services/api'
+import StatCard from '@/components/ui/StatCard'
 
 const trendColors: Record<string, string> = {
   explosive: '#ec4899',
@@ -130,10 +130,10 @@ export default function Forecasts() {
       </div>
 
       <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
-        <MetricCard title="Ranked Forecasts" value={leaderboard.length} detail="top demand projections" icon={<BrainCircuit size={18} />} />
-        <MetricCard title="Forecast Confidence" value={`${avgConfidence}%`} detail="average model confidence" icon={<ArrowUpRight size={18} />} />
-        <MetricCard title="Explosive Trends" value={explosiveCount} detail="highest growth bucket" icon={<TrendingUp size={18} />} />
-        <MetricCard title="Growing Trends" value={growingCount} detail="positive forecast bucket" icon={<TrendingDown size={18} />} />
+        <StatCard label="Ranked Forecasts" value={leaderboard.length} change="top demand projections" positive icon={<BrainCircuit size={20} />} color="violet" />
+        <StatCard label="Forecast Confidence" value={`${avgConfidence}%`} change="average model confidence" positive={avgConfidence >= 70} icon={<ArrowUpRight size={20} />} color="fuchsia" />
+        <StatCard label="Explosive Trends" value={explosiveCount} change="highest growth bucket" positive icon={<TrendingUp size={20} />} color="violet" />
+        <StatCard label="Growing Trends" value={growingCount} change="positive forecast bucket" positive icon={<TrendingDown size={20} />} color="fuchsia" />
       </div>
 
       <div className="glass overflow-visible rounded-xl border border-white/5 p-3">
@@ -266,19 +266,6 @@ function FilterButtons({ label, value, options, onChange }: { label: string; val
           </button>
         ))}
       </div>
-    </div>
-  )
-}
-
-function MetricCard({ title, value, detail, icon }: { title: string; value: string | number; detail: string; icon: ReactNode }) {
-  return (
-    <div className="glass rounded-xl border border-white/5 p-5">
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/15 text-violet-300">
-        {icon}
-      </div>
-      <p className="text-xs uppercase tracking-wider text-white/35">{title}</p>
-      <p className="mt-1 text-2xl font-bold text-white">{value}</p>
-      <p className="mt-1 text-xs text-white/35">{detail}</p>
     </div>
   )
 }

@@ -626,7 +626,7 @@ function SkillPanel({
       {tab === 'related' && (
         <div className="detail-card">
           <b>Related skills</b>
-          {related.map((item) => <p key={item.id}><span className="flex items-center gap-2"><Ring value={pct(item.ses_score)} />{item.name}<small className="text-white/35">SES {pct(item.ses_score)} Â· Demand {demandScore(item)}</small></span><ChevronRight size={13} /></p>)}
+          {related.map((item) => <p key={item.id}><span className="flex items-center gap-2"><Ring value={pct(item.ses_score)} />{item.name}<small className="text-white/35">SES {pct(item.ses_score)} - Demand {demandScore(item)}</small></span><ChevronRight size={13} /></p>)}
         </div>
       )}
 

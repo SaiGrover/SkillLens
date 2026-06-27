@@ -255,7 +255,7 @@ export default function Dashboard() {
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-500/15 text-violet-300">{index + 1}</span>
               <div>
                 <p className="font-medium text-white">{item.skill_name}</p>
-                <p className="text-xs text-white/35">{item.forecast_trend} Â· {item.forecast_method}</p>
+                <p className="text-xs text-white/35">{item.forecast_trend} - {item.forecast_method}</p>
               </div>
               <span className="text-emerald-300">+{Math.round(item.growth_pct)}%</span>
               <span className="text-white/55">{Math.round(item.confidence * 100)}% confidence</span>

@@ -1,15 +1,15 @@
-import { useParams, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, TrendingUp, AlertTriangle, DollarSign, Zap } from 'lucide-react'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
-import { skillsApi, SkillDetail as ApiSkillDetail } from '@/services/api'
+import { ArrowLeft, AlertTriangle, CheckCircle2, DollarSign, TrendingUp, Zap } from 'lucide-react'
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { SkillDetail as ApiSkillDetail, skillsApi } from '@/services/api'
 
 const certifications: Record<string, string[]> = {
-  python: ['PCEP','Google Python Certificate','AWS ML Specialty'],
-  aws: ['AWS Solutions Architect','AWS Developer','AWS DevOps Pro'],
-  cybersecurity: ['CompTIA Security+','CISSP','CEH'],
-  default: ['Google Cloud','AWS','Microsoft Azure'],
+  python: ['PCEP', 'Google Python Certificate', 'AWS ML Specialty'],
+  aws: ['AWS Solutions Architect', 'AWS Developer', 'AWS DevOps Pro'],
+  cybersecurity: ['CompTIA Security+', 'CISSP', 'CEH'],
+  default: ['Google Cloud', 'AWS', 'Microsoft Azure'],
 }
 
 const industryData = [
@@ -24,7 +24,7 @@ export default function SkillDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [skill, setSkill] = useState<ApiSkillDetail | null>(null)
-  const [history, setHistory] = useState<any[]>([])
+  const [history, setHistory] = useState<Array<{ month: string; value: number }>>([])
   const [similar, setSimilar] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -37,28 +37,28 @@ export default function SkillDetail() {
         setSkill(skillRes)
 
         const historyRes = await skillsApi.history(id)
-        const formattedHistory = (historyRes ?? []).map(h => ({
+        setHistory((historyRes ?? []).map((h) => ({
           month: String(h.year),
-          value: Math.round(h.adoption_rate * 100),
-        }))
-        setHistory(formattedHistory)
+          value: Math.round((h.adoption_rate ?? 0) * 100),
+        })))
 
         const similarRes = await skillsApi.similar(id)
         setSimilar(similarRes ?? [])
       } catch (err) {
-        console.error("Error loading skill detail:", err)
+        console.error('Error loading skill detail:', err)
       } finally {
         setLoading(false)
       }
     }
+
     loadSkillDetails()
   }, [id])
 
   if (loading) {
     return (
-      <div className="h-[60vh] flex items-center justify-center text-white/50 text-sm">
+      <div className="flex h-[60vh] items-center justify-center text-sm text-white/50">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-violet-500 border-t-transparent animate-spin" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
           <p>Loading skill analytics from real datasets...</p>
         </div>
       </div>
@@ -67,61 +67,59 @@ export default function SkillDetail() {
 
   if (!skill) {
     return (
-      <div className="text-center py-20 text-white/40">
+      <div className="py-20 text-center text-white/40">
         <p>Skill not found</p>
-        <button onClick={() => navigate('/skills')} className="text-violet-400 mt-4 underline">Back to list</button>
+        <button onClick={() => navigate('/skills')} className="mt-4 text-violet-300 underline">Back to list</button>
       </div>
     )
   }
 
-  // Derive metrics
   const demand = Math.round((skill.linkedin_demand ?? 0.2) * 100)
   const futureDemand = Math.round((skill.forecast_1y ?? (skill.linkedin_demand ?? 0.2) * 1.1) * 100)
   const growth = Math.round((skill.growth_rate ?? 0.1) * 100)
   const salary = Math.round((skill.salary_premium ?? 0.3) * 120000 + 45000)
   const risk = Math.round((1 - (skill.ses_score ?? 0.5)) * 100)
   const automation = Math.round((skill.volatility_score ?? 0.15) * 100)
-
   const certs = certifications[id || ''] || certifications.default
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center gap-4">
-        <button onClick={() => navigate(-1)} className="p-2 rounded-lg glass border border-white/10 hover:border-white/20 text-white/60 hover:text-white transition-all">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+        <button onClick={() => navigate(-1)} className="glass w-fit rounded-lg border border-white/10 p-2 text-white/60 transition-all hover:border-white/20 hover:text-white">
           <ArrowLeft size={18} />
         </button>
         <div>
           <h1 className="page-title">{skill.name}</h1>
-          <p className="page-subtitle !mt-1">{skill.category ?? 'Unassigned'} Â· Updated Live</p>
+          <p className="page-subtitle !mt-1">{skill.category ?? 'Unassigned'} - Updated live</p>
         </div>
-        <div className="ml-auto flex items-center gap-2">
-          <span className="px-3 py-1.5 rounded-full bg-violet-600/20 border border-violet-500/30 text-violet-300 text-sm font-medium">
+        <div className="flex flex-wrap items-center gap-2 lg:ml-auto">
+          <span className="rounded-full border border-violet-500/30 bg-violet-600/20 px-3 py-1.5 text-sm font-medium text-violet-200">
             Demand: {demand}%
           </span>
-          <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${risk <= 10 ? 'bg-emerald-600/20 border border-emerald-500/30 text-emerald-300' : 'bg-amber-600/20 border border-amber-500/30 text-amber-300'}`}>
+          <span className={`rounded-full px-3 py-1.5 text-sm font-medium ${risk <= 10 ? 'border border-emerald-500/30 bg-emerald-600/20 text-emerald-300' : 'border border-amber-500/30 bg-amber-600/20 text-amber-300'}`}>
             Risk: {risk}%
           </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {[
-          { label: 'Current Demand', value: `${demand}%`, icon: <TrendingUp size={18} />, color: 'text-violet-400' },
-          { label: 'Future Demand', value: `${futureDemand}%`, icon: <Zap size={18} />, color: 'text-fuchsia-400' },
-          { label: 'Avg Salary', value: `$${(salary/1000).toFixed(0)}k`, icon: <DollarSign size={18} />, color: 'text-emerald-400' },
-          { label: 'Automation Risk', value: `${automation}%`, icon: <AlertTriangle size={18} />, color: automation > 25 ? 'text-red-400' : 'text-amber-400' },
+          { label: 'Current Demand', value: `${demand}%`, icon: <TrendingUp size={18} />, color: 'text-violet-300' },
+          { label: 'Future Demand', value: `${futureDemand}%`, icon: <Zap size={18} />, color: 'text-fuchsia-300' },
+          { label: 'Avg Salary', value: `$${(salary / 1000).toFixed(0)}k`, icon: <DollarSign size={18} />, color: 'text-lime-200' },
+          { label: 'Automation Risk', value: `${automation}%`, icon: <AlertTriangle size={18} />, color: automation > 25 ? 'text-rose-300' : 'text-amber-300' },
         ].map(({ label, value, icon, color }) => (
-          <div key={label} className="glass rounded-xl p-4 border border-white/5">
+          <div key={label} className="glass rounded-xl border border-white/5 p-4">
             <div className={`${color} mb-2`}>{icon}</div>
-            <p className="text-xs text-white/40">{label}</p>
-            <p className={`text-xl font-bold mt-1 ${color}`}>{value}</p>
+            <p className="text-xs text-white/45">{label}</p>
+            <p className={`mt-1 text-xl font-bold ${color}`}>{value}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass rounded-xl p-5 border border-white/5">
-          <h3 className="text-sm font-semibold text-white/80 mb-4">Demand Trend + Forecast</h3>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass rounded-xl border border-white/5 p-5">
+          <h3 className="mb-4 text-sm font-semibold text-white/80">Demand Trend + Forecast</h3>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={history}>
               <defs>
@@ -139,8 +137,8 @@ export default function SkillDetail() {
           </ResponsiveContainer>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="glass rounded-xl p-5 border border-white/5">
-          <h3 className="text-sm font-semibold text-white/80 mb-4">Industry Adoption</h3>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="glass rounded-xl border border-white/5 p-5">
+          <h3 className="mb-4 text-sm font-semibold text-white/80">Industry Adoption</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={industryData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
@@ -153,43 +151,45 @@ export default function SkillDetail() {
         </motion.div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4">
-        <div className="glass rounded-xl p-5 border border-white/5">
-          <h3 className="font-semibold text-white mb-4 text-sm">Similar Skills</h3>
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="glass rounded-xl border border-white/5 p-5">
+          <h3 className="mb-4 text-sm font-semibold text-white">Similar Skills</h3>
           <ul className="space-y-2">
-            {similar.length ? similar.map(s => (
-              <li key={s.id} onClick={() => navigate(`/skills/${s.id}`)} className="flex items-center justify-between text-sm text-white/60 hover:text-violet-300 cursor-pointer transition-colors">
+            {similar.length ? similar.map((s) => (
+              <li key={s.id} onClick={() => navigate(`/skills/${s.id}`)} className="flex cursor-pointer items-center justify-between text-sm text-white/60 transition-colors hover:text-violet-300">
                 <span className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />{s.name}
+                  <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />{s.name}
                 </span>
                 <span className="text-xs text-white/30">SES: {Math.round((s.ses_score ?? 0.5) * 100)}</span>
               </li>
-            )) : ['Python', 'SQL', 'Git'].map(s => (
+            )) : ['Python', 'SQL', 'Git'].map((s) => (
               <li key={s} className="flex items-center gap-2 text-sm text-white/60">
-                <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />{s}
+                <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />{s}
               </li>
             ))}
           </ul>
         </div>
-        <div className="glass rounded-xl p-5 border border-white/5">
-          <h3 className="font-semibold text-white mb-4 text-sm">Learning Path</h3>
-          {['Beginner (0â€“3 mo)', 'Intermediate (3â€“6 mo)', 'Advanced (6â€“12 mo)', 'Expert (12+ mo)'].map((stage, i) => (
-            <div key={stage} className="flex items-center gap-3 mb-3">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${i < 2 ? 'bg-violet-600 text-white' : 'bg-white/10 text-white/30'}`}>{i+1}</div>
+
+        <div className="glass rounded-xl border border-white/5 p-5">
+          <h3 className="mb-4 text-sm font-semibold text-white">Learning Path</h3>
+          {['Beginner (0-3 mo)', 'Intermediate (3-6 mo)', 'Advanced (6-12 mo)', 'Expert (12+ mo)'].map((stage, i) => (
+            <div key={stage} className="mb-3 flex items-center gap-3">
+              <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${i < 2 ? 'bg-violet-600 text-white' : 'bg-white/10 text-white/30'}`}>{i + 1}</div>
               <span className="text-sm text-white/60">{stage}</span>
             </div>
           ))}
         </div>
-        <div className="glass rounded-xl p-5 border border-white/5">
-          <h3 className="font-semibold text-white mb-4 text-sm">Certifications</h3>
+
+        <div className="glass rounded-xl border border-white/5 p-5">
+          <h3 className="mb-4 text-sm font-semibold text-white">Certifications</h3>
           <ul className="space-y-2">
-            {certs.map(c => (
-              <li key={c} className="flex items-center gap-2 text-sm text-white/60">
-                <span className="text-emerald-400">âœ“</span>{c}
+            {certs.map((cert) => (
+              <li key={cert} className="flex items-center gap-2 text-sm text-white/60">
+                <CheckCircle2 size={15} className="text-lime-300" />{cert}
               </li>
             ))}
           </ul>
-          <div className="mt-4 p-3 bg-fuchsia-600/10 rounded-lg border border-fuchsia-500/20">
+          <div className="mt-4 rounded-lg border border-fuchsia-500/20 bg-fuchsia-600/10 p-3">
             <p className="text-xs text-fuchsia-300">Lifecycle: <strong>{skill.lifecycle ?? 'Stable'}</strong></p>
           </div>
         </div>

@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Search, LineChart, Building2, Bot,
-  Target, FileText, FlaskConical, TrendingUp, BookOpen
+  Target, FileText, FlaskConical, TrendingUp, BookOpen, ChevronRight, MessageSquare
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { csvSnapshotMetadata } from '@/data/fallbackData'
 
 const nav = [
   {
@@ -34,27 +33,25 @@ const nav = [
     section: 'Output',
     items: [
       { to: '/reports', icon: FileText, label: 'Reports' },
+      { to: '/feedback', icon: MessageSquare, label: 'Feedback' },
       { to: '/methodology', icon: FlaskConical, label: 'Methodology' },
     ],
   },
 ]
 
 export default function Sidebar() {
-  const [savedCount, setSavedCount] = useState(0)
+  const navRef = useRef<HTMLElement | null>(null)
 
-  useEffect(() => {
-    const refreshSavedCount = () => {
-      try {
-        const saved = JSON.parse(window.localStorage.getItem('skilllens:saved-skills') ?? '[]')
-        setSavedCount(Array.isArray(saved) ? saved.length : 0)
-      } catch {
-        setSavedCount(0)
-      }
-    }
-    refreshSavedCount()
-    window.addEventListener('skilllens:saved-skills', refreshSavedCount)
-    return () => window.removeEventListener('skilllens:saved-skills', refreshSavedCount)
-  }, [])
+  const scrollNavRight = () => {
+    const navEl = navRef.current
+    if (!navEl) return
+
+    const remaining = navEl.scrollWidth - navEl.clientWidth - navEl.scrollLeft
+    navEl.scrollTo({
+      left: remaining < 48 ? 0 : navEl.scrollLeft + Math.min(420, navEl.clientWidth * 0.72),
+      behavior: 'smooth',
+    })
+  }
 
   return (
     <aside className="top-orbit-panel relative z-20 shrink-0 border-b border-white/10 px-3 py-3 md:px-5">
@@ -70,12 +67,13 @@ export default function Sidebar() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2 xl:hidden">
-            <span className="top-mini-chip">{csvSnapshotMetadata.skill_count} signals</span>
-            <span className="top-mini-chip top-mini-chip--warm">{savedCount} saved</span>
+            <button type="button" className="top-scroll-cue" onClick={scrollNavRight} aria-label="Scroll navigation to the right">
+              <ChevronRight size={16} />
+            </button>
           </div>
         </div>
 
-        <nav className="top-nav-scroll min-w-0 flex-1 overflow-x-auto">
+        <nav ref={navRef} className="top-nav-scroll min-w-0 flex-1 overflow-x-auto" aria-label="Primary">
           <div className="flex min-w-max items-stretch gap-2 pb-1 xl:justify-center xl:pb-0">
             {nav.map((group) => (
               <div key={group.section} className="top-nav-group">
@@ -101,14 +99,9 @@ export default function Sidebar() {
         </nav>
 
         <div className="hidden shrink-0 items-center gap-2 xl:flex">
-          <div className="top-status-card">
-            <span>Dataset</span>
-            <b>{csvSnapshotMetadata.skill_count} skill signals</b>
-          </div>
-          <div className="top-status-card top-status-card--saved">
-            <span>Saved</span>
-            <b>{savedCount}</b>
-          </div>
+          <button type="button" className="top-scroll-cue" onClick={scrollNavRight} aria-label="Scroll navigation to the right">
+            <ChevronRight size={17} />
+          </button>
         </div>
       </div>
     </aside>

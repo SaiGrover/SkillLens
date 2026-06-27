@@ -12,6 +12,7 @@ import Global from '@/pages/Global'
 import Forecasts from '@/pages/Forecasts'
 import Industries from '@/pages/Industries'
 import Reports from '@/pages/Reports'
+import Feedback from '@/pages/Feedback'
 import Approach from '@/pages/Approach'
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="forecasts" element={<Forecasts />} />
           <Route path="industries" element={<Industries />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="feedback" element={<Feedback />} />
           <Route path="methodology" element={<Approach />} />
           <Route path="approach" element={<Approach />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -21,7 +21,7 @@ const CATEGORY_CONTEXT: Record<string, string> = {
 }
 
 const ARCHETYPE_OUTLOOK: Record<string, string> = {
-  'Future-Proof': 'This skill sits in a high-confidence growth cluster â€” strong demand, adoption momentum, and positive forecast signals make it a priority for long-term career investment.',
+  'Future-Proof': 'This skill sits in a high-confidence growth cluster - strong demand, adoption momentum, and positive forecast signals make it a priority for long-term career investment.',
   Emerging: 'This skill is gaining traction quickly. Early mastery can create outsized career advantage before the market becomes saturated.',
   Stable: 'This skill offers steady, durable relevance. It is less volatile than emerging tools but remains a dependable foundation across roles and industries.',
   'At-Risk': 'Workforce signals suggest weakening momentum. Pair this skill with adjacent high-SES capabilities to reduce career exposure.',
@@ -137,7 +137,7 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
   azure: {
     about: 'Microsoft Azure is a cloud platform integrated deeply with the Microsoft enterprise stack. It offers compute, AI, data, and identity services commonly adopted in corporate environments.',
     useCases: ['Enterprise .NET and Java deployments', 'Azure Data Factory and Synapse analytics', 'Hybrid cloud with Azure Arc'],
-    learningPath: 'Start with Azure Fundamentals, then focus on the services aligned to your role â€” App Service, AKS, or Synapse.',
+    learningPath: 'Start with Azure Fundamentals, then focus on the services aligned to your role - App Service, AKS, or Synapse.',
   },
   tableau: {
     about: 'Tableau is a leading business intelligence tool for interactive dashboards and visual analytics. Analysts use it to connect to databases, build calculated fields, and publish stories to stakeholders.',
@@ -200,9 +200,9 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Configure sites, permissions, and lists, then explore Power Automate integration and SharePoint Framework for custom apps.',
   },
   'ms-excel': {
-    about: 'MS Excel refers to spreadsheet proficiency within the Microsoft Office suite â€” formulas, charts, pivot tables, and data preparation skills used across finance, operations, and analytics roles.',
+    about: 'MS Excel refers to spreadsheet proficiency within the Microsoft Office suite - formulas, charts, pivot tables, and data preparation skills used across finance, operations, and analytics roles.',
     useCases: ['Budget tracking and variance analysis', 'Operational reporting templates', 'Lightweight data cleaning before BI import'],
-    learningPath: 'Same as Excel: formulas â†’ pivots â†’ Power Query â†’ optional VBA or Python in Excel.',
+    learningPath: 'Same as Excel: formulas -> pivots -> Power Query -> optional VBA or Python in Excel.',
   },
   programming: {
     about: 'Programming is the general capability of writing instructions that computers execute to solve problems. It underpins software engineering, data science, automation, and digital product development.',
@@ -215,14 +215,14 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Learn SQL and dimensional modeling, then master Power BI or Tableau and study data warehouse concepts.',
   },
   databases: {
-    about: 'Databases are systems for persistently storing and querying structured data. Understanding database concepts â€” schemas, indexes, transactions â€” is foundational for backend, analytics, and data engineering roles.',
+    about: 'Databases are systems for persistently storing and querying structured data. Understanding database concepts - schemas, indexes, transactions - is foundational for backend, analytics, and data engineering roles.',
     useCases: ['Application persistence layers', 'Analytics against warehouse tables', 'Data modeling for new product features'],
     learningPath: 'Start with relational SQL databases, then explore NoSQL options and normalization vs. denormalization trade-offs.',
   },
   'data-science': {
     about: 'Data Science combines statistics, programming, and domain knowledge to extract insights and build predictive models from complex datasets. It spans exploration, experimentation, and ML deployment.',
     useCases: ['Predictive modeling for business outcomes', 'Customer segmentation and churn analysis', 'Experiment design and causal inference'],
-    learningPath: 'Python + pandas + statistics â†’ scikit-learn â†’ communication via visualization and stakeholder presentations.',
+    learningPath: 'Python + pandas + statistics -> scikit-learn -> communication via visualization and stakeholder presentations.',
   },
   'database-management': {
     about: 'Database Management covers administration, tuning, backup, security, and lifecycle operations for database systems. DBAs and platform engineers ensure data stores remain available, performant, and compliant.',
@@ -245,7 +245,7 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Study networking and OS fundamentals, then pursue Security+ and hands-on labs in SOC, pentesting, or cloud security.',
   },
   'agile-development': {
-    about: 'Agile Development applies iterative delivery practices within software teams â€” short cycles, continuous feedback, and adaptive planning. It pairs naturally with Scrum, Kanban, and DevOps workflows.',
+    about: 'Agile Development applies iterative delivery practices within software teams - short cycles, continuous feedback, and adaptive planning. It pairs naturally with Scrum, Kanban, and DevOps workflows.',
     useCases: ['Incremental feature shipping with sprint demos', 'Backlog grooming with product owners', 'Cross-functional pairing and mob sessions'],
     learningPath: 'Participate actively in agile ceremonies, then deepen with Scrum Master or Product Owner certification if leading teams.',
   },
@@ -295,7 +295,7 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Understand REST/gRPC, containerization, service discovery, and observability before splitting monoliths.',
   },
   nosql: {
-    about: 'NoSQL databases store data in non-relational formats â€” documents, key-value, column-family, or graphs. They trade flexible schemas and horizontal scale for different consistency guarantees than SQL.',
+    about: 'NoSQL databases store data in non-relational formats - documents, key-value, column-family, or graphs. They trade flexible schemas and horizontal scale for different consistency guarantees than SQL.',
     useCases: ['Flexible product catalogs and user profiles', 'High-throughput session and cache stores', 'Graph queries for social and fraud networks'],
     learningPath: 'Learn when NoSQL fits vs. SQL, then practice with MongoDB or DynamoDB and study CAP theorem implications.',
   },
@@ -360,7 +360,7 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Learn Ohm\'s law, semiconductors, and schematic reading, then practice with breadboards and oscilloscope measurements.',
   },
   'system-design': {
-    about: 'System Design is the practice of architecting scalable, reliable software systems â€” defining components, data flows, capacity plans, and failure modes before implementation.',
+    about: 'System Design is the practice of architecting scalable, reliable software systems - defining components, data flows, capacity plans, and failure modes before implementation.',
     useCases: ['Designing high-traffic APIs and data stores', 'Architecture reviews for new product initiatives', 'Interview and staff-engineer level design discussions'],
     learningPath: 'Study distributed systems primitives (load balancing, caching, sharding), then practice designing real systems on paper.',
   },
@@ -385,12 +385,12 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Learn DAMA-DMBOK concepts, metadata management, and partner with legal/compliance on regulatory frameworks.',
   },
   'agile-methodologies': {
-    about: 'Agile Methodologies are family of iterative approaches â€” Scrum, Kanban, XP, and hybrids â€” that prioritize responding to change over rigid plans. They shape how modern product teams deliver software.',
+    about: 'Agile Methodologies are family of iterative approaches - Scrum, Kanban, XP, and hybrids - that prioritize responding to change over rigid plans. They shape how modern product teams deliver software.',
     useCases: ['Team process selection and coaching', 'Hybrid agile-waterfall program management', 'Scaling agile across multiple squads (SAFe, LeSS)'],
     learningPath: 'Experience Scrum firsthand, then compare Kanban for flow-based teams and explore scaling frameworks if leading programs.',
   },
   'agile-methodology': {
-    about: 'Agile Methodology refers to applying agile principles â€” customer collaboration, working software, and adaptive planning â€” within a team\'s delivery process, often via Scrum or Kanban.',
+    about: 'Agile Methodology refers to applying agile principles - customer collaboration, working software, and adaptive planning - within a team\'s delivery process, often via Scrum or Kanban.',
     useCases: ['Sprint execution and velocity tracking', 'Continuous backlog prioritization', 'Stakeholder demos and feedback incorporation'],
     learningPath: 'Same as agile: participate in ceremonies, facilitate retrospectives, and optionally certify as Scrum Master.',
   },
@@ -405,24 +405,24 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Daily terminal practice: navigation, pipes, permissions, and bash scripting on Linux or WSL.',
   },
   'big-data': {
-    about: 'Big Data refers to datasets and processing pipelines too large or fast for traditional databases â€” requiring distributed storage, stream processing, and specialized analytics platforms.',
+    about: 'Big Data refers to datasets and processing pipelines too large or fast for traditional databases - requiring distributed storage, stream processing, and specialized analytics platforms.',
     useCases: ['Clickstream and telemetry analytics at scale', 'Real-time fraud detection pipelines', 'Lakehouse architectures combining batch and stream'],
     learningPath: 'Learn Spark, cloud warehouses, and streaming (Kafka/Flink), then study data lakehouse patterns with Delta/Iceberg.',
   },
   'cyber-security': {
-    about: 'Cyber Security (alternate spelling) covers the same domain as cybersecurity â€” protecting systems and data from digital threats through technical controls, monitoring, and incident response.',
+    about: 'Cyber Security (alternate spelling) covers the same domain as cybersecurity - protecting systems and data from digital threats through technical controls, monitoring, and incident response.',
     useCases: ['SOC analyst triage and escalation', 'Penetration testing and red team exercises', 'Cloud security posture management'],
     learningPath: 'Build networking and OS foundations, then choose a track: blue team (SOC), red team (pentest), or cloud security.',
   },
   'plc-programming': {
-    about: 'PLC Programming controls industrial machinery through Programmable Logic Controllers â€” ladder logic and structured text running on factory floors, utilities, and automation lines.',
+    about: 'PLC Programming controls industrial machinery through Programmable Logic Controllers - ladder logic and structured text running on factory floors, utilities, and automation lines.',
     useCases: ['Assembly line automation sequences', 'Process control in manufacturing plants', 'Safety interlock and emergency stop logic'],
     learningPath: 'Learn ladder logic on vendor platforms (Allen-Bradley, Siemens), then study industrial networking and SCADA basics.',
   },
   'microsoft-azure': {
-    about: 'Microsoft Azure is the full cloud platform brand encompassing compute, identity, data, and AI services in the Microsoft ecosystem â€” often the default cloud choice for enterprise Microsoft shops.',
+    about: 'Microsoft Azure is the full cloud platform brand encompassing compute, identity, data, and AI services in the Microsoft ecosystem - often the default cloud choice for enterprise Microsoft shops.',
     useCases: ['Hybrid identity with Azure AD', 'Azure Kubernetes Service deployments', 'Synapse and Fabric analytics pipelines'],
-    learningPath: 'Follow AZ-900 â†’ AZ-104 or role-based paths aligned to developer, admin, or data engineer tracks.',
+    learningPath: 'Follow AZ-900 -> AZ-104 or role-based paths aligned to developer, admin, or data engineer tracks.',
   },
   'continuous-integration': {
     about: 'Continuous Integration merges developer changes frequently into a shared repository, triggering automated builds and tests. It catches integration defects early and keeps mainline code releasable.',
@@ -435,7 +435,7 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Deepen one primary language, then learn a systems language (Go/Rust) and a scripting language (Python) for breadth.',
   },
   'c-c': {
-    about: 'C/C++ combined proficiency covers both C\'s systems-level control and C++\'s object-oriented and template abstractions â€” common in performance-critical and embedded domains.',
+    about: 'C/C++ combined proficiency covers both C\'s systems-level control and C++\'s object-oriented and template abstractions - common in performance-critical and embedded domains.',
     useCases: ['Legacy C codebase maintenance', 'Performance-sensitive C++ services', 'Game and graphics engine development'],
     learningPath: 'Master C memory and pointers, then C++ RAII, STL, and modern features; practice on open-source systems projects.',
   },
@@ -450,7 +450,7 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Master branching, PRs, and Actions YAML; explore branch protection, environments, and security scanning features.',
   },
   database: {
-    about: 'Database skills encompass designing schemas, writing queries, and understanding storage engines for relational and non-relational systems â€” a core competency for builders and analysts alike.',
+    about: 'Database skills encompass designing schemas, writing queries, and understanding storage engines for relational and non-relational systems - a core competency for builders and analysts alike.',
     useCases: ['Schema design for new application features', 'Query optimization for slow reports', 'Choosing SQL vs. NoSQL for new services'],
     learningPath: 'Start with PostgreSQL or MySQL, practice normalization and indexes, then explore one NoSQL and one warehouse platform.',
   },
@@ -470,12 +470,12 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Learn OOP in one language deeply, then study design patterns and when composition beats inheritance.',
   },
   'deep-learning': {
-    about: 'Deep Learning uses neural networks with many layers to learn representations from raw data â€” powering image recognition, speech, NLP, and generative AI breakthroughs.',
+    about: 'Deep Learning uses neural networks with many layers to learn representations from raw data - powering image recognition, speech, NLP, and generative AI breakthroughs.',
     useCases: ['Computer vision classification and detection', 'Sequence models for time series and text', 'Generative models (GANs, diffusion, LLMs)'],
-    learningPath: 'Linear algebra + PyTorch/TensorFlow â†’ CNNs/RNNs/Transformers â†’ fine-tuning and deployment with ONNX or Triton.',
+    learningPath: 'Linear algebra + PyTorch/TensorFlow -> CNNs/RNNs/Transformers -> fine-tuning and deployment with ONNX or Triton.',
   },
   apis: {
-    about: 'APIs (Application Programming Interfaces) define contracts for software components to communicate â€” typically over HTTP REST, GraphQL, or gRPC. API design skills are essential for integration and platform roles.',
+    about: 'APIs (Application Programming Interfaces) define contracts for software components to communicate - typically over HTTP REST, GraphQL, or gRPC. API design skills are essential for integration and platform roles.',
     useCases: ['Public developer platforms and partner integrations', 'Microservice boundary definitions', 'Third-party SaaS connectivity'],
     learningPath: 'Design RESTful resources, document with OpenAPI, then study auth (OAuth2), versioning, and rate limiting.',
   },
@@ -490,7 +490,7 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Practice CRUD and aggregation, index design, and replica sets, then study Atlas cloud operations and schema design patterns.',
   },
   'integration-testing': {
-    about: 'Integration Testing verifies that multiple modules or services work correctly together â€” catching interface mismatches that unit tests miss. It sits between unit and end-to-end testing in the pyramid.',
+    about: 'Integration Testing verifies that multiple modules or services work correctly together - catching interface mismatches that unit tests miss. It sits between unit and end-to-end testing in the pyramid.',
     useCases: ['API contract tests between microservices', 'Database integration tests with test containers', 'Third-party sandbox integration validation'],
     learningPath: 'Use test containers or mocks for dependencies, automate in CI, and define clear boundaries vs. E2E scope.',
   },
@@ -500,7 +500,7 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Follow official tutorials on tensors and autograd, build CNN/RNN projects, then explore Lightning and deployment.',
   },
   'azure-devops': {
-    about: 'Azure DevOps is Microsoft\'s suite for repos, pipelines, boards, and artifacts â€” providing end-to-end ALM for teams in the Azure and .NET ecosystem.',
+    about: 'Azure DevOps is Microsoft\'s suite for repos, pipelines, boards, and artifacts - providing end-to-end ALM for teams in the Azure and .NET ecosystem.',
     useCases: ['YAML pipeline CI/CD on Azure', 'Agile boards linked to Git repos', 'Package feeds for internal libraries'],
     learningPath: 'Configure repos and pipelines, integrate with Azure resources, then map concepts to GitHub Actions if migrating.',
   },
@@ -510,17 +510,17 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Build a small REST API with auth, write OpenAPI specs, and consume third-party APIs with proper error handling.',
   },
   'data-architecture': {
-    about: 'Data Architecture defines how data flows, is stored, and governed across an organization â€” spanning lakes, warehouses, marts, and real-time streams aligned to business domains.',
+    about: 'Data Architecture defines how data flows, is stored, and governed across an organization - spanning lakes, warehouses, marts, and real-time streams aligned to business domains.',
     useCases: ['Enterprise data mesh or lakehouse design', 'Migration from legacy warehouses', 'Canonical data models for analytics and ML'],
     learningPath: 'Study Kimball/Inmon modeling, cloud reference architectures, and partner with security on classification and access patterns.',
   },
   'computer-vision': {
-    about: 'Computer Vision enables machines to interpret images and video â€” detecting objects, reading text, tracking motion, and supporting autonomous systems.',
+    about: 'Computer Vision enables machines to interpret images and video - detecting objects, reading text, tracking motion, and supporting autonomous systems.',
     useCases: ['Quality inspection on manufacturing lines', 'Facial recognition and biometric systems', 'Medical imaging analysis assist'],
-    learningPath: 'OpenCV basics â†’ CNN architectures â†’ transfer learning with PyTorch/TensorFlow â†’ edge deployment with TensorRT or ONNX.',
+    learningPath: 'OpenCV basics -> CNN architectures -> transfer learning with PyTorch/TensorFlow -> edge deployment with TensorRT or ONNX.',
   },
   'embedded-systems': {
-    about: 'Embedded Systems are dedicated computer systems within larger devices â€” microcontrollers running firmware for appliances, vehicles, medical devices, and IoT endpoints.',
+    about: 'Embedded Systems are dedicated computer systems within larger devices - microcontrollers running firmware for appliances, vehicles, medical devices, and IoT endpoints.',
     useCases: ['Firmware for sensors and actuators', 'RTOS-based control loops', 'Low-power battery-operated device software'],
     learningPath: 'Learn C, microcontrollers (Arduino/STM32), RTOS concepts, and debugging with JTAG/logic analyzers.',
   },
@@ -530,22 +530,22 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Keras high-level API first, then custom training loops, SavedModel export, and TFX or Vertex deployment.',
   },
   'system-testing': {
-    about: 'System Testing validates complete integrated software against requirements â€” end-to-end behavior across modules, interfaces, and configured environments before acceptance.',
+    about: 'System Testing validates complete integrated software against requirements - end-to-end behavior across modules, interfaces, and configured environments before acceptance.',
     useCases: ['Full regression before major releases', 'Environment-specific configuration validation', 'UAT preparation and defect baselines'],
     learningPath: 'Define test cases from requirements, automate where ROI is clear, and coordinate with QA leads on entry/exit criteria.',
   },
   'google-cloud': {
-    about: 'Google Cloud encompasses GCP services and Google\'s data/AI stack â€” BigQuery, GKE, Vertex AI â€” optimized for analytics-heavy and Kubernetes-native organizations.',
+    about: 'Google Cloud encompasses GCP services and Google\'s data/AI stack - BigQuery, GKE, Vertex AI - optimized for analytics-heavy and Kubernetes-native organizations.',
     useCases: ['Analytics modernization on BigQuery', 'ML training on Vertex AI', 'Global app serving on Cloud Run and CDN'],
-    learningPath: 'Cloud Digital Leader â†’ Associate Cloud Engineer â†’ specialize in data engineering or GKE security.',
+    learningPath: 'Cloud Digital Leader -> Associate Cloud Engineer -> specialize in data engineering or GKE security.',
   },
   'data-pipelines': {
-    about: 'Data Pipelines orchestrate the movement and transformation of data from sources to consumers â€” batch, streaming, or hybrid â€” with reliability, monitoring, and schema evolution.',
+    about: 'Data Pipelines orchestrate the movement and transformation of data from sources to consumers - batch, streaming, or hybrid - with reliability, monitoring, and schema evolution.',
     useCases: ['Scheduled warehouse loads', 'Event-driven stream processing', 'ML feature store refresh pipelines'],
     learningPath: 'Airflow or Prefect for orchestration, Spark or SQL for transforms, and observability with data quality checks.',
   },
   'agile-practices': {
-    about: 'Agile Practices are tactical habits â€” daily standups, pair programming, trunk-based development, and continuous refinement â€” that make agile principles work on real teams.',
+    about: 'Agile Practices are tactical habits - daily standups, pair programming, trunk-based development, and continuous refinement - that make agile principles work on real teams.',
     useCases: ['Improving team flow and WIP limits', 'Reducing batch size of releases', 'Building psychological safety in retros'],
     learningPath: 'Experiment with one practice per sprint, measure outcomes, and adapt ceremonies to team context rather than dogma.',
   },
@@ -555,9 +555,9 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Learn shared responsibility model, then pursue CCSK or vendor certs (AWS Security Specialty, AZ-500).',
   },
   'natural-language-processing': {
-    about: 'Natural Language Processing (NLP) enables computers to understand, generate, and transform human language â€” powering search, chatbots, translation, and large language models.',
+    about: 'Natural Language Processing (NLP) enables computers to understand, generate, and transform human language - powering search, chatbots, translation, and large language models.',
     useCases: ['Document classification and entity extraction', 'Semantic search and RAG assistants', 'Sentiment analysis for customer feedback'],
-    learningPath: 'Text preprocessing â†’ transformers (Hugging Face) â†’ prompt engineering and fine-tuning for domain tasks.',
+    learningPath: 'Text preprocessing -> transformers (Hugging Face) -> prompt engineering and fine-tuning for domain tasks.',
   },
   golang: {
     about: 'Go (Golang) is a statically typed language from Google designed for simplicity, concurrency, and cloud infrastructure tooling. It powers Kubernetes, Docker, and many high-performance backend services.',
@@ -565,29 +565,29 @@ const SKILL_ABOUT: Record<string, { about: string; useCases: string[]; learningP
     learningPath: 'Learn goroutines, channels, and the standard library, then build a small HTTP service with tests and Docker deployment.',
   },
   'a-b-testing': {
-    about: 'A/B Testing compares two or more variants to measure which performs better against a metric â€” foundational to product experimentation and data-driven decision culture.',
+    about: 'A/B Testing compares two or more variants to measure which performs better against a metric - foundational to product experimentation and data-driven decision culture.',
     useCases: ['Landing page and checkout optimization', 'Feature flag rollouts with measurement', 'Marketing campaign variant analysis'],
     learningPath: 'Study experimental design, sample size, and p-values, then use a platform (Optimizely, LaunchDarkly) or in-house tooling.',
   },
   gitlab: {
-    about: 'GitLab is a DevOps platform combining Git repos, CI/CD pipelines, issue tracking, and security scanning in one application â€” popular for self-hosted and integrated ALM workflows.',
+    about: 'GitLab is a DevOps platform combining Git repos, CI/CD pipelines, issue tracking, and security scanning in one application - popular for self-hosted and integrated ALM workflows.',
     useCases: ['GitLab CI multi-stage pipelines', 'Merge request workflows with approvals', 'Container registry and dependency scanning'],
     learningPath: 'Configure .gitlab-ci.yml, runners, and environments, then explore security and compliance features.',
   },
   'advanced-excel': {
-    about: 'Advanced Excel covers power-user capabilities â€” complex formulas, Power Query, Power Pivot, macros, and dashboard design â€” for analysts who rely on spreadsheets as a primary analytics surface.',
+    about: 'Advanced Excel covers power-user capabilities - complex formulas, Power Query, Power Pivot, macros, and dashboard design - for analysts who rely on spreadsheets as a primary analytics surface.',
     useCases: ['Multi-sheet financial models with scenarios', 'Automated reporting with Power Query refresh', 'Executive dashboards without a separate BI tool'],
     learningPath: 'Master INDEX-MATCH/XLOOKUP, Power Query M, DAX in Power Pivot, and optional VBA for repetitive automation.',
   },
   'performance-testing': {
-    about: 'Performance Testing measures system behavior under load â€” latency, throughput, and resource usage â€” to prevent production failures during traffic spikes.',
+    about: 'Performance Testing measures system behavior under load - latency, throughput, and resource usage - to prevent production failures during traffic spikes.',
     useCases: ['Load testing before product launches', 'Capacity planning for Black Friday scale', 'Regression detection after architecture changes'],
     learningPath: 'Learn k6, JMeter, or Gatling, define SLAs, and integrate performance gates into CI for critical paths.',
   },
   'penetration-testing': {
     about: 'Penetration Testing simulates attacker techniques to find exploitable vulnerabilities before adversaries do. Ethical hackers report findings with remediation guidance.',
     useCases: ['External network and web app pentests', 'Internal red team exercises', 'Post-remediation validation retests'],
-    learningPath: 'Networking + OWASP Top 10 â†’ hands-on labs (HackTheBox, OSCP prep) â†’ responsible disclosure and report writing.',
+    learningPath: 'Networking + OWASP Top 10 -> hands-on labs (HackTheBox, OSCP prep) -> responsible disclosure and report writing.',
   },
   'nosql-databases': {
     about: 'NoSQL Databases as a category includes document, key-value, wide-column, and graph stores optimized for scale, flexibility, or relationship-heavy queries respectively.',

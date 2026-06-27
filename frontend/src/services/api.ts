@@ -1,5 +1,5 @@
 /**
- * SkillLens AI v4 â€” Typed API Client
+ * SkillLens AI v4 - Typed API Client
  * Advisor types updated for 14_Career_Advisor.ipynb:
  *   - OpenRouter (gpt-oss-120b) instead of Anthropic
  *   - FAISS + keyword retrieval
@@ -42,7 +42,7 @@ function normalizeSkillIds<T extends SkillSummary>(items: T[]) {
   })
 }
 
-// â”€â”€ Generic fetch wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const token = localStorage.getItem("token")
@@ -81,7 +81,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
-// â”€â”€ Skill types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export interface SkillSummary {
   id: string
@@ -135,7 +135,7 @@ export interface PaginatedSkills {
   per_page: number
 }
 
-// â”€â”€ SES types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export interface SESRankEntry {
   rank: number
@@ -178,7 +178,7 @@ export interface SESExplainability {
   narrative: string
 }
 
-// â”€â”€ Forecast types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export interface SkillForecastResponse {
   skill_id: string
@@ -220,7 +220,7 @@ export interface MethodDistribution {
   description: string
 }
 
-// â”€â”€ Cluster types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export interface ClusterPoint {
   skill_id: string
@@ -245,7 +245,7 @@ export interface ClusterSummary {
   description: string
 }
 
-// â”€â”€ Career types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export interface RoadmapStep {
   skill_id: string
@@ -276,7 +276,7 @@ export interface GapAnalysis {
   summary: string
 }
 
-// â”€â”€ Advisor types (updated for 14_Career_Advisor.ipynb) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 /**
  * Skill reference card returned alongside the LLM reply.
@@ -310,7 +310,7 @@ export interface AdvisorStatusResponse {
   openrouter_key_set: boolean
 }
 
-// â”€â”€ Industry & Global types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export interface IndustrySummary {
   id: string
@@ -348,7 +348,7 @@ export interface RegionData {
   job_postings_k: number
 }
 
-// â”€â”€ Pipeline stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export interface PipelineStats {
   total_skills: number
@@ -361,11 +361,11 @@ export interface PipelineStats {
   ses_tier_distribution: Record<string, number>
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Section
 // API service objects
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Section
 
-// â”€â”€ Skills â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export const skillsApi = {
   list: (params: {
@@ -392,7 +392,7 @@ export const skillsApi = {
   extinctionRisk: (limit = 10)   => api<SkillSummary[]>(`/api/skills/extinction-risk?limit=${limit}`).then(normalizeSkillIds),
 }
 
-// â”€â”€ SES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export const sesApi = {
   rankings: (params?: { limit?: number; offset?: number; tier?: string; archetype?: string }) => {
@@ -406,7 +406,7 @@ export const sesApi = {
   heatmap:      () => api<{ category: string; tier: string; count: number; avg_ses: number }[]>("/api/ses/heatmap"),
 }
 
-// â”€â”€ Forecasting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export const forecastApi = {
   get:     (skillId: string) => api<SkillForecastResponse>(`/api/forecasting/${skillId}`),
@@ -421,7 +421,7 @@ export const forecastApi = {
   trendDistribution:  () => api<{ trend: string; count: number; avg_forecast_score: number }[]>("/api/forecasting/trend/distribution"),
 }
 
-// â”€â”€ Clustering â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export const clusterApi = {
   map: (params?: { archetype?: string; category?: string; limit?: number }) => {
@@ -434,7 +434,7 @@ export const clusterApi = {
   silhouette: () => api<{ global_silhouette: number; interpretation: string }>("/api/clustering/silhouette"),
 }
 
-// â”€â”€ Career â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export const careerApi = {
   roles: () => api<string[]>("/api/career/roles"),
@@ -449,7 +449,7 @@ export const careerApi = {
     ),
 }
 
-// â”€â”€ Industries â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export const industriesApi = {
   list:   ()           => api<IndustrySummary[]>("/api/industries"),
@@ -457,14 +457,14 @@ export const industriesApi = {
   skills: (id: string) => api<IndustrySkill[]>(`/api/industries/${id}/skills`),
 }
 
-// â”€â”€ Global â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export const globalApi = {
   all:              () => api<RegionData[]>("/api/global"),
   growthLeaderboard: () => api<RegionData[]>("/api/global/leaderboard/growth"),
 }
 
-// â”€â”€ Advisor (OpenRouter + FAISS RAG) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export const advisorApi = {
   /**
@@ -484,7 +484,7 @@ export const advisorApi = {
   status: () => api<AdvisorStatusResponse>("/api/advisor/status"),
 }
 
-// â”€â”€ Approach â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Section
 
 export const approachApi = {
   stats:  () => api<PipelineStats>("/api/approach/stats"),

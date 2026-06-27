@@ -30,7 +30,7 @@ const Plot = lazy(async () => {
   return { default: createPlotlyComponent(plotly) }
 })
 
-/* â”€â”€â”€ Scale Cards â”€â”€â”€ */
+/* Section */
 const scaleCards = [
   ['120K+', 'jobs processed'],
   ['213K+', 'job-skill mappings'],
@@ -40,7 +40,7 @@ const scaleCards = [
   ['8', 'industries covered'],
 ]
 
-/* â”€â”€â”€ Pipeline Stages (flowchart nodes) â”€â”€â”€ */
+/* Section */
 const stages = [
   {
     title: 'Data Collection',
@@ -194,14 +194,14 @@ const stages = [
   },
 ]
 
-/* â”€â”€â”€ Forecast Methods â”€â”€â”€ */
+/* Section */
 const methods: [string, string, string][] = [
   ['Holt Trend', 'Used for skills with 10+ years of history', 'High confidence'],
   ['Exponential Smoothing', 'Used for 7-9 years of history', 'Medium confidence'],
   ['Feature-Based Projection', 'Used for emerging skills with limited history', 'Lower confidence'],
 ]
 
-/* â”€â”€â”€ Limitations â”€â”€â”€ */
+/* Section */
 const limitations = [
   'LinkedIn data is snapshot-based and should be refreshed for production use.',
   'Salary values are relative premium signals and may require imputation.',
@@ -209,6 +209,65 @@ const limitations = [
   'Forecasts are confidence-based estimates, not absolute truth.',
   'Stack Overflow and LinkedIn skill names require normalization before comparison.',
   'Recommendation quality depends on the quality of available skill intelligence.',
+]
+
+const sesFormulaCards = [
+  {
+    title: 'Skill Extinction Score',
+    note: 'The older GitHub Growth + Google Trends formula was rejected because it no longer matches the current HSEP notebooks.',
+    formula: [
+      'SES =',
+      '0.40 x Feature Intelligence',
+      '+ 0.35 x Forecast Intelligence',
+      '+ 0.25 x Cluster Intelligence',
+    ],
+    explanation: 'Combines current workforce signals, future forecast behavior, and archetype intelligence into one interpretable safety score.',
+  },
+  {
+    title: 'Feature Intelligence',
+    note: 'Each feature is normalized between 0 and 1 before scoring.',
+    formula: [
+      'Feature Intelligence =',
+      '0.25 x LinkedIn Demand',
+      '+ 0.20 x Salary Premium',
+      '+ 0.20 x Current Usage',
+      '+ 0.20 x Future Interest',
+      '+ 0.10 x Global Adoption Score',
+      '+ 0.05 x Growth Rate',
+    ],
+    explanation: 'Represents the current workforce strength of a skill across demand, compensation, adoption, interest, global usage, and momentum.',
+  },
+  {
+    title: 'Forecast Intelligence',
+    note: 'Lower-confidence forecasts are pulled closer to a neutral score.',
+    formula: [
+      'Forecast Intelligence =',
+      'Confidence x Forecast Score',
+      '+ (1 - Confidence) x 0.50',
+      '',
+      'Forecast Score =',
+      '0.25 x Forecast Score 1Y',
+      '+ 0.35 x Forecast Score 2Y',
+      '+ 0.40 x Forecast Score 3Y',
+    ],
+    explanation: 'The three-year horizon carries the most weight because HSEP is designed around future workforce relevance.',
+  },
+]
+
+const clusterFormulaRows = [
+  ['Future-Proof', '0.90'],
+  ['Growing', '0.70'],
+  ['Stable', '0.50'],
+  ['High-Risk', '0.30'],
+]
+
+const clusterFeatureInputs = [
+  'linkedin_demand',
+  'salary_premium',
+  'current_usage',
+  'future_interest',
+  'global_adoption_score',
+  'growth_rate',
 ]
 
 type MethodologyArtifact = { label: string; href: string; note?: string }
@@ -321,7 +380,7 @@ const methodologyResources: Record<string, { notebooks: MethodologyArtifact[]; d
   },
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MAIN COMPONENT â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* Section */
 export default function Approach() {
   const [liveStats, setLiveStats] = useState<PipelineStats | null>(null)
 
@@ -343,7 +402,7 @@ export default function Approach() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* â”€â”€ Header â”€â”€ */}
+      {/* Section */}
       <div>
         <span className="inline-flex rounded-full border border-violet-400/20 bg-violet-400/10 px-3 py-1 text-xs font-medium text-violet-200">
           Research Methodology
@@ -358,7 +417,7 @@ export default function Approach() {
         </p>
       </div>
 
-      {/* â”€â”€ Scale Cards â”€â”€ */}
+      {/* Section */}
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
         {liveScaleCards.map(([value, label]) => (
           <div key={label} className="glass rounded-xl border border-white/5 p-4">
@@ -368,7 +427,9 @@ export default function Approach() {
         ))}
       </section>
 
-      {/* â”€â”€ Flowchart Section â”€â”€ */}
+      <FormulaSection />
+
+      {/* Section */}
       <section className="glass rounded-xl border border-white/5 p-6 md:p-8">
         <div className="mb-6 flex items-center justify-between gap-3">
           <div>
@@ -430,7 +491,73 @@ export default function Approach() {
   )
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FLOWCHART NODE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function FormulaSection() {
+  return (
+    <section className="glass relative overflow-hidden rounded-2xl border border-fuchsia-300/15 p-5 md:p-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-300/70 to-transparent" />
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="section-label">Scoring formula</p>
+          <h2 className="section-title mt-1 bg-gradient-to-r from-white via-fuchsia-100 to-violet-200 bg-clip-text text-transparent">
+            SES Formula Documentation
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/52">
+            The documented Skill Extinction Score formula matches the current HSEP notebooks. The older formula based on GitHub growth and Google Trends is not used in the current scoring logic.
+          </p>
+        </div>
+        <span className="w-fit rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1.5 text-xs font-semibold text-amber-100/80">
+          Current notebook formula
+        </span>
+      </div>
+
+      <div className="mt-5 grid gap-4 xl:grid-cols-3">
+        {sesFormulaCards.map((card) => (
+          <article key={card.title} className="rounded-2xl border border-white/8 bg-[#12081f]/80 p-4 shadow-[0_16px_60px_rgba(168,85,247,0.08)]">
+            <div className="flex min-h-12 items-start justify-between gap-3">
+              <h3 className="text-sm font-semibold text-white">{card.title}</h3>
+              <Sparkles size={16} className="shrink-0 text-fuchsia-200/70" />
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-white/42">{card.note}</p>
+            <pre className="mt-4 overflow-x-auto rounded-xl border border-fuchsia-300/15 bg-black/20 p-3 font-mono text-[11px] leading-relaxed text-fuchsia-50/85">
+              {card.formula.join('\n')}
+            </pre>
+            <p className="mt-3 text-xs leading-relaxed text-white/52">{card.explanation}</p>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-[0.72fr_1fr]">
+        <article className="rounded-2xl border border-white/8 bg-white/[0.035] p-4">
+          <h3 className="text-sm font-semibold text-white">Cluster Intelligence Mapping</h3>
+          <div className="mt-3 space-y-2">
+            {clusterFormulaRows.map(([label, value]) => (
+              <div key={label} className="flex items-center justify-between rounded-lg border border-white/7 bg-black/10 px-3 py-2">
+                <span className="text-xs font-medium text-white/62">{label}</span>
+                <span className="font-mono text-sm font-semibold text-fuchsia-100">{value}</span>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="rounded-2xl border border-white/8 bg-white/[0.035] p-4">
+          <h3 className="text-sm font-semibold text-white">Archetype Discovery Inputs</h3>
+          <p className="mt-2 text-xs leading-relaxed text-white/48">
+            K-Means clustering uses the scaled workforce feature matrix so SES includes unsupervised pattern discovery instead of relying only on manually assigned scores.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {clusterFeatureInputs.map((feature) => (
+              <span key={feature} className="rounded-full border border-violet-300/15 bg-violet-300/10 px-3 py-1.5 font-mono text-[11px] text-violet-50/75">
+                {feature}
+              </span>
+            ))}
+          </div>
+        </article>
+      </div>
+    </section>
+  )
+}
+
+/* Section */
 function CodeSnapshot({ title, code }: { title: string; code: string }) {
   return <div className="overflow-hidden rounded-xl border border-fuchsia-400/15 bg-[#061021] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-fuchsia-200/70">{title}</p><pre className="mt-3 overflow-x-auto whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-fuchsia-50/75">{code}</pre></div>
 }
@@ -932,7 +1059,7 @@ function FlowchartNode({
 
   return (
     <div className="hsep-flowchart__node-wrapper">
-      {/* â”€â”€ Connector line + dot â”€â”€ */}
+      {/* Section */}
       <div className="hsep-flowchart__rail">
         <div
           className="hsep-flowchart__dot"
@@ -943,7 +1070,7 @@ function FlowchartNode({
         {!isLast && <div className="hsep-flowchart__connector" />}
       </div>
 
-      {/* â”€â”€ Node Card â”€â”€ */}
+      {/* Section */}
       <div
         className={`hsep-flowchart__card group ${expanded ? 'hsep-flowchart__card--expanded' : ''}`}
       >
@@ -1005,7 +1132,7 @@ function FlowchartNode({
   )
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• INPUT / OUTPUT BLOCK â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* Section */
 function IOBlock({
   label,
   value,
