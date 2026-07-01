@@ -78,7 +78,7 @@ export default function Sidebar() {
             {nav.map((group) => (
               <div key={group.section} className="top-nav-group">
                 <span className="top-nav-section">{group.section}</span>
-                <div className="flex items-center gap-1.5">
+                <div className="top-nav-items">
                   {group.items.map(({ to, icon: Icon, label }) => (
                     <NavLink
                       key={to}

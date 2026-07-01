@@ -21,6 +21,7 @@ from core.config import settings
 from routers import (
     skills, clustering, forecasting, ses,
     industries, global_demand, career, approach, advisor,
+    feedback,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -75,6 +76,7 @@ app.include_router(global_demand.router, prefix="/api/global",        tags=["Glo
 app.include_router(career.router,        prefix="/api/career",        tags=["Career Intelligence"])
 app.include_router(advisor.router,       prefix="/api/advisor",       tags=["AI Advisor"])
 app.include_router(approach.router,      prefix="/api/approach",      tags=["Pipeline Metadata"])
+app.include_router(feedback.router,      prefix="/api/feedback",      tags=["Feedback"])
 
 
 @app.get("/")

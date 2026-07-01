@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { BookOpen, ChevronDown, Search, Sparkles, Target, TrendingUp } from 'lucide-react'
 import { approachApi, forecastApi, MethodDistribution, PipelineStats, SkillSummary, skillsApi } from '@/services/api'
 import { buildSkillGuide, formatCategoryLabel } from '@/lib/skillGuideContent'
+import { filterUserFacingSkills } from '@/lib/skillQuality'
 
 function score(value?: number) {
   return Math.round((value ?? 0) * 100)
@@ -34,7 +35,7 @@ export default function SkillsGuide() {
           approachApi.stats().catch(() => null),
           forecastApi.methodDistribution().catch(() => []),
         ])
-        setSkills(result.items ?? [])
+        setSkills(filterUserFacingSkills(result.items ?? []))
         setStats(statsResult)
         setMethods(methodResult)
       } finally {
@@ -77,7 +78,7 @@ export default function SkillsGuide() {
           Skill Guide
         </h1>
         <p className="page-subtitle max-w-3xl">
-          A detailed reference for all {skills.length} skills in the processed HSEP dataset - what each skill is,
+          A detailed reference for {skills.length} canonical skills in the processed HSEP dataset - what each skill is,
           where it is used, and how workforce signals rank its career outlook.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -115,7 +116,7 @@ export default function SkillsGuide() {
           </div>
         </div>
         <p className="mt-3 text-xs text-white/42">
-          Showing {filtered.length} skills{category !== 'All' ? ` in ${formatCategoryLabel(category)}` : ''}. Skill name and category are separate: for example, "Data Analysis" is a skill inside the Data Analytics category.
+          Showing {filtered.length} skills{category !== 'All' ? ` in ${formatCategoryLabel(category)}` : ''}. Generic umbrella labels from the raw skill universe are filtered out so this guide focuses on concrete, learnable skills.
         </p>
       </section>
 

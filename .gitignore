@@ -23,6 +23,7 @@ venv/
 # Generated artifacts, logs, and local databases
 output/
 tmp/
+backend/data/private/
 .agents/
 .codex/
 .vercel/

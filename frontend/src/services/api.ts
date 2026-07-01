@@ -361,6 +361,14 @@ export interface PipelineStats {
   ses_tier_distribution: Record<string, number>
 }
 
+export interface FeedbackPayload {
+  name?: string
+  role?: string
+  rating: number
+  category: string
+  message: string
+}
+
 // Section
 // API service objects
 // Section
@@ -494,4 +502,29 @@ export const approachApi = {
       ensemble_accuracy_pct: number
       model_weights: Record<string, number>
     }>("/api/approach/models"),
+}
+
+export const feedbackApi = {
+  submit: (payload: FeedbackPayload) =>
+    api<{ status: string; id: string }>("/api/feedback", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+
+  exportCsv: async (password: string) => {
+    const res = await fetch(`${BASE}/api/feedback/export.csv`, {
+      headers: { "X-Feedback-Password": password },
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }))
+      throw new Error(err.detail ?? `API error ${res.status}`)
+    }
+    return res.text()
+  },
+
+  clear: (password: string) =>
+    api<{ status: string }>("/api/feedback", {
+      method: "DELETE",
+      headers: { "X-Feedback-Password": password },
+    }),
 }

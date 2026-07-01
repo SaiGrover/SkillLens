@@ -1,102 +1,79 @@
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Download, MessageSquare, Send, Sparkles, Trash2 } from 'lucide-react'
+import { Download, MessageSquare, Send, Sparkles, X } from 'lucide-react'
+import { feedbackApi } from '@/services/api'
 
-type FeedbackEntry = {
-  id: string
-  name: string
-  role: string
-  rating: number
-  category: string
-  message: string
-  createdAt: string
-}
-
-const STORAGE_KEY = 'skilllens-feedback'
-const categories = ['Overall UI', 'Skill Explorer', 'Forecasts', 'Career Advisor', 'Data Quality', 'Reports']
-
-function readFeedback(): FeedbackEntry[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) as FeedbackEntry[] : []
-  } catch {
-    return []
-  }
-}
+const categories = ['Bug report', 'Feature request', 'Data issue', 'UI feedback', 'Career Advisor', 'General']
 
 export default function Feedback() {
-  const [entries, setEntries] = useState<FeedbackEntry[]>(readFeedback)
   const [name, setName] = useState('')
   const [role, setRole] = useState('')
   const [rating, setRating] = useState(8)
   const [category, setCategory] = useState(categories[0])
   const [message, setMessage] = useState('')
+  const [submitStatus, setSubmitStatus] = useState<string | null>(null)
+  const [exportOpen, setExportOpen] = useState(false)
+  const [password, setPassword] = useState('')
+  const [exportStatus, setExportStatus] = useState<string | null>(null)
+  const [exporting, setExporting] = useState(false)
 
-  const averageRating = useMemo(() => {
-    if (!entries.length) return '0.0'
-    return (entries.reduce((sum, item) => sum + item.rating, 0) / entries.length).toFixed(1)
-  }, [entries])
-
-  const persist = (next: FeedbackEntry[]) => {
-    setEntries(next)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-  }
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const text = message.trim()
     if (!text) return
+    setSubmitStatus('Sending feedback...')
 
-    const entry: FeedbackEntry = {
-      id: globalThis.crypto?.randomUUID?.() ?? String(Date.now()),
-      name: name.trim() || 'Anonymous reviewer',
-      role: role.trim() || 'Project reviewer',
-      rating,
-      category,
-      message: text,
-      createdAt: new Date().toISOString(),
+    try {
+      await feedbackApi.submit({
+        name: name.trim() || undefined,
+        role: role.trim() || undefined,
+        rating,
+        category,
+        message: text,
+      })
+      setMessage('')
+      setSubmitStatus('Thanks. Your feedback was sent to the SkillLens review log.')
+    } catch (error) {
+      console.warn('Feedback submit failed:', error)
+      setSubmitStatus('Could not send feedback. Please make sure the backend API is running.')
     }
-
-    persist([entry, ...entries])
-    setMessage('')
   }
 
-  const downloadJson = () => {
-    const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'skilllens-feedback.json'
-    link.click()
-    URL.revokeObjectURL(url)
+  const exportCsv = async () => {
+    if (!password.trim()) return
+    setExporting(true)
+    setExportStatus(null)
+    try {
+      const csv = await feedbackApi.exportCsv(password)
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'skilllens-feedback.csv'
+      link.click()
+      URL.revokeObjectURL(url)
+      setExportStatus('CSV exported.')
+    } catch (error) {
+      setExportStatus(error instanceof Error ? error.message : 'CSV export failed.')
+    } finally {
+      setExporting(false)
+    }
   }
 
   return (
-    <div className="space-y-5 animate-fade-in">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="section-label">Feedback loop</p>
-          <h1 className="page-title flex items-center gap-3">
-            <MessageSquare size={28} className="text-fuchsia-200" strokeWidth={1.8} />
-            Product Feedback
-          </h1>
-          <p className="page-subtitle max-w-3xl">
-            Collect review notes, ratings, and improvement requests while testing SkillLens. Entries are saved locally in this browser and can be exported.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-3 sm:flex">
-          <div className="feedback-stat">
-            <span>Responses</span>
-            <b>{entries.length}</b>
-          </div>
-          <div className="feedback-stat feedback-stat--warm">
-            <span>Avg rating</span>
-            <b>{averageRating}/10</b>
-          </div>
-        </div>
-      </div>
+    <div className="mx-auto max-w-6xl space-y-5 animate-fade-in">
+      <header className="max-w-3xl">
+        <p className="section-label">Feedback</p>
+        <h1 className="page-title flex items-center gap-3">
+          <MessageSquare size={28} className="text-fuchsia-200" strokeWidth={1.8} />
+          Help Improve SkillLens
+        </h1>
+        <p className="page-subtitle">
+          Share what worked, what felt confusing, or what should be improved before SkillLens is presented. Your note goes into the private project feedback log.
+        </p>
+      </header>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.88fr)_minmax(360px,0.52fr)]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.96fr)_minmax(300px,0.42fr)]">
         <motion.form
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -105,10 +82,21 @@ export default function Feedback() {
         >
           <div className="mb-5 flex items-center justify-between gap-3">
             <div>
-              <h2 className="section-title">Add feedback</h2>
-              <p className="mt-1 text-sm text-white/55">Use this during demos, mentorship reviews, or final portfolio QA.</p>
+              <h2 className="section-title">Send app feedback</h2>
+              <p className="mt-1 text-sm text-white/55">Report a bug, suggest a feature, or leave a review note.</p>
             </div>
-            <Sparkles size={21} className="text-lime-200" />
+            <button
+              type="button"
+              aria-label="Owner CSV export"
+              title="Owner CSV export"
+              className="feedback-owner-trigger"
+              onClick={() => {
+                setExportOpen(true)
+                setExportStatus(null)
+              }}
+            >
+              <Sparkles size={21} />
+            </button>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -137,56 +125,57 @@ export default function Feedback() {
             <textarea
               value={message}
               onChange={(event) => setMessage(event.target.value)}
-              placeholder="What felt strong? What was confusing? What should be fixed before submission?"
+              placeholder="Tell us what to fix, improve, or keep."
               rows={8}
             />
           </label>
 
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <button type="submit" className="feedback-primary-button">
-              <Send size={16} /> Save feedback
+              <Send size={16} /> Send feedback
             </button>
-            <button type="button" onClick={downloadJson} disabled={!entries.length} className="feedback-secondary-button">
-              <Download size={16} /> Export JSON
-            </button>
-            <button type="button" onClick={() => persist([])} disabled={!entries.length} className="feedback-secondary-button feedback-secondary-button--danger">
-              <Trash2 size={16} /> Clear
-            </button>
+            {submitStatus && <span className="text-sm text-white/58">{submitStatus}</span>}
           </div>
         </motion.form>
 
-        <motion.section
+        <motion.aside
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08 }}
           className="feedback-panel glass rounded-2xl border border-white/10 p-5"
         >
-          <div className="mb-4">
-            <h2 className="section-title">Recent notes</h2>
-            <p className="mt-1 text-sm text-white/55">Local browser storage. Export before clearing browser data.</p>
+          <h2 className="section-title">What to share</h2>
+          <div className="mt-4 space-y-3 text-sm leading-relaxed text-white/62">
+            <p>Point out broken layouts, unclear metrics, suspicious data values, missing explanations, or anything that makes the product harder to trust.</p>
+            <p>For data issues, mention the page, skill, and value you saw so it can be traced back to the processed CSV snapshot.</p>
+            <p>No feedback is shown publicly on this page.</p>
           </div>
 
-          <div className="space-y-3">
-            {entries.length ? entries.slice(0, 6).map((entry) => (
-              <article key={entry.id} className="feedback-note">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3>{entry.name}</h3>
-                    <p>{entry.role} - {entry.category}</p>
-                  </div>
-                  <span>{entry.rating}/10</span>
-                </div>
-                <p className="mt-3">{entry.message}</p>
-                <small>{new Date(entry.createdAt).toLocaleString()}</small>
-              </article>
-            )) : (
-              <div className="feedback-empty">
-                <MessageSquare size={24} />
-                <p>No feedback yet. Add the first review note from the form.</p>
+          {exportOpen && (
+            <div className="feedback-export-box mt-5">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <b>Owner CSV export</b>
+                <button type="button" onClick={() => setExportOpen(false)} aria-label="Close export panel">
+                  <X size={15} />
+                </button>
               </div>
-            )}
-          </div>
-        </motion.section>
+              <label className="feedback-field">
+                <span>Password</span>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  onKeyDown={(event) => event.key === 'Enter' && exportCsv()}
+                  placeholder="FEEDBACK_REVIEW_PASSWORD"
+                />
+              </label>
+              <button type="button" className="feedback-primary-button mt-3 w-full" onClick={exportCsv} disabled={exporting || !password.trim()}>
+                <Download size={15} /> {exporting ? 'Exporting...' : 'Export CSV'}
+              </button>
+              {exportStatus && <p className="mt-3 text-xs text-white/58">{exportStatus}</p>}
+            </div>
+          )}
+        </motion.aside>
       </div>
     </div>
   )

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Bot, Briefcase, Database, Lightbulb, Send, ShieldCheck, Sparkles, User } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { SkillReference, SkillSummary, skillsApi } from '@/services/api'
+import { filterUserFacingSkills } from '@/lib/skillQuality'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -105,7 +106,7 @@ function roleSkills(profile: typeof roleProfiles[number], skills: SkillSummary[]
 
 async function getGroundedResponse(message: string): Promise<Message> {
   const response = await skillsApi.list({ per_page: 200, sort_by: 'ses_score', sort_dir: 'desc' })
-  const skills = response.items ?? []
+  const skills = filterUserFacingSkills(response.items ?? [])
   const lower = message.toLowerCase()
   const ranked = [...skills].sort((a, b) => (b.ses_score ?? 0) - (a.ses_score ?? 0))
   const rising = [...skills].sort((a, b) => (b.growth_rate ?? 0) - (a.growth_rate ?? 0))
@@ -220,9 +221,11 @@ export default function Advisor() {
   useEffect(() => {
     Promise.all([skillsApi.topRising(2), skillsApi.extinctionRisk(1)])
       .then(([rising, risk]) => {
-        const firstRising = rising[0]?.name
-        const secondRising = rising[1]?.name
-        const atRisk = risk[0]?.name
+        const cleanRising = filterUserFacingSkills(rising)
+        const cleanRisk = filterUserFacingSkills(risk)
+        const firstRising = cleanRising[0]?.name
+        const secondRising = cleanRising[1]?.name
+        const atRisk = cleanRisk[0]?.name
         setQuickPrompts([
           firstRising ? `Why is ${firstRising} growing so fast?` : defaultQuickPrompts[0],
           secondRising ? `How can I use ${secondRising} in a portfolio project?` : defaultQuickPrompts[1],

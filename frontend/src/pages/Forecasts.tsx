@@ -91,12 +91,15 @@ export default function Forecasts() {
     const oneYear = oneYearIndex(item.forecast_1y)
     const threeYear = threeYearIndex(item.forecast_3y)
     const spread = Math.max(4, Math.round((1 - item.confidence) * 18))
+    const lowerBand = Math.max(0, threeYear - spread)
+    const upperBand = Math.min(100, threeYear + spread)
     return {
       name: item.skill_name,
       oneYear,
       threeYear,
-      lowerBand: Math.max(0, threeYear - spread),
-      upperBand: Math.min(100, threeYear + spread),
+      lowerBand,
+      upperBand,
+      bandRange: Math.max(0, upperBand - lowerBand),
       confidence: Math.round(item.confidence * 100),
     }
   }), [filteredLeaderboard, oneYearIndex, threeYearIndex])
@@ -171,9 +174,9 @@ export default function Forecasts() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
               <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} interval={0} angle={-18} textAnchor="end" height={60} />
               <YAxis domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: '#10071d', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10 }} />
-              <Area type="monotone" dataKey="upperBand" name="Confidence upper" stroke="transparent" fill="url(#confidenceBand)" stackId="band" />
-              <Area type="monotone" dataKey="lowerBand" name="Confidence lower" stroke="transparent" fill="#080411" stackId="band" />
+              <Tooltip content={<ForecastIndexTooltip />} />
+              <Area type="monotone" dataKey="lowerBand" name="Confidence lower" stroke="transparent" fill="transparent" stackId="band" isAnimationActive={false} />
+              <Area type="monotone" dataKey="bandRange" name="Confidence band" stroke="transparent" fill="url(#confidenceBand)" stackId="band" isAnimationActive={false} />
               <Area type="monotone" dataKey="oneYear" name="1-year" stroke="#c084fc" fill="url(#oneYear)" strokeWidth={2} />
               <Area type="monotone" dataKey="threeYear" name="3-year" stroke="#a78bfa" fill="url(#threeYear)" strokeWidth={2} />
             </AreaChart>
@@ -187,7 +190,7 @@ export default function Forecasts() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis dataKey="trend" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: '#10071d', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10 }} />
+              <Tooltip content={<TrendTooltip />} cursor={{ fill: 'rgba(255,255,255,0.035)' }} />
               <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                 {trends.map((item) => <Cell key={item.trend} fill={trendColors[item.trend.toLowerCase()] ?? '#8b5cf6'} />)}
               </Bar>
@@ -243,6 +246,30 @@ export default function Forecasts() {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function ForecastIndexTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null
+  const row = payload[0]?.payload ?? {}
+  return (
+    <div className="forecast-tooltip">
+      <b>{label}</b>
+      <p><span>1-year index</span><strong>{row.oneYear?.toFixed?.(1) ?? row.oneYear}</strong></p>
+      <p><span>3-year index</span><strong>{row.threeYear?.toFixed?.(1) ?? row.threeYear}</strong></p>
+      <p><span>Confidence</span><strong>{row.confidence}%</strong></p>
+    </div>
+  )
+}
+
+function TrendTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null
+  const count = payload[0]?.value ?? 0
+  return (
+    <div className="forecast-tooltip">
+      <b>{label}</b>
+      <p><span>Skills</span><strong>{count}</strong></p>
     </div>
   )
 }

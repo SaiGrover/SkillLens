@@ -21,6 +21,7 @@ import {
   topSesRows,
 } from '@/data/methodologyEvidenceExtra'
 import { approachApi, PipelineStats } from '@/services/api'
+import StatCard from '@/components/ui/StatCard'
 
 const Plot = lazy(async () => {
   const [{ default: createPlotlyComponent }, { default: plotly }] = await Promise.all([
@@ -31,16 +32,6 @@ const Plot = lazy(async () => {
 })
 
 /* Section */
-const scaleCards = [
-  ['120K+', 'jobs processed'],
-  ['213K+', 'job-skill mappings'],
-  ['39K', 'extracted skill mentions'],
-  ['111', 'canonical ranked skills'],
-  ['2,255', 'skill-year observations'],
-  ['8', 'industries covered'],
-]
-
-/* Section */
 const stages = [
   {
     title: 'Data Collection',
@@ -48,9 +39,9 @@ const stages = [
     color: 'from-purple-500 to-fuchsia-400',
     glow: 'rgba(59,130,246,0.25)',
     description:
-      'Collect workforce and technology-related datasets from multiple sources - LinkedIn job postings, salary datasets, Stack Overflow Developer Surveys, and skill extraction taxonomies - to build a multi-signal intelligence foundation.',
-    input: 'Raw CSV files from LinkedIn jobs, Stack Overflow surveys, salary databases, job-skill relationship datasets, and skill taxonomy sources',
-    output: 'Unified raw data tables containing job postings, salary records, survey responses, and skill mention records',
+      'Consolidate workforce and developer-market datasets into a unified evidence base. The pipeline combines hiring demand, salary intelligence, Stack Overflow adoption signals, job-skill relationships, and skill taxonomy sources so no skill is judged from a single signal.',
+    input: 'LinkedIn job records, job-skill relationship tables, salary datasets, Stack Overflow survey extracts, and skill taxonomy files',
+    output: 'A structured raw-data inventory covering jobs, salaries, developer adoption, skill mentions, and source lineage',
   },
   {
     title: 'Data Cleaning & Normalization',
@@ -58,9 +49,9 @@ const stages = [
     color: 'from-fuchsia-500 to-teal-400',
     glow: 'rgba(6,182,212,0.25)',
     description:
-      'Standardize inconsistent skill names, remove duplicates, handle missing values, apply alias mapping (e.g. Node.js to nodejs, C# to csharp), and filter noisy non-technical terms so that every skill is recognized consistently across all datasets.',
+      'Clean noisy workforce data into consistent skill records. This stage removes duplicates, handles missing values, filters non-technical phrases, and applies alias mapping so variants such as Node.js, C#, C++, Power BI, and PyTorch resolve to stable canonical identifiers.',
     input: 'Raw data tables with inconsistent skill names, duplicates, missing values, and noisy non-technical terms',
-    output: 'Cleaned, normalized, and cross-dataset-matched records with canonical skill identifiers',
+    output: 'Normalized, deduplicated, cross-dataset-matched skill records with canonical identifiers',
   },
   {
     title: 'Skill Universe Expansion',
@@ -68,9 +59,9 @@ const stages = [
     color: 'from-teal-500 to-emerald-400',
     glow: 'rgba(20,184,166,0.25)',
     description:
-      'Expand the skill set from a small manually selected list to a comprehensive universe by analyzing millions of skill mentions from large-scale job-skill data. Strategically important modern skills like LangChain, LLM, RAG, Power BI, and Tableau are also recovered manually.',
+      'Expand the platform beyond a manually selected seed list by mining large-scale job-skill data. Modern AI and analytics skills such as LangChain, LLM, RAG, Power BI, and Tableau are explicitly recovered so the final universe reflects current workforce movement.',
     input: 'Cleaned skill mention records and initial small skill set',
-    output: 'Expanded skill universe covering programming, AI/ML, data science, analytics, cloud, DevOps, databases, cybersecurity, and software engineering',
+    output: 'A broader technical skill universe spanning programming, AI/ML, data science, analytics, cloud, DevOps, databases, cybersecurity, and software engineering',
   },
   {
     title: 'Skill Classification & Taxonomy',
@@ -78,9 +69,9 @@ const stages = [
     color: 'from-emerald-500 to-green-400',
     glow: 'rgba(16,185,129,0.25)',
     description:
-      'Separate useful technical skills from irrelevant terms using NLP-based classification. Organize skills into meaningful categories such as Programming, AI/ML, Data Science, Cloud Computing, DevOps, Cybersecurity, and Software Engineering for structured display across the platform.',
+      'Classify extracted terms into a usable product taxonomy. NLP filtering separates technical skills from soft skills, certifications, domains, and noisy phrases, then groups validated skills into categories that power filtering, recommendations, and industry analysis.',
     input: 'Expanded skill universe containing technical skills, soft skills, certifications, domain knowledge, and noise',
-    output: 'Classified skill taxonomy with category labels, ready for Skill Explorer, Industries, Skill Recommender, and Career Advisor pages',
+    output: 'A classified skill taxonomy with category labels used across Skill Explorer, Industries, Skill Recommender, and Career Advisor',
   },
   {
     title: 'Feature Engineering',
@@ -88,9 +79,9 @@ const stages = [
     color: 'from-green-500 to-lime-400',
     glow: 'rgba(34,197,94,0.25)',
     description:
-      'Generate workforce intelligence features for every skill - LinkedIn Demand, Salary Premium, Current Usage, Future Interest, Global Adoption Score, and Growth Rate - representing different dimensions of skill relevance.',
+      'Convert cleaned skill records into measurable workforce intelligence. Each skill receives normalized demand, salary, usage, future interest, global adoption, and growth signals so scoring can compare different technologies on a shared scale.',
     input: 'Classified skill taxonomy, cleaned job postings, salary records, survey responses, and adoption data',
-    output: 'master_skill_dataset feature matrix with six workforce intelligence signals per skill',
+    output: 'A master skill feature matrix with six normalized workforce intelligence signals per skill',
   },
   {
     title: 'Temporal Skill Intelligence',
@@ -98,9 +89,9 @@ const stages = [
     color: 'from-lime-500 to-yellow-400',
     glow: 'rgba(132,204,22,0.25)',
     description:
-      'Reconstruct historical skill demand and adoption patterns across multiple years using multi-year Stack Overflow survey data. Understand how long a skill has existed, whether adoption is increasing or decreasing, and whether it has stable long-term relevance.',
+      'Reconstruct multi-year adoption patterns so the model can distinguish lasting skill relevance from short-term popularity. This temporal layer measures historical coverage, adoption direction, maturity, and emerging-skill uncertainty.',
     input: 'Multi-year Stack Overflow survey data and historical skill demand records',
-    output: 'Temporal adoption profiles, trend direction, and historical coverage length per skill',
+    output: 'Skill-year histories, trend direction, maturity signals, and historical coverage length per skill',
   },
   {
     title: 'Skill Archetype Discovery',
@@ -108,9 +99,9 @@ const stages = [
     color: 'from-yellow-500 to-amber-400',
     glow: 'rgba(234,179,8,0.25)',
     description:
-      'Use unsupervised K-Means clustering on scaled workforce features (demand, salary, usage, future interest, adoption, growth) to discover four natural workforce archetypes: Future-Proof, Growing, Stable, and High-Risk.',
+      'Use K-Means clustering on scaled workforce features to discover natural skill archetypes. This creates an unsupervised view of whether a skill behaves like a future-proof, growing, stable, or high-risk workforce signal.',
     input: 'Scaled feature matrix (linkedin_demand, salary_premium, current_usage, future_interest, global_adoption_score, growth_rate)',
-    output: 'Archetype label per skill - Future-Proof, Growing, Stable, or High-Risk - representing distinct workforce behavior patterns',
+    output: 'A workforce archetype label for every skill: Future-Proof, Growing, Stable, or High-Risk',
   },
   {
     title: 'Hybrid Forecasting',
@@ -118,9 +109,9 @@ const stages = [
     color: 'from-amber-500 to-orange-400',
     glow: 'rgba(245,158,11,0.25)',
     description:
-      'Apply a hybrid forecasting framework that selects the best method based on historical coverage: Holt\'s Trend (10+ years), Exponential Smoothing (7-9 years), or Feature-Based Projection (< 7 years). This ensures both mature and emerging skills receive appropriate forecasts.',
+      'Forecast future skill relevance using a method selected by historical coverage. Mature skills use Holt trend forecasting, mid-history skills use exponential smoothing, and emerging skills use feature-based projection to avoid overclaiming from limited history.',
     input: 'Temporal adoption profiles, historical coverage length, and feature matrix',
-    output: '1-year, 2-year, 3-year forecast indexes with forecast score, confidence level, and trend classification (Explosive, Growing, Stable, Declining)',
+    output: 'One-year, two-year, and three-year forecast indexes with score, confidence, method, and trend classification',
   },
   {
     title: 'SES Computation',
@@ -128,9 +119,9 @@ const stages = [
     color: 'from-orange-500 to-red-400',
     glow: 'rgba(249,115,22,0.25)',
     description:
-      'Compute the Skill Extinction Score (SES) - the central scoring layer - by combining workforce demand, salary premium, adoption, future interest, growth rate, forecast intelligence, archetype, and risk behavior into a single composite safety score with interpretable tiers.',
+      'Compute the Skill Extinction Score, the platform\'s primary safety index. SES blends feature intelligence, forecast intelligence, and cluster intelligence to estimate whether a skill is likely to remain useful, grow, stabilize, or lose relevance.',
     input: 'Feature matrix, forecast outputs, archetype labels, and risk behavior signals',
-    output: 'SES Score, SES tier (Very Safe / Safe / Moderate / Riviolet), rank, and explainability components per skill',
+    output: 'SES score, SES tier (Very Safe / Safe / Moderate / Risky), rank, and explainability components per skill',
   },
   {
     title: 'Industry Analytics',
@@ -138,9 +129,9 @@ const stages = [
     color: 'from-red-500 to-pink-400',
     glow: 'rgba(239,68,68,0.25)',
     description:
-      'Aggregate skill-level intelligence at the industry level. Map skills into workforce domains (AI/ML, Data Science, Cloud/DevOps, etc.) and calculate average SES, demand, salary premium, future interest, adoption, growth, forecasted demand, and archetype distribution per industry.',
+      'Aggregate skill-level intelligence into industry-level views. Each domain receives average SES, demand, salary value, future interest, adoption, growth, forecast movement, and archetype composition so users can compare entire career directions.',
     input: 'SES-ranked skills, industry-skill mappings, and forecast outputs',
-    output: 'Industry rankings with average metrics, top skills, archetype composition, and forecast growth per domain',
+    output: 'Industry rankings with average metrics, top skills, archetype composition, risk exposure, and forecast growth per domain',
   },
   {
     title: 'Skill Ranking by Industry',
@@ -148,7 +139,7 @@ const stages = [
     color: 'from-pink-500 to-rose-400',
     glow: 'rgba(236,72,153,0.25)',
     description:
-      'Rank skills within each industry to show the most valuable technologies per domain - for example, the top skills in AI/ML, Data Science, Cloud/DevOps, or Software Engineering - allowing users to explore opportunities in their target field.',
+      'Rank skills within each industry so users can see which tools matter most for their target field. This converts the global skill model into practical domain-specific guidance for AI/ML, analytics, cloud, cybersecurity, software engineering, and more.',
     input: 'Industry analytics, SES-ranked skills, and domain-specific skill mappings',
     output: 'Ordered skill rankings per industry with SES scores, demand, and forecast trends',
   },
@@ -158,9 +149,9 @@ const stages = [
     color: 'from-rose-500 to-violet-400',
     glow: 'rgba(244,63,94,0.25)',
     description:
-      'Generate personalized skill recommendations based on current skills, career goal, skill gap analysis, SES scores, forecast trends, industry demand, salary value, related skills, and risk levels. Suggestions are grounded in HSEP intelligence rather than being random.',
+      'Recommend the best-fit skills and tools for a user\'s role, goal, and requirements. The recommender weighs skill gaps, SES, forecast trends, salary value, demand, related skills, and industry fit so suggestions explain why a tool is useful for a specific path.',
     input: 'User\'s current skills, target career goal, SES rankings, forecast data, and industry analytics',
-    output: 'Prioritized learning recommendations with skill gap analysis, risk assessment, and explainable reasoning',
+    output: 'Role-aware skill recommendations with fit rationale, gap analysis, risk assessment, and next-step guidance',
   },
   {
     title: 'AI Career Advisor',
@@ -168,7 +159,7 @@ const stages = [
     color: 'from-violet-500 to-purple-400',
     glow: 'rgba(139,92,246,0.25)',
     description:
-      'Provide a conversational AI layer on top of HSEP intelligence that answers career questions using SES rankings, forecasts, archetypes, industry analytics, salary signals, and role-fit recommendation logic - producing grounded, explainable, and data-backed career guidance.',
+      'Provide a conversational layer on top of HSEP intelligence. The advisor uses retrieved skill context, SES rankings, forecasts, archetypes, industry analytics, salary signals, and role-fit logic before generating career guidance.',
     input: 'User question plus retrieved SES rankings, forecast records, archetype data, industry analytics, and related skills',
     output: 'Grounded career guidance with source citations, next-skill recommendations, and role-fit tool suggestions',
   },
@@ -178,7 +169,7 @@ const stages = [
     color: 'from-purple-500 to-indigo-400',
     glow: 'rgba(168,85,247,0.25)',
     description:
-      'Ensure every score and recommendation is transparent. Explain why a skill was ranked high or flagged as riviolet, what signals support the result, how confident the forecast is, which industries use the skill, and what the user should learn next.',
+      'Make every score and recommendation explainable. The platform surfaces why a skill ranked highly or appears risky, which signals contributed, how confident the forecast is, where the skill is used, and what a user can learn next.',
     input: 'SES scores, forecast confidence, archetype labels, feature contributions, and industry mappings',
     output: 'Human-readable explanations, feature contribution breakdowns, confidence indicators, and actionable reasoning per skill',
   },
@@ -188,7 +179,7 @@ const stages = [
     color: 'from-indigo-500 to-purple-400',
     glow: 'rgba(99,102,241,0.25)',
     description:
-      'Power multiple website pages - Dashboard, Skill Explorer, Forecasts, Industries, Career Advisor, Skill Recommender, Reports, and Methodology - transforming raw workforce data into an interactive, explainable career intelligence platform.',
+      'Publish the HSEP intelligence layer into a complete web product. Dashboard, Skill Explorer, Forecasts, Industries, Career Advisor, Skill Recommender, Reports, and Methodology all use the same processed data foundation.',
     input: 'Complete HSEP intelligence: SES rankings, forecasts, industry analytics, archetypes, recommendations, and explainability data',
     output: 'Interactive web platform with searchable skills, visual forecasts, industry rankings, AI-assisted career guidance, and exportable reports',
   },
@@ -214,7 +205,7 @@ const limitations = [
 const sesFormulaCards = [
   {
     title: 'Skill Extinction Score',
-    note: 'The older GitHub Growth + Google Trends formula was rejected because it no longer matches the current HSEP notebooks.',
+    note: 'This is the active scoring framework used by the current HSEP notebooks. Earlier GitHub Growth and Google Trends experiments are retained only as historical research context.',
     formula: [
       'SES =',
       '0.40 x Feature Intelligence',
@@ -388,15 +379,50 @@ export default function Approach() {
     approachApi.stats().then(setLiveStats).catch(() => undefined)
   }, [])
 
-  const liveScaleCards = useMemo(() => {
-    if (!liveStats) return scaleCards
+  const methodologyKpis = useMemo(() => {
     return [
-      [liveStats.job_postings_processed.toLocaleString(), 'jobs processed'],
-      [liveStats.forecast_records.toLocaleString(), 'forecast records'],
-      [String(liveStats.total_skills), 'canonical ranked skills'],
-      [liveStats.history_records.toLocaleString(), 'skill-year observations'],
-      [`${liveStats.forecast_accuracy_pct}%`, 'forecast confidence'],
-      [String(liveStats.survey_years_covered), 'survey years covered'],
+      {
+        label: 'Jobs Processed',
+        value: liveStats ? liveStats.job_postings_processed.toLocaleString() : '120K+',
+        change: 'source workforce evidence',
+        icon: <Database size={20} />,
+        color: 'violet' as const,
+      },
+      {
+        label: 'Forecast Records',
+        value: liveStats ? liveStats.forecast_records.toLocaleString() : '213K+',
+        change: 'hybrid forecast outputs',
+        icon: <LineChart size={20} />,
+        color: 'fuchsia' as const,
+      },
+      {
+        label: 'Ranked Skills',
+        value: liveStats ? String(liveStats.total_skills) : '111',
+        change: 'canonical SES outputs',
+        icon: <ShieldCheck size={20} />,
+        color: 'violet' as const,
+      },
+      {
+        label: 'Skill-Year History',
+        value: liveStats ? liveStats.history_records.toLocaleString() : '2,255',
+        change: 'temporal evidence rows',
+        icon: <Clock size={20} />,
+        color: 'fuchsia' as const,
+      },
+      {
+        label: 'Forecast Confidence',
+        value: liveStats ? `${liveStats.forecast_accuracy_pct}%` : '77.6%',
+        change: 'model confidence signal',
+        icon: <BarChart3 size={20} />,
+        color: 'violet' as const,
+      },
+      {
+        label: 'Survey Coverage',
+        value: liveStats ? String(liveStats.survey_years_covered) : '8',
+        change: 'years represented',
+        icon: <Users size={20} />,
+        color: 'fuchsia' as const,
+      },
     ]
   }, [liveStats])
 
@@ -408,22 +434,27 @@ export default function Approach() {
           Research Methodology
         </span>
         <h1 className="page-title mt-3">
-          How SkillLens AI Works
+          Methodology & Model Architecture
         </h1>
         <p className="page-subtitle max-w-3xl">
-          SkillLens AI is built using the Human Skill Extinction Predictor (HSEP) methodology.
-          The system combines workforce demand, salary intelligence, developer adoption, historical technology trends,
-          forecasting, clustering, and career recommendation research to identify which skills are future-proof, growing, stable, or at risk.
+          SkillLens AI turns raw workforce datasets into explainable career intelligence. The HSEP pipeline combines demand,
+          salary value, developer adoption, historical trends, forecasting, clustering, and recommendation logic to show which
+          skills are resilient, emerging, stable, or exposed to future risk.
         </p>
       </div>
 
       {/* Section */}
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-        {liveScaleCards.map(([value, label]) => (
-          <div key={label} className="glass rounded-xl border border-white/5 p-4">
-            <b className="block text-2xl text-white">{value}</b>
-            <span className="mt-1 block text-xs text-white/38">{label}</span>
-          </div>
+      <section className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+        {methodologyKpis.map((card) => (
+          <StatCard
+            key={card.label}
+            label={card.label}
+            value={card.value}
+            change={card.change}
+            positive
+            icon={card.icon}
+            color={card.color}
+          />
         ))}
       </section>
 
@@ -435,7 +466,7 @@ export default function Approach() {
           <div>
             <h2 className="section-title">HSEP Pipeline Flowchart</h2>
             <p className="mt-1 text-xs text-white/35">
-              Each node shows the stage heading, description, and its Input to Output
+              Each node documents the stage purpose, source inputs, generated outputs, notebook evidence, and dataset lineage.
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5">
@@ -459,7 +490,7 @@ export default function Approach() {
 
       <div className="grid gap-4 xl:grid-cols-[1fr_0.8fr]">
         <section className="glass rounded-xl border border-white/5 p-5">
-          <h2 className="section-title">Forecast method selection</h2>
+          <h2 className="section-title">Forecast Method Selection</h2>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             {methods.map(([title, use, confidence]) => (
               <div key={title} className="rounded-xl border border-white/8 bg-white/[0.035] p-4">
@@ -499,10 +530,10 @@ function FormulaSection() {
         <div>
           <p className="section-label">Scoring formula</p>
           <h2 className="section-title mt-1 bg-gradient-to-r from-white via-fuchsia-100 to-violet-200 bg-clip-text text-transparent">
-            SES Formula Documentation
+            SES Scoring Framework
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/52">
-            The documented Skill Extinction Score formula matches the current HSEP notebooks. The older formula based on GitHub growth and Google Trends is not used in the current scoring logic.
+            The Skill Extinction Score is the core safety index behind SkillLens AI. It combines present workforce strength, future forecast behavior, and unsupervised archetype discovery into a single explainable score.
           </p>
         </div>
         <span className="w-fit rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1.5 text-xs font-semibold text-amber-100/80">

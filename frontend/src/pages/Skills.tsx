@@ -299,9 +299,12 @@ export default function Skills() {
                   <b>Skill comparison</b>
                   <button onClick={() => setShowCompare(false)}><X size={14} /></button>
                 </div>
-                <div className="skill-compare-grid">
-                  <span />
-                  {compareSkills.map((skill) => <b key={skill.id}>{skill.name}</b>)}
+                <div
+                  className="skill-compare-grid"
+                  style={{ gridTemplateColumns: `minmax(128px, 0.8fr) repeat(${Math.max(compareSkills.length, 1)}, minmax(132px, 1fr))` }}
+                >
+                  <span className="skill-compare-corner">Metric</span>
+                  {compareSkills.map((skill) => <b className="skill-compare-skill" key={skill.id}>{skill.name}</b>)}
                   {[
                     ['SES', (skill: SkillSummary) => pct(skill.ses_score)],
                     ['Demand', demandScore],
@@ -310,8 +313,8 @@ export default function Skills() {
                     ['Future Interest', (skill: SkillSummary) => `${pct((skill as any).future_interest)}%`],
                     ['Global Adoption', (skill: SkillSummary) => `${pct((skill as any).global_adoption ?? (skill as any).global_adoption_score)}%`],
                   ].flatMap(([label, getter]) => [
-                    <span key={`${label}-label`}>{label as string}</span>,
-                    ...compareSkills.map((skill) => <span key={`${label}-${skill.id}`}>{(getter as (s: SkillSummary) => string | number)(skill)}</span>),
+                    <span className="skill-compare-label" key={`${label}-label`}>{label as string}</span>,
+                    ...compareSkills.map((skill) => <span className="skill-compare-value" key={`${label}-${skill.id}`}>{(getter as (s: SkillSummary) => string | number)(skill)}</span>),
                   ])}
                 </div>
               </div>

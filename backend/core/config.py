@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "change-me-in-production-use-openssl-rand-hex-32"
     ALGORITHM:  str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24   # 24 hours
+    FEEDBACK_REVIEW_PASSWORD: str = ""
 
     # CORS
     CORS_ORIGINS: List[str] = [

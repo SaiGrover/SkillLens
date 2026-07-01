@@ -619,9 +619,9 @@ function salaryLabel(value?: number) {
 function sesLabel(score?: number, tier?: string) {
   const value = pct(score)
   const tierText = tier ? ` (${tier} tier)` : ''
-  if (value >= 70) return `scores ${value}/100 on the Skill Employability Score${tierText}, indicating strong relative safety`
-  if (value >= 45) return `scores ${value}/100 on SES${tierText}, reflecting moderate employability in the dataset`
-  return `scores ${value}/100 on SES${tierText}, suggesting careful pairing with higher-momentum skills`
+  if (value >= 70) return `scores ${value}/100 on the Skill Extinction Score${tierText}, indicating strong relative safety`
+  if (value >= 45) return `scores ${value}/100 on the Skill Extinction Score${tierText}, reflecting moderate future-workforce safety in the dataset`
+  return `scores ${value}/100 on the Skill Extinction Score${tierText}, suggesting careful pairing with higher-momentum skills`
 }
 
 function forecastSentence(trend?: string, method?: string) {

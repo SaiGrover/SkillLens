@@ -14,10 +14,12 @@ interface DemandChartProps {
 }
 
 const defaultSeries: ChartSeries[] = [
-  { key: 'python', name: 'Python', color: '#a78bfa' },
-  { key: 'javascript', name: 'JavaScript', color: '#c084fc' },
-  { key: 'kubernetes', name: 'Kubernetes', color: '#34d399' },
-  { key: 'react', name: 'React', color: '#fb923c' },
+  { key: 'artificial-intelligence', name: 'Artificial Intelligence', color: '#f0abfc' },
+  { key: 'machine-learning', name: 'Machine Learning', color: '#c084fc' },
+  { key: 'natural-language-processing', name: 'NLP', color: '#a78bfa' },
+  { key: 'power-bi', name: 'Power BI', color: '#f472b6' },
+  { key: 'python', name: 'Python', color: '#e879f9' },
+  { key: 'javascript', name: 'JavaScript', color: '#fde047' },
 ]
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -27,7 +29,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <p className="text-xs text-white/50 mb-2">{label}</p>
       {payload.map((p: any) => (
         <p key={p.dataKey} className="text-sm font-medium" style={{ color: p.color }}>
-          {p.name}: {p.value} relative index
+          {p.name}: {p.value} demand index
         </p>
       ))}
     </div>
@@ -51,7 +53,7 @@ export default function DemandChart({ data, title, series = defaultSeries }: Dem
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           {title && <h3 className="text-sm font-semibold text-white/80">{title}</h3>}
-          <p className="mt-1 text-xs text-white/35">One shared index across the selected skills. 100 marks the highest observed signal, not 100% demand.</p>
+          <p className="mt-1 text-xs text-white/35">Shared log-scaled demand index across selected skills. 100 marks the strongest observed or projected signal in this chart, not 100% demand or market share.</p>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {series.map((item) => (
@@ -68,10 +70,22 @@ export default function DemandChart({ data, title, series = defaultSeries }: Dem
         </div>
       </div>
       <ResponsiveContainer width="100%" height={260}>
-        <LineChart data={data}>
+        <LineChart data={data} margin={{ top: 8, right: 16, bottom: 18, left: 12 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-          <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
-          <YAxis domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} axisLine={false} tickLine={false} />
+          <XAxis
+            dataKey="month"
+            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }}
+            axisLine={false}
+            tickLine={false}
+            label={{ value: 'Year', position: 'insideBottom', offset: -4, fill: 'rgba(255,255,255,0.38)', fontSize: 11 }}
+          />
+          <YAxis
+            domain={[0, 100]}
+            tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }}
+            axisLine={false}
+            tickLine={false}
+            label={{ value: 'Relative demand index', angle: -90, position: 'insideLeft', fill: 'rgba(255,255,255,0.38)', fontSize: 11 }}
+          />
           <Tooltip content={<CustomTooltip />} />
           <Legend wrapperStyle={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }} />
           <ReferenceLine x="2026" stroke="rgba(255,255,255,0.34)" strokeDasharray="4 4" label={{ value: 'Projection', fill: 'rgba(255,255,255,0.46)', fontSize: 10 }} />
