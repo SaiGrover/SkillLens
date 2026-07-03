@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom'
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis } from 'recharts'
 import { Briefcase, Building2, Network, ShieldAlert, Sparkles, TrendingUp } from 'lucide-react'
 import { IndustrySkill, IndustrySummary, industriesApi } from '@/services/api'
+import { skillDemandIndex } from '@/lib/utils'
+import { externalMarketTrend } from '@/lib/externalBenchmarks'
 
 type IndustryView = IndustrySummary & {
   avgSes: number
@@ -142,7 +144,7 @@ export default function Industries() {
 
   const trendData = useMemo(() => {
     const counts = industrySkills.reduce<Record<string, number>>((result, skill) => {
-      const key = skill.forecast_trend ?? 'Stable'
+      const key = externalMarketTrend(skill) ?? 'Stable'
       result[key] = (result[key] ?? 0) + 1
       return result
     }, {})
@@ -304,7 +306,7 @@ export default function Industries() {
                   <span className="dot" style={{ background: archetypeColors[skill.archetype ?? 'Stable'] ?? '#64748b' }} />
                   <b>{skill.name}</b>
                   <small>{Math.round((skill.ses_score ?? 0) * 100)} SES</small>
-                  <em>{skill.forecast_trend ?? 'Stable'}</em>
+                  <em>{externalMarketTrend(skill) ?? 'Stable'}</em>
                 </div>
               ))}
           </div>
@@ -367,14 +369,14 @@ function IndustryNetwork({ industry, skills }: { industry: string; skills: Indus
   const [hovered, setHovered] = useState<string | null>(null)
   const center = { x: 380, y: 190 }
   const nodes = useMemo(() => [...skills]
-    .sort((a, b) => ((b.linkedin_demand ?? 0) + (b.ses_score ?? 0)) - ((a.linkedin_demand ?? 0) + (a.ses_score ?? 0)))
+    .sort((a, b) => (skillDemandIndex(b) + ((b.ses_score ?? 0) * 100)) - (skillDemandIndex(a) + ((a.ses_score ?? 0) * 100)))
     .slice(0, 16)
     .map((skill, index) => {
       const ring = index < 6 ? 118 : 178
       const position = index < 6 ? index : index - 6
       const count = index < 6 ? Math.min(6, skills.length) : Math.max(1, Math.min(10, skills.length - 6))
       const angle = -Math.PI / 2 + (position / count) * Math.PI * 2 + (index >= 6 ? Math.PI / 10 : 0)
-      const demand = Math.max(0, Math.min(100, (skill.linkedin_demand ?? 0) * 100))
+      const demand = skillDemandIndex(skill)
       const safety = Math.round((skill.ses_score ?? 0) * 100)
 
       return {
@@ -455,7 +457,7 @@ function IndustryNetwork({ industry, skills }: { industry: string; skills: Indus
         {active ? (
           <>
             <b>{active.name}</b>
-            <span>Demand {Math.round(active.demand)} / 100 - SES {active.safety} - {active.archetype ?? 'Tracked'} - {active.forecast_trend ?? 'Stable'}</span>
+            <span>Demand {Math.round(active.demand)} / 100 - SES {active.safety} - {active.archetype ?? 'Tracked'} - {externalMarketTrend(active) ?? 'Stable'}</span>
           </>
         ) : (
           <>

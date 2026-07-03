@@ -3,6 +3,8 @@ import { BookOpen, ChevronDown, Search, Sparkles, Target, TrendingUp } from 'luc
 import { approachApi, forecastApi, MethodDistribution, PipelineStats, SkillSummary, skillsApi } from '@/services/api'
 import { buildSkillGuide, formatCategoryLabel } from '@/lib/skillGuideContent'
 import { filterUserFacingSkills } from '@/lib/skillQuality'
+import { skillDemandIndex } from '@/lib/utils'
+import { externalMarketTrend } from '@/lib/externalBenchmarks'
 
 function score(value?: number) {
   return Math.round((value ?? 0) * 100)
@@ -138,13 +140,13 @@ export default function SkillsGuide() {
                   <span className="min-w-0">
                     <b className="block text-base font-semibold text-[var(--text-primary)]">{skill.name}</b>
                     <small className="mt-0.5 block text-xs leading-relaxed text-[var(--text-subtle)]">
-                      {skill.id} - {skill.archetype ?? 'Tracked skill'}
+                      {skill.id} - archetype: {skill.archetype ?? 'Tracked skill'}
                     </small>
                   </span>
                   <span className="self-center"><span className="skills-guide-category-pill">{formatCategoryLabel(skill.category)}</span></span>
                   <span className="self-center text-[15px] font-bold tabular-nums text-fuchsia-200">{score(skill.ses_score)}</span>
-                  <span className={`self-center text-[13px] capitalize ${forecastTone(skill.forecast_trend)}`}>
-                    {skill.forecast_trend ?? 'Tracked'}
+                  <span className={`self-center text-[13px] capitalize ${forecastTone(externalMarketTrend(skill))}`}>
+                    {externalMarketTrend(skill) ?? 'Tracked'}
                   </span>
                   <ChevronDown size={16} className="self-center text-white/35 transition-transform duration-200 group-open:rotate-180" />
                 </summary>
@@ -194,7 +196,7 @@ export default function SkillsGuide() {
                       </section>
 
                       <div className="flex flex-wrap gap-2">
-                        <MetricPill label="Demand" value={`${score(skill.linkedin_demand)}/100`} />
+                        <MetricPill label="Demand Index" value={`${skillDemandIndex(skill)}/100`} />
                         <MetricPill label="Salary value" value={`${score(skill.salary_premium)}/100`} />
                         <MetricPill label="Safety tier" value={skill.ses_tier ?? 'Not classified'} />
                         <MetricPill label="Forecast method" value={skill.forecast_method ?? 'Dataset projection'} />

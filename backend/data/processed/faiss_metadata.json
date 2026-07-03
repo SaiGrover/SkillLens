@@ -1,1 +1,287 @@
-[{"skill": "a/b testing"}, {"skill": "advanced excel"}, {"skill": "agile"}, {"skill": "agile development"}, {"skill": "agile methodologies"}, {"skill": "agile methodology"}, {"skill": "agile practices"}, {"skill": "angular"}, {"skill": "api"}, {"skill": "apis"}, {"skill": "artificial intelligence"}, {"skill": "automation"}, {"skill": "aws"}, {"skill": "azure"}, {"skill": "azure devops"}, {"skill": "big data"}, {"skill": "business intelligence"}, {"skill": "c#"}, {"skill": "c++"}, {"skill": "c/c++"}, {"skill": "ci/cd"}, {"skill": "cloud computing"}, {"skill": "cloud security"}, {"skill": "coding"}, {"skill": "computer engineering"}, {"skill": "computer vision"}, {"skill": "confluence"}, {"skill": "continuous integration"}, {"skill": "cybersecurity"}, {"skill": "data analysis"}, {"skill": "data analytics"}, {"skill": "data architecture"}, {"skill": "data engineering"}, {"skill": "data governance"}, {"skill": "data modeling"}, {"skill": "data pipelines"}, {"skill": "data science"}, {"skill": "data visualization"}, {"skill": "database"}, {"skill": "database management"}, {"skill": "databases"}, {"skill": "deep learning"}, {"skill": "devops"}, {"skill": "docker"}, {"skill": "electrical engineering"}, {"skill": "electronics"}, {"skill": "embedded systems"}, {"skill": "etl"}, {"skill": "excel"}, {"skill": "gcp"}, {"skill": "git"}, {"skill": "github"}, {"skill": "gitlab"}, {"skill": "golang"}, {"skill": "google cloud"}, {"skill": "hadoop"}, {"skill": "information security"}, {"skill": "information technology"}, {"skill": "integration testing"}, {"skill": "java"}, {"skill": "javascript"}, {"skill": "jenkins"}, {"skill": "jira"}, {"skill": "kubernetes"}, {"skill": "linux"}, {"skill": "machine learning"}, {"skill": "matlab"}, {"skill": "mechanical engineering"}, {"skill": "microservices"}, {"skill": "microsoft azure"}, {"skill": "mongodb"}, {"skill": "mysql"}, {"skill": "natural language processing"}, {"skill": "network security"}, {"skill": "node.js"}, {"skill": "nosql"}, {"skill": "nosql databases"}, {"skill": "objectoriented programming"}, {"skill": "oracle"}, {"skill": "penetration testing"}, {"skill": "performance testing"}, {"skill": "php"}, {"skill": "plc programming"}, {"skill": "postgresql"}, {"skill": "power bi"}, {"skill": "programming"}, {"skill": "programming languages"}, {"skill": "python"}, {"skill": "pytorch"}, {"skill": "quality assurance"}, {"skill": "react"}, {"skill": "robotics"}, {"skill": "sharepoint"}, {"skill": "snowflake"}, {"skill": "software development"}, {"skill": "software engineering"}, {"skill": "software testing"}, {"skill": "sql"}, {"skill": "sql server"}, {"skill": "statistical analysis"}, {"skill": "statistics"}, {"skill": "system design"}, {"skill": "system testing"}, {"skill": "systems engineering"}, {"skill": "tableau"}, {"skill": "tensorflow"}, {"skill": "terraform"}, {"skill": "testing"}, {"skill": "typescript"}, {"skill": "unit testing"}, {"skill": "unix"}]
+[
+    {
+        "skill":  "javascript"
+    },
+    {
+        "skill":  "python"
+    },
+    {
+        "skill":  "sql"
+    },
+    {
+        "skill":  "aws"
+    },
+    {
+        "skill":  "docker"
+    },
+    {
+        "skill":  "git"
+    },
+    {
+        "skill":  "typescript"
+    },
+    {
+        "skill":  "java"
+    },
+    {
+        "skill":  "postgresql"
+    },
+    {
+        "skill":  "machine learning"
+    },
+    {
+        "skill":  "node.js"
+    },
+    {
+        "skill":  "react"
+    },
+    {
+        "skill":  "software engineering"
+    },
+    {
+        "skill":  "azure"
+    },
+    {
+        "skill":  "linux"
+    },
+    {
+        "skill":  "data analysis"
+    },
+    {
+        "skill":  "mysql"
+    },
+    {
+        "skill":  "power bi"
+    },
+    {
+        "skill":  "cybersecurity"
+    },
+    {
+        "skill":  "kubernetes"
+    },
+    {
+        "skill":  "microservices"
+    },
+    {
+        "skill":  "devops"
+    },
+    {
+        "skill":  "tensorflow"
+    },
+    {
+        "skill":  "quality assurance"
+    },
+    {
+        "skill":  "business intelligence"
+    },
+    {
+        "skill":  "automation"
+    },
+    {
+        "skill":  "natural language processing"
+    },
+    {
+        "skill":  "data science"
+    },
+    {
+        "skill":  "c++"
+    },
+    {
+        "skill":  "angular"
+    },
+    {
+        "skill":  "gcp"
+    },
+    {
+        "skill":  "data analytics"
+    },
+    {
+        "skill":  "oracle"
+    },
+    {
+        "skill":  "pytorch"
+    },
+    {
+        "skill":  "big data"
+    },
+    {
+        "skill":  "network security"
+    },
+    {
+        "skill":  "data visualization"
+    },
+    {
+        "skill":  "statistical analysis"
+    },
+    {
+        "skill":  "tableau"
+    },
+    {
+        "skill":  "agile"
+    },
+    {
+        "skill":  "c#"
+    },
+    {
+        "skill":  "mechanical engineering"
+    },
+    {
+        "skill":  "excel"
+    },
+    {
+        "skill":  "ci/cd"
+    },
+    {
+        "skill":  "penetration testing"
+    },
+    {
+        "skill":  "integration testing"
+    },
+    {
+        "skill":  "nosql"
+    },
+    {
+        "skill":  "mongodb"
+    },
+    {
+        "skill":  "data engineering"
+    },
+    {
+        "skill":  "cloud computing"
+    },
+    {
+        "skill":  "artificial intelligence"
+    },
+    {
+        "skill":  "embedded systems"
+    },
+    {
+        "skill":  "software development"
+    },
+    {
+        "skill":  "confluence"
+    },
+    {
+        "skill":  "statistics"
+    },
+    {
+        "skill":  "sharepoint"
+    },
+    {
+        "skill":  "github"
+    },
+    {
+        "skill":  "electrical engineering"
+    },
+    {
+        "skill":  "snowflake"
+    },
+    {
+        "skill":  "golang"
+    },
+    {
+        "skill":  "php"
+    },
+    {
+        "skill":  "deep learning"
+    },
+    {
+        "skill":  "robotics"
+    },
+    {
+        "skill":  "computer vision"
+    },
+    {
+        "skill":  "etl"
+    },
+    {
+        "skill":  "system testing"
+    },
+    {
+        "skill":  "data modeling"
+    },
+    {
+        "skill":  "object-oriented programming"
+    },
+    {
+        "skill":  "a/b testing"
+    },
+    {
+        "skill":  "cloud security"
+    },
+    {
+        "skill":  "data pipelines"
+    },
+    {
+        "skill":  "google cloud"
+    },
+    {
+        "skill":  "unix"
+    },
+    {
+        "skill":  "data architecture"
+    },
+    {
+        "skill":  "hadoop"
+    },
+    {
+        "skill":  "continuous integration"
+    },
+    {
+        "skill":  "microsoft azure"
+    },
+    {
+        "skill":  "unit testing"
+    },
+    {
+        "skill":  "jenkins"
+    },
+    {
+        "skill":  "performance testing"
+    },
+    {
+        "skill":  "gitlab"
+    },
+    {
+        "skill":  "data governance"
+    },
+    {
+        "skill":  "azure devops"
+    },
+    {
+        "skill":  "systems engineering"
+    },
+    {
+        "skill":  "sql server"
+    },
+    {
+        "skill":  "system design"
+    },
+    {
+        "skill":  "computer engineering"
+    },
+    {
+        "skill":  "jira"
+    },
+    {
+        "skill":  "terraform"
+    },
+    {
+        "skill":  "advanced excel"
+    },
+    {
+        "skill":  "plc programming"
+    },
+    {
+        "skill":  "information security"
+    },
+    {
+        "skill":  "software testing"
+    },
+    {
+        "skill":  "electronics"
+    },
+    {
+        "skill":  "matlab"
+    }
+]

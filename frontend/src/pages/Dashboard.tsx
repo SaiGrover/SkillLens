@@ -13,6 +13,8 @@ import {
   approachApi, forecastApi, industriesApi, skillsApi,
   LeaderboardEntry, PipelineStats, SkillSummary
 } from '@/services/api'
+import { rawLinkedInDemandIndex, skillDemandIndex } from '@/lib/utils'
+import { externalMarketTrend } from '@/lib/externalBenchmarks'
 
 const trackedSkillIds = ['artificial-intelligence', 'machine-learning', 'natural-language-processing', 'power-bi', 'python', 'javascript']
 const trackedSeries = [
@@ -61,6 +63,13 @@ function canonicalWatchKey(skill: SkillSummary) {
   return normalized
 }
 
+function formatCategoryLabel(category?: string) {
+  return (category ?? 'Unassigned')
+    .replace(/_/g, ' / ')
+    .replace(/\bAi\b/g, 'AI')
+    .replace(/\bMl\b/g, 'ML')
+}
+
 function bucketLabel(from: number, to: number) {
   if (to <= 30) return 'Risk exposure'
   if (to <= 50) return 'Needs monitoring'
@@ -76,7 +85,7 @@ function bucketColor(from: number, to: number) {
 }
 
 function watchReason(skill: SkillSummary) {
-  const trend = skill.forecast_trend ? `${skill.forecast_trend.toLowerCase()} forecast` : 'limited forecast signal'
+  const trend = externalMarketTrend(skill) ? `${externalMarketTrend(skill)?.toLowerCase()} market trend` : 'limited trend signal'
   return `${trend}; review before treating this as a learning priority`
 }
 
@@ -193,8 +202,10 @@ export default function Dashboard() {
     id: skill.id,
     name: skill.name,
     category: skill.category ?? 'Unassigned',
+    categoryLabel: formatCategoryLabel(skill.category),
     safety: Math.round((skill.ses_score ?? 0) * 100),
-    demand: Math.round((skill.linkedin_demand ?? 0) * 100),
+    demand: skillDemandIndex(skill),
+    linkedin: rawLinkedInDemandIndex(skill),
     size: Math.max(1, Math.round((skill.salary_premium ?? 0) * 100)),
   })), [skills])
   const signalCategories = useMemo(() => ['All', ...categoryData.map((item) => item.name)], [categoryData])
@@ -221,6 +232,23 @@ export default function Dashboard() {
       })
       .slice(0, 5)
   }, [skills, watch])
+  const risingItems = useMemo(() => {
+    const seen = new Set<string>()
+    return [...rising, ...skills]
+      .filter((skill) => !isGenericAliasSkill(skill))
+      .filter((skill) => (externalMarketTrend(skill) ?? '').toLowerCase() !== 'declining')
+      .sort((a, b) => {
+        const score = (skill: SkillSummary) => pct(skill.growth_rate) * 0.55 + skillDemandIndex(skill) * 0.3 + pct(skill.future_interest) * 0.15
+        return score(b) - score(a)
+      })
+      .filter((skill) => {
+        const key = normalizeSkillName(skill.name)
+        if (!key || seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      .slice(0, 5)
+  }, [rising, skills])
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -333,18 +361,18 @@ export default function Dashboard() {
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
-          {insightsLoading ? <ListSkeleton /> : <ListPanel title="Rising Fast" tone="emerald" items={rising.map((skill) => ({
+          {insightsLoading ? <ListSkeleton /> : <ListPanel title="Rising Fast" tone="emerald" items={risingItems.map((skill) => ({
             name: skill.name,
             meta: `+${pct(skill.growth_rate)}% growth`,
-            score: pct(skill.growth_rate),
-            badge: skill.category ?? skill.archetype ?? 'Momentum',
-            reason: 'positive demand and future interest signals',
+            score: Math.max(pct(skill.growth_rate), skillDemandIndex(skill)),
+            badge: formatCategoryLabel(skill.category ?? skill.archetype ?? 'Momentum'),
+            reason: `${externalMarketTrend(skill) ?? 'Tracked'} market trend; calibrated demand index ${skillDemandIndex(skill)}/100`,
           }))} />}
           {insightsLoading ? <ListSkeleton /> : <ListPanel title="Skills to Review" tone="amber" items={watchItems.map((skill) => ({
             name: skill.name,
             meta: `${safetyTier(skill.ses_score)} safety`,
             score: Math.max(0, 100 - pct(skill.ses_score)),
-            badge: skill.forecast_trend ?? 'Review',
+            badge: externalMarketTrend(skill) ?? 'Review',
             reason: watchReason(skill),
           }))} />}
         </div>
@@ -354,17 +382,17 @@ export default function Dashboard() {
         <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h3 className="text-base font-semibold text-[var(--text-primary)]">Skill signal map</h3>
-            <p className="mt-1 text-xs text-white/35">Click a point to inspect that skill. Horizontal position is SES; vertical position is demand; bubble size is salary value.</p>
+            <p className="mt-1 text-xs text-white/35">Click a point to inspect that skill. Horizontal position is SES; vertical position is composite Demand Index; bubble size is salary value.</p>
           </div>
           <div className="flex max-w-full flex-wrap gap-1.5">
-            {signalCategories.map((category) => <button key={category} type="button" onClick={() => setSignalCategory(category)} className={`rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors ${signalCategory === category ? 'border-fuchsia-300/40 bg-fuchsia-300/10 text-fuchsia-100' : 'border-white/10 bg-white/[0.03] text-white/45 hover:text-white/75'}`}>{category}</button>)}
+            {signalCategories.map((category) => <button key={category} type="button" onClick={() => setSignalCategory(category)} className={`rounded-full border px-2.5 py-1 text-[10px] font-medium transition-colors ${signalCategory === category ? 'border-fuchsia-300/40 bg-fuchsia-300/10 text-fuchsia-100' : 'border-white/10 bg-white/[0.03] text-white/45 hover:text-white/75'}`}>{formatCategoryLabel(category)}</button>)}
           </div>
         </div>
         <ResponsiveContainer width="100%" height={290}>
           <ScatterChart margin={{ top: 12, right: 22, bottom: 12, left: 3 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.055)" />
             <XAxis type="number" dataKey="safety" name="SES Score" domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.42)', fontSize: 10 }} axisLine={false} tickLine={false} label={{ value: 'SES Score', position: 'insideBottom', offset: -4, fill: 'rgba(255,255,255,0.52)', fontSize: 10 }} />
-            <YAxis type="number" dataKey="demand" name="Demand Index" domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.42)', fontSize: 10 }} axisLine={false} tickLine={false} width={34} label={{ value: 'Demand', angle: -90, position: 'insideLeft', fill: 'rgba(255,255,255,0.52)', fontSize: 10 }} />
+            <YAxis type="number" dataKey="demand" name="Demand Index" domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.42)', fontSize: 10 }} axisLine={false} tickLine={false} width={34} label={{ value: 'Demand Index', angle: -90, position: 'insideLeft', fill: 'rgba(255,255,255,0.52)', fontSize: 10 }} />
             <ZAxis type="number" dataKey="size" name="Salary value" range={[80, 460]} />
             <Tooltip content={<SignalMapTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.25)', strokeDasharray: '3 3' }} />
             <Scatter name="Skills" data={visibleSignals} fill="#e9d5ff" fillOpacity={0.76} onClick={(point: any) => point?.payload?.name && navigate(`/skills?search=${encodeURIComponent(point.payload.name)}`)} />
@@ -407,7 +435,7 @@ function ListSkeleton() {
 function SignalMapTooltip({ active, payload }: any) {
   if (!active || !payload?.[0]?.payload) return null
   const skill = payload[0].payload
-  return <div className="rounded-lg border border-white/10 bg-[#10071d] p-3 shadow-xl"><b className="block text-sm text-white">{skill.name}</b><p className="mt-1 text-xs text-white/55">{skill.category}</p><div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs"><span className="text-white/45">SES</span><b>{skill.safety} / 100</b><span className="text-white/45">Demand</span><b>{skill.demand} / 100</b></div><p className="mt-2 text-[10px] text-fuchsia-200">Click to open Skill Explorer</p></div>
+  return <div className="rounded-lg border border-white/10 bg-[#10071d] p-3 shadow-xl"><b className="block text-sm text-white">{skill.name}</b><p className="mt-1 text-xs text-white/55">{skill.categoryLabel ?? skill.category}</p><div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs"><span className="text-white/45">SES</span><b>{skill.safety} / 100</b><span className="text-white/45">Demand Index</span><b>{skill.demand} / 100</b><span className="text-white/45">Raw LinkedIn</span><b>{skill.linkedin} / 100</b></div><p className="mt-2 max-w-[230px] text-[10px] text-fuchsia-200">Demand Index blends raw employer share, adoption, future interest, growth, and forecast trend.</p></div>
 }
 
 function SesHistogramTooltip({ active, payload }: any) {

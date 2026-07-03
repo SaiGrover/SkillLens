@@ -1,66 +1,69 @@
 export const datasetInventory = [
   { label: 'taxonomy dictionary', value: 2616 },
-  { label: 'skill-year history', value: 2304 },
+  { label: 'skill-year history', value: 2179 },
   { label: 'industry mappings', value: 139 },
-  { label: 'expanded skills', value: 114 },
-  { label: 'forecast outputs', value: 114 },
-  { label: 'knowledge docs', value: 114 },
+  { label: 'expanded skills', value: 95 },
+  { label: 'forecast outputs', value: 95 },
+  { label: 'knowledge docs', value: 95 },
 ]
 
 export const taxonomyCategoryCounts = [
-  { label: 'Software Engineering', value: 20 },
-  { label: 'Programming', value: 18 },
-  { label: 'Database', value: 13 },
+  { label: 'Programming', value: 14 },
+  { label: 'Software Engineering', value: 13 },
   { label: 'DevOps', value: 12 },
-  { label: 'Data Analytics', value: 12 },
+  { label: 'Data Analytics', value: 10 },
+  { label: 'Database', value: 9 },
   { label: 'AI/ML', value: 8 },
   { label: 'Data Engineering', value: 7 },
   { label: 'Engineering Systems', value: 7 },
+  { label: 'Cloud', value: 7 },
+  { label: 'Cybersecurity', value: 5 },
+  { label: 'Tools / Platforms', value: 3 },
 ]
 
 export const featureAverages = [
-  { label: 'LinkedIn demand', value: 0.071 },
-  { label: 'Salary premium', value: 0.554 },
-  { label: 'Current usage', value: 0.337 },
-  { label: 'Future interest', value: 0.326 },
-  { label: 'Global adoption', value: 0.629 },
-  { label: 'Growth rate', value: 0.399 },
+  { label: 'LinkedIn demand', value: 0.08 },
+  { label: 'Salary premium', value: 0.575 },
+  { label: 'Current usage', value: 0.343 },
+  { label: 'Future interest', value: 0.334 },
+  { label: 'Global adoption', value: 0.49 },
+  { label: 'Growth rate', value: 0.332 },
 ]
 
 export const historyYearCounts = [
-  { label: '2013', value: 62 },
-  { label: '2014', value: 88 },
-  { label: '2015', value: 118 },
-  { label: '2016', value: 141 },
-  { label: '2017', value: 158 },
-  { label: '2018', value: 166 },
-  { label: '2019', value: 173 },
-  { label: '2020', value: 175 },
-  { label: '2021', value: 190 },
-  { label: '2022', value: 214 },
-  { label: '2023', value: 306 },
-  { label: '2024', value: 294 },
-  { label: '2025', value: 219 },
+  { label: '2013', value: 56 },
+  { label: '2014', value: 79 },
+  { label: '2015', value: 108 },
+  { label: '2016', value: 131 },
+  { label: '2017', value: 148 },
+  { label: '2018', value: 156 },
+  { label: '2019', value: 163 },
+  { label: '2020', value: 165 },
+  { label: '2021', value: 180 },
+  { label: '2022', value: 204 },
+  { label: '2023', value: 296 },
+  { label: '2024', value: 284 },
+  { label: '2025', value: 209 },
 ]
 
 export const forecastMethodCounts = [
-  { label: 'Holt', value: 88 },
-  { label: 'Exponential smoothing', value: 16 },
-  { label: 'Feature based', value: 10 },
+  { label: 'Holt', value: 79 },
+  { label: 'Exponential smoothing', value: 15 },
+  { label: 'Growth anchored', value: 1 },
 ]
 
 export const forecastTrendCounts = [
-  { label: 'Stable', value: 63 },
-  { label: 'Growing', value: 46 },
-  { label: 'Declining', value: 4 },
+  { label: 'Growing', value: 69 },
+  { label: 'Stable', value: 22 },
+  { label: 'Declining', value: 3 },
   { label: 'Explosive', value: 1 },
 ]
 
 export const sesTierCounts = [
-  { label: 'Very Safe', value: 3 },
-  { label: 'Safe', value: 78 },
-  { label: 'Moderate', value: 32 },
-  { label: 'Risky', value: 1 },
+  { label: 'Very Safe', value: 10 },
+  { label: 'Safe', value: 24 },
+  { label: 'Moderate', value: 38 },
+  { label: 'Risky', value: 23 },
 ]
 
 export const industryMetricRows = [

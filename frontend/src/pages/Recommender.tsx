@@ -3,6 +3,8 @@ import { ArrowRight, BrainCircuit, CheckCircle2, Compass, Search, Sparkles, Targ
 import { useSearchParams } from 'react-router-dom'
 import { SkillSummary, skillsApi } from '@/services/api'
 import { formatCategoryLabel } from '@/lib/skillGuideContent'
+import { skillDemandIndex } from '@/lib/utils'
+import { externalMarketTrend } from '@/lib/externalBenchmarks'
 
 type RolePreset = {
   role: string
@@ -63,7 +65,7 @@ function categoryNorm(value?: string) {
 }
 
 function demand(skill: SkillSummary) {
-  return pct(skill.linkedin_demand)
+  return skillDemandIndex(skill)
 }
 
 function salary(skill: SkillSummary) {
@@ -90,7 +92,7 @@ function reasonFor(skill: SkillSummary, preset: RolePreset, requirement: string)
   }
   if (demand(skill) >= 50) parts.push(`strong demand signal (${demand(skill)}/100)`)
   if (salary(skill) >= 50) parts.push(`solid salary value (${salary(skill)}/100)`)
-  if ((skill.forecast_trend ?? '').toLowerCase().includes('grow')) parts.push('positive forecast trend')
+  if ((externalMarketTrend(skill) ?? '').toLowerCase().includes('grow')) parts.push('positive market trend')
   if (!parts.length && requirement.trim()) parts.push('closest dataset match for this requirement')
   return parts.join(', ')
 }
@@ -170,7 +172,7 @@ export default function Recommender() {
                 <div className="mt-3 flex flex-wrap gap-2 text-xs">
                   <span className="rounded-full border border-fuchsia-300/20 bg-fuchsia-300/10 px-2 py-1 text-fuchsia-100">Fit {best.fit}</span>
                   <span className="rounded-full border border-amber-300/20 bg-amber-300/10 px-2 py-1 text-amber-100">SES {pct(best.skill.ses_score)}/100</span>
-                  <span className="rounded-full border border-rose-300/20 bg-rose-300/10 px-2 py-1 text-rose-100">{best.skill.forecast_trend ?? 'Tracked'}</span>
+                  <span className="rounded-full border border-rose-300/20 bg-rose-300/10 px-2 py-1 text-rose-100">{externalMarketTrend(best.skill) ?? 'Tracked'}</span>
                 </div>
               </div>
             </div>

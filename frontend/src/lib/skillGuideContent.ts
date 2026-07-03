@@ -1,4 +1,6 @@
 import type { SkillSummary } from '@/services/api'
+import { skillDemandIndex } from '@/lib/utils'
+import { externalMarketTrend } from '@/lib/externalBenchmarks'
 
 export interface SkillGuideSections {
   about: string
@@ -600,12 +602,12 @@ function pct(value?: number) {
   return Math.round((value ?? 0) * 100)
 }
 
-function demandLabel(value?: number) {
-  const score = pct(value)
-  if (score >= 75) return 'very high employer demand'
-  if (score >= 50) return 'solid market demand'
-  if (score >= 25) return 'moderate demand'
-  return 'niche or emerging demand'
+function demandLabel(skill: SkillSummary) {
+  const index = skillDemandIndex(skill)
+  if (index >= 75) return 'a very high composite Demand Index'
+  if (index >= 50) return 'a solid composite Demand Index'
+  if (index >= 25) return 'moderate demand when employer share, adoption, future interest, and forecast signals are combined'
+  return 'niche demand in the current snapshot, so it should be paired with adjacent high-momentum skills'
 }
 
 function salaryLabel(value?: number) {
@@ -669,9 +671,9 @@ export function buildSkillGuide(skill: SkillSummary & { description?: string; cu
   const archetypeOutlook = ARCHETYPE_OUTLOOK[archetype] ?? ARCHETYPE_OUTLOOK.Stable
 
   const careerOutlook = [
-    `${skill.name} ${sesLabel(skill.ses_score, skill.ses_tier)} and shows ${demandLabel(skill.linkedin_demand)}.`,
+    `${skill.name} ${sesLabel(skill.ses_score, skill.ses_tier)} and shows ${demandLabel(skill)}.`,
     `Compensation signals ${salaryLabel(skill.salary_premium)}.`,
-    forecastSentence(skill.forecast_trend, skill.forecast_method),
+    forecastSentence(externalMarketTrend(skill), skill.forecast_method),
     archetypeOutlook,
   ].join(' ')
 

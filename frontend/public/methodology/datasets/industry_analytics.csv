@@ -1,9 +1,9 @@
-industry,skill_count,avg_ses_score,avg_linkedin_demand,avg_salary_premium,avg_growth_rate,avg_future_interest,avg_global_adoption,avg_forecast_1y,avg_forecast_3y,forecast_growth_3y_pct,pct_skills_growing,pct_skills_declining,peak_demand,current_demand,top_ses_tier,very_safe_count,safe_count,moderate_count,risky_count,extinction_risk_count
-Data Analytics,11,0.4227,0.2537,0.3211,0.5086,0.3894,0.6619,53654.13,56873.26,6.0,27.3,0.0,218868,51914.0,Safe,2,9,0,0,0
-Software Engineering,19,0.3842,0.0667,0.6055,0.3015,0.3235,0.6958,65008.04,69373.45,6.72,47.4,10.5,265328,62440.0,Safe,2,13,4,0,0
-Data Science,9,0.3787,0.089,0.4576,0.5585,0.4108,0.6648,40718.57,43128.47,5.92,66.7,0.0,218868,39849.0,Safe,1,8,0,0,0
-AI/ML,7,0.3533,0.0247,0.8791,0.6992,0.54,0.5192,16850.23,19409.34,15.19,71.4,0.0,33835,13782.0,Safe,0,7,0,0,0
-Cybersecurity,6,0.3339,0.0155,0.5569,0.5631,0.2424,0.6341,15999.08,17674.32,10.47,66.7,0.0,24466,14859.0,Safe,0,6,0,0,0
-Data Engineering,13,0.3314,0.0325,0.637,0.2607,0.2918,0.6664,50949.24,54938.54,7.83,38.5,7.7,196624,51691.0,Moderate,1,4,8,0,0
-Cloud & DevOps,17,0.3233,0.0426,0.6228,0.2664,0.3562,0.5811,45690.74,50025.69,9.49,64.7,5.9,190230,42293.0,Moderate,0,8,9,0,0
-Systems Engineering,9,0.3001,0.0596,0.396,0.4711,0.1192,0.6341,17276.34,19103.61,10.58,44.4,0.0,27708,16218.0,Safe,0,5,4,0,0
+industry,skill_count,avg_ses_score,avg_linkedin_demand,avg_salary_premium,avg_growth_rate,avg_future_interest,avg_global_adoption,avg_forecast_1y,avg_forecast_3y,forecast_growth_3y_pct,forecast,pct_skills_growing,pct_skills_declining,top_skill,top_ses_tier,very_safe_count,safe_count,moderate_count,risky_count,future_proof_pct,growing_pct,stable_pct,high_risk_pct
+AI/ML,8,0.329,0.0395,0.8576,0.7016,0.5766,0.36,15406.64,17387.89,5.43,Growing,87.5,12.5,machine learning,Very Safe,1,4,3,0,12.5,87.5,0.0,0.0
+Cloud & DevOps,19,0.3212,0.0543,0.6342,0.2719,0.3737,0.4091,45706.5,51522.51,6.03,Growing,78.9,5.3,aws,Very Safe,3,5,4,7,15.8,78.9,15.8,36.8
+Cybersecurity,5,0.2817,0.0331,0.5911,0.501,0.2704,0.4199,18475.66,20648.15,5.58,Growing,80.0,0.0,cybersecurity,Safe,0,1,3,1,0.0,80.0,20.0,20.0
+Data Analytics,10,0.3273,0.2467,0.3513,0.3862,0.3406,0.4861,19110.48,21085.81,4.78,Growing,60.0,0.0,data analysis,Safe,0,4,5,1,0.0,60.0,40.0,10.0
+Data Engineering,16,0.3011,0.0439,0.6322,0.2569,0.2973,0.5415,49314.0,55177.49,7.02,Growing,75.0,0.0,sql,Very Safe,2,2,8,4,12.5,75.0,25.0,25.0
+Data Science,8,0.4568,0.2448,0.5405,0.4269,0.5469,0.5001,69217.14,77581.01,5.62,Growing,100.0,0.0,python,Very Safe,3,2,3,0,37.5,100.0,0.0,0.0
+Software Engineering,26,0.3271,0.0733,0.5401,0.2695,0.3096,0.5916,51463.08,56879.05,5.58,Growing,69.2,3.8,javascript,Very Safe,3,8,10,5,11.5,69.2,26.9,19.2
+Systems Engineering,9,0.214,0.0712,0.4368,0.3251,0.1499,0.3939,17341.44,19281.53,5.26,Growing,66.7,0.0,mechanical engineering,Moderate,0,0,4,5,0.0,66.7,33.3,55.6

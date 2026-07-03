@@ -33,9 +33,16 @@ class SkillSummary(BaseModel):
     growth_rate: Optional[float]
     linkedin_demand: Optional[float]
     salary_premium: Optional[float]
+    current_usage: Optional[float]
+    future_interest: Optional[float]
+    global_adoption: Optional[float]
+    forecast_score: Optional[float]
     forecast_1y: Optional[float]     # replaces forecast_12m
+    forecast_2y: Optional[float]
+    forecast_3y: Optional[float]
     forecast_trend: Optional[str]    # Explosive | Growing | Stable | Declining
     forecast_method: Optional[str]   # Holt | ExponentialSmoothing | FeatureBased
+    confidence: Optional[float]
 
     class Config:
         from_attributes = True
@@ -188,9 +195,16 @@ async def list_skills(
             growth_rate=skill.growth_rate,
             linkedin_demand=skill.linkedin_demand,
             salary_premium=skill.salary_premium,
+            current_usage=skill.current_usage,
+            future_interest=skill.future_interest,
+            global_adoption=skill.global_adoption,
+            forecast_score=skill.forecast.forecast_score if skill.forecast else None,
             forecast_1y=skill.forecast.forecast_1y if skill.forecast else None,
+            forecast_2y=skill.forecast.forecast_2y if skill.forecast else None,
+            forecast_3y=skill.forecast.forecast_3y if skill.forecast else None,
             forecast_trend=skill.forecast.forecast_trend if skill.forecast else None,
             forecast_method=skill.forecast.forecast_method if skill.forecast else None,
+            confidence=skill.forecast.confidence if skill.forecast else None,
         )
         for skill in result
     ]
@@ -239,6 +253,7 @@ async def top_rising(db: AsyncSession = Depends(get_db), limit: int = Query(10, 
             selectinload(Skill.forecast),
         )
         .where(Skill.momentum_score > 0.5)
+        .where((Forecast.forecast_trend.is_(None)) | (Forecast.forecast_trend != "Declining"))
         .order_by(Skill.cagr.desc())
         .limit(limit)
     )
@@ -392,7 +407,14 @@ def _to_summary(skill: Skill) -> SkillSummary:
         growth_rate=skill.growth_rate,
         linkedin_demand=skill.linkedin_demand,
         salary_premium=skill.salary_premium,
+        current_usage=skill.current_usage,
+        future_interest=skill.future_interest,
+        global_adoption=skill.global_adoption,
+        forecast_score=skill.forecast.forecast_score if skill.forecast else None,
         forecast_1y=skill.forecast.forecast_1y if skill.forecast else None,
+        forecast_2y=skill.forecast.forecast_2y if skill.forecast else None,
+        forecast_3y=skill.forecast.forecast_3y if skill.forecast else None,
         forecast_trend=skill.forecast.forecast_trend if skill.forecast else None,
         forecast_method=skill.forecast.forecast_method if skill.forecast else None,
+        confidence=skill.forecast.confidence if skill.forecast else None,
     )

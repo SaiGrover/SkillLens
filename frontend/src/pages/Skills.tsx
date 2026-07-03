@@ -6,7 +6,8 @@ import {
   BrainCircuit, Cloud, Code2, Database, Plus, Search, Shield, Sparkles, Star, TrendingUp, X
 } from 'lucide-react'
 import { advisorApi, IndustrySummary, industriesApi, SkillSummary, skillsApi } from '@/services/api'
-import { cn } from '@/lib/utils'
+import { cn, rawLinkedInDemandIndex, skillDemandIndex } from '@/lib/utils'
+import { externalMarketTrend } from '@/lib/externalBenchmarks'
 
 type SortKey = 'relevance' | 'ses' | 'demand' | 'salary' | 'risk'
 type DetailTab = 'overview' | 'forecast' | 'salary' | 'related' | 'fit'
@@ -27,7 +28,7 @@ function pct(value?: number) {
 }
 
 function demandScore(skill: SkillSummary) {
-  return Math.round((skill.linkedin_demand ?? 0) * 100)
+  return skillDemandIndex(skill)
 }
 
 function salaryValueIndex(skill: SkillSummary) {
@@ -63,7 +64,7 @@ function matchesCategory(skill: SkillSummary, selected: string) {
 function fallbackSkillDescription(skill: SkillSummary) {
   const score = pct(skill.ses_score)
   const demand = demandScore(skill)
-  const trend = (skill.forecast_trend ?? 'stable').toLowerCase()
+  const trend = (externalMarketTrend(skill) ?? 'stable').toLowerCase()
   const strength = score >= 70 ? 'strong relative safety signals' : score >= 50 ? 'a balanced but mixed signal profile' : 'a lower relative safety signal that benefits from careful pairing'
   return `${skill.name} is used in ${skill.category ?? 'the tracked workforce domain'} and currently shows ${strength}. Its ${trend} outlook is informed by a demand index of ${demand}/100, salary value, adoption, and forecast features; learn it alongside a complementary higher-SES skill that fits your target role.`
 }
@@ -78,14 +79,14 @@ function skillVisual(category?: string) {
 }
 
 function exportCsv(rows: SkillSummary[]) {
-  const header = ['skill', 'category', 'ses_score', 'risk_tier', 'archetype', 'forecast_trend', 'salary_value_index_0_to_100', 'demand_index']
+  const header = ['skill', 'category', 'ses_score', 'risk_tier', 'archetype', 'market_trend', 'salary_value_index_0_to_100', 'demand_index']
   const body = rows.map((skill) => [
     skill.name,
     skill.category ?? '',
     pct(skill.ses_score),
     riskTier(skill),
     skill.archetype ?? '',
-    skill.forecast_trend ?? '',
+    externalMarketTrend(skill) ?? '',
     salaryValueIndex(skill),
     demandScore(skill),
   ])
@@ -155,14 +156,14 @@ export default function Skills() {
   }, [searchParams])
 
   const trends = useMemo(() => {
-    const values = new Set(skills.map((skill) => skill.forecast_trend).filter(Boolean) as string[])
+    const values = new Set(skills.map((skill) => externalMarketTrend(skill)).filter(Boolean) as string[])
     return ['All', ...Array.from(values)]
   }, [skills])
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     return skills
-      .filter((skill) => !q || [skill.name, skill.category, skill.archetype, skill.forecast_trend].some((value) => value?.toLowerCase().includes(q)))
+      .filter((skill) => !q || [skill.name, skill.category, skill.archetype, externalMarketTrend(skill)].some((value) => value?.toLowerCase().includes(q)))
       .filter((skill) => matchesCategory(skill, category))
       .filter((skill) => {
         if (industry === 'All') return true
@@ -170,13 +171,13 @@ export default function Skills() {
         return selectedIndustry?.top_skills?.some((name) => normalized(name) === normalized(skill.name)) ?? false
       })
       .filter((skill) => risk === 'All' || riskTier(skill) === risk)
-      .filter((skill) => trend === 'All' || skill.forecast_trend === trend)
+      .filter((skill) => trend === 'All' || externalMarketTrend(skill) === trend)
       .sort((a, b) => {
         if (sortBy === 'ses') return (b.ses_score ?? 0) - (a.ses_score ?? 0)
         if (sortBy === 'demand') return demandScore(b) - demandScore(a)
         if (sortBy === 'salary') return salaryValueIndex(b) - salaryValueIndex(a)
         if (sortBy === 'risk') return riskScore(b) - riskScore(a)
-        return (b.ses_score ?? 0) + (b.linkedin_demand ?? 0) - ((a.ses_score ?? 0) + (a.linkedin_demand ?? 0))
+        return (b.ses_score ?? 0) + demandScore(b) / 100 - ((a.ses_score ?? 0) + demandScore(a) / 100)
       })
   }, [skills, search, category, industry, industries, risk, trend, sortBy])
 
@@ -269,10 +270,10 @@ export default function Skills() {
           <div className="skill-explorer-metrics">
             <MetricCard title="Total Skills" value={skills.length} detail="Across all categories" tone="violet" />
             <MetricCard title="Future-Proof" value={skills.filter(isFutureProof).length} detail={`${Math.round((skills.filter(isFutureProof).length / Math.max(1, skills.length)) * 100)}% of total`} tone="fuchsia" />
-            <MetricCard title="Growing" value={skills.filter((skill) => normalized(skill.forecast_trend) === 'growing').length} detail="Positive forecast trend" tone="emerald" />
+            <MetricCard title="Growing" value={skills.filter((skill) => normalized(externalMarketTrend(skill)) === 'growing').length} detail="Positive market-aligned trend" tone="emerald" />
             <MetricCard title="High-Risk" value={skills.filter((skill) => riskTier(skill) === 'High').length} detail="Lower SES signals" tone="amber" />
             <MetricCard title="Avg Salary Value" value={`${avgSalaryValue} / 100`} detail="normalized compensation signal" tone="pink" />
-            <MetricCard title="Avg Demand Score" value={avgDemand} detail="LinkedIn demand score" tone="fuchsia" />
+            <MetricCard title="Avg Demand Index" value={avgDemand} detail="blended market signal" tone="fuchsia" />
           </div>
 
           <section className="skill-explorer-table-card glass">
@@ -367,7 +368,7 @@ export default function Skills() {
                     <span>{skill.category ?? 'Unassigned'}</span>
                     <span className="ses-cell">{pct(skill.ses_score)} <Ring value={pct(skill.ses_score)} /></span>
                     <span><Pill tone="green">{skill.archetype ?? 'Tracked'}</Pill></span>
-                    <span><Pill tone="blue">{skill.forecast_trend ?? 'N/A'}</Pill></span>
+                    <span><Pill tone="blue">{externalMarketTrend(skill) ?? 'N/A'}</Pill></span>
                     <span>{demandScore(skill)}</span>
                     <span>{salaryValueIndex(skill)} / 100</span>
                     <span><RiskPill tier={riskTier(skill)} /></span>
@@ -480,11 +481,12 @@ function SkillPanel({
   const related = skills.filter((item) => item.id !== skill.id && item.category === skill.category).slice(0, 4)
   const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Education']
   const reasons = [
-    `LinkedIn demand score: ${demandScore(skill)}/100`,
+    `Composite Demand Index: ${demandScore(skill)}/100`,
+    `Raw LinkedIn demand share: ${rawLinkedInDemandIndex(skill)}/100`,
     `Global adoption signal: ${pct((skill as any).global_adoption ?? (skill as any).global_adoption_score)}%`,
     `Future interest signal: ${pct((skill as any).future_interest)}%`,
     `Salary value index: ${salaryValueIndex(skill)} out of 100`,
-    `Forecast trend: ${skill.forecast_trend ?? 'Tracked'} via ${skill.forecast_method ?? 'dataset method'}`,
+    `Market trend: ${externalMarketTrend(skill) ?? 'Tracked'} via ${skill.forecast_method ?? 'dataset method'}`,
   ]
   const visual = skillVisual(skill.category)
   const CategoryIcon = visual.Icon
@@ -516,7 +518,7 @@ function SkillPanel({
 
     setDescription('')
     setDescriptionLoading(true)
-    advisorApi.chat(`Write exactly two concise sentences explaining what ${skill.name} is used for and why its workforce outlook matters. Ground it in this data only: category ${skill.category ?? 'Unassigned'}, SES ${pct(skill.ses_score)}/100, demand ${demandScore(skill)}/100, forecast ${skill.forecast_trend ?? 'tracked'}. Do not mention being an AI or repeat the prompt.`)
+    advisorApi.chat(`Write exactly two concise sentences explaining what ${skill.name} is used for and why its workforce outlook matters. Ground it in this data only: category ${skill.category ?? 'Unassigned'}, SES ${pct(skill.ses_score)}/100, calibrated demand index ${demandScore(skill)}/100, raw LinkedIn demand ${rawLinkedInDemandIndex(skill)}/100, market trend ${externalMarketTrend(skill) ?? 'tracked'}. Do not mention being an AI or repeat the prompt.`)
       .then((response) => response.reply?.replace(/\s+/g, ' ').trim())
       .then((summary) => {
         const next = summary && summary.length > 45 ? summary : fallbackSkillDescription(skill)
@@ -547,7 +549,7 @@ function SkillPanel({
         <div className={cn('skill-logo bg-gradient-to-br', visual.tone)}><CategoryIcon size={24} aria-label={`${skill.category ?? 'Skill'} icon`} /></div>
         <div>
           <h2>{skill.name}</h2>
-          <div className="detail-tags"><Pill tone="blue">{skill.category ?? 'Unassigned'}</Pill><Pill tone="green">{isFutureProof(skill) ? 'Future-Proof' : skill.forecast_trend ?? 'Tracked'}</Pill></div>
+          <div className="detail-tags"><Pill tone="blue">{skill.category ?? 'Unassigned'}</Pill><Pill tone="green">{isFutureProof(skill) ? 'Future-Proof' : externalMarketTrend(skill) ?? 'Tracked'}</Pill></div>
         </div>
         <button type="button" onClick={onSave} className={cn('detail-save-button', isSaved && 'saved')} title={isSaved ? 'Remove from saved skills' : 'Save skill'}>
           <Star size={20} fill={isSaved ? 'currentColor' : 'none'} />
@@ -574,9 +576,9 @@ function SkillPanel({
 
       <div className="detail-score-grid">
         <div className="score-ring"><b>{pct(skill.ses_score)}</b><span>SES Score</span><small>{skill.ses_tier ?? 'Scored'}</small></div>
-        <InfoTile label="Demand Score" value={demandScore(skill)} detail="LinkedIn signal" />
+        <InfoTile label="Demand Index" value={demandScore(skill)} detail="LinkedIn + adoption + forecast" />
         <InfoTile label="Salary Value Index" value={`${salaryValueIndex(skill)} / 100`} detail="normalized dataset signal" />
-        <InfoTile label="Forecast Trend" value={skill.forecast_trend ?? 'N/A'} detail={`${pct(skill.growth_rate)}% growth`} />
+        <InfoTile label="Market Trend" value={externalMarketTrend(skill) ?? 'N/A'} detail={`${pct(skill.growth_rate)}% growth`} />
         <InfoTile label="Global Adoption" value={`${pct((skill as any).global_adoption ?? (skill as any).global_adoption_score)}%`} detail="dataset signal" />
         <InfoTile className="wide" label="Future Interest" value={pct((skill as any).future_interest ?? skill.forecast_1y)} detail="forecast feature" />
       </div>
@@ -594,7 +596,7 @@ function SkillPanel({
         <div className="detail-two-col">
           <div className="detail-card wide-card">
             <div className="detail-card-head"><b>Measured Trend Signal</b><span><TrendingUp size={13} /> {pct(skill.growth_rate)}%</span></div>
-            <p className="mt-3 text-sm leading-relaxed text-white/55">{skill.forecast_trend ?? 'No'} forecast trend is derived from the canonical multi-year demand data using {skill.forecast_method ?? 'the recorded'} method.</p>
+            <p className="mt-3 text-sm leading-relaxed text-white/55">{externalMarketTrend(skill) ?? 'No'} market trend combines the canonical forecast with external benchmark checks; model method: {skill.forecast_method ?? 'recorded dataset method'}.</p>
           </div>
           <div className="detail-card">
             <b>Related Skills</b>
@@ -608,10 +610,10 @@ function SkillPanel({
           <div className="detail-card-head"><b>Forecast outlook</b><span>{skill.forecast_method ?? 'Feature-Based'}</span></div>
           <div className="mt-4 rounded-lg border border-white/8 bg-[#10071d]/70 p-3">
             <div className="flex items-center justify-between gap-3 text-xs text-white/45"><span>Relative demand index</span><span>Current to 3-year outlook</span></div>
-            <div className="mt-2 h-16"><Sparkline values={projectedDemand} trend={skill.forecast_trend} height={64} filled /></div>
+            <div className="mt-2 h-16"><Sparkline values={projectedDemand} trend={externalMarketTrend(skill)} height={64} filled /></div>
             <div className="mt-1 flex justify-between text-[10px] text-white/35"><span>{history.length ? 'History' : 'Current'}</span><span>{history.length ? 'History' : '1Y'}</span><span>1Y</span><span>3Y</span></div>
           </div>
-          <InfoTile label="Trend" value={skill.forecast_trend ?? 'N/A'} detail="model label" />
+          <InfoTile label="Trend" value={externalMarketTrend(skill) ?? 'N/A'} detail="market-aligned label" />
           <InfoTile label="Method" value={skill.forecast_method ?? 'Feature-Based'} detail="forecast model" />
           <InfoTile label="Expected Growth" value={`+${pct(skill.growth_rate)}%`} detail="processed trend" />
           <p className="mt-3 text-xs leading-relaxed text-white/42">The path is a relative index based on the current demand signal and recorded growth rate; confidence bands are available on the Forecasts page.</p>
@@ -622,7 +624,7 @@ function SkillPanel({
         <div className="detail-card detail-tab-card">
           <b>Salary signal</b>
           <InfoTile label="Salary Value Index" value={`${salaryValueIndex(skill)} / 100`} detail="normalized dataset signal" />
-          <InfoTile label="Demand" value={demandScore(skill)} detail="market pull" />
+          <InfoTile label="Demand Index" value={demandScore(skill)} detail="composite market pull" />
         </div>
       )}
 
@@ -655,7 +657,7 @@ function SkillPanel({
 
       <div className="detail-insight">
         <b><Sparkles size={15} /> AI Insight</b>
-        <p>{skill.name} is a {riskTier(skill).toLowerCase()} risk skill with {skill.forecast_trend ?? 'tracked'} momentum in your processed dataset.</p>
+        <p>{skill.name} is a {riskTier(skill).toLowerCase()} risk skill with {externalMarketTrend(skill) ?? 'tracked'} market momentum in the calibrated dashboard view.</p>
       </div>
     </aside>
   )

@@ -313,7 +313,7 @@ const methodologyResources: Record<string, { notebooks: MethodologyArtifact[]; d
       { label: '08E_Longitudinal_History_Rebuilder.ipynb', href: '/methodology/notebooks/08E_Longitudinal_History_Rebuilder.ipynb' },
       { label: '08_Temporal_Intelligence_Feature_Engineering.ipynb', href: '/methodology/notebooks/08_Temporal_Intelligence_Feature_Engineering.ipynb' },
     ],
-    datasets: [{ label: 'skill_demand_history_clean.csv', href: '/methodology/datasets/skill_demand_history_clean.csv', note: 'normalized multi-year demand history' }],
+    datasets: [{ label: 'canonical_skill_demand_history.csv', href: '/methodology/datasets/canonical_skill_demand_history.csv', note: 'normalized multi-year demand history' }],
   },
   'Skill Archetype Discovery': {
     notebooks: [
@@ -397,14 +397,14 @@ export default function Approach() {
       },
       {
         label: 'Ranked Skills',
-        value: liveStats ? String(liveStats.total_skills) : '111',
+        value: liveStats ? String(liveStats.total_skills) : '95',
         change: 'canonical SES outputs',
         icon: <ShieldCheck size={20} />,
         color: 'violet' as const,
       },
       {
         label: 'Skill-Year History',
-        value: liveStats ? liveStats.history_records.toLocaleString() : '2,255',
+        value: liveStats ? liveStats.history_records.toLocaleString() : '2,179',
         change: 'temporal evidence rows',
         icon: <Clock size={20} />,
         color: 'fuchsia' as const,
@@ -781,7 +781,7 @@ const evidenceConfigs: Record<string, EvidenceConfig> = {
     data: taxonomyCategoryCounts,
     metrics: [
       { label: 'dictionary rows', value: '2,616', note: 'raw taxonomy candidates' },
-      { label: 'technical skills', value: '114', note: 'filtered technical master' },
+      { label: 'technical skills', value: '95', note: 'filtered technical master' },
       { label: 'top category', value: 'Software Eng.', note: '20 skills' },
     ],
     code: `ALIASES = {"node.js": "nodejs", "c#": "csharp", "c++": "cpp"}\ndf["skill_norm"] = df["skill"].str.lower().replace(ALIASES)\ndf = df.drop_duplicates("skill_norm")`,
@@ -793,7 +793,7 @@ const evidenceConfigs: Record<string, EvidenceConfig> = {
     chartTitle: 'Category coverage after expansion',
     data: taxonomyCategoryCounts,
     metrics: [
-      { label: 'expanded skills', value: '114', note: 'expanded_skill_master.csv' },
+      { label: 'expanded skills', value: '95', note: 'expanded_skill_master.csv' },
       { label: 'curated gold rows', value: '247', note: 'taxonomy_gold_247.csv' },
       { label: 'strategic additions', value: 'LLM/RAG', note: 'manual modern-skill recovery' },
     ],
@@ -807,7 +807,7 @@ const evidenceConfigs: Record<string, EvidenceConfig> = {
     data: taxonomyCategoryCounts,
     metrics: [
       { label: 'display categories', value: '8+', note: 'used by Skill Explorer filters' },
-      { label: 'classified skills', value: '114', note: 'technical master rows' },
+      { label: 'classified skills', value: '95', note: 'technical master rows' },
       { label: 'largest group', value: '20', note: 'Software Engineering' },
     ],
     code: `technical = taxonomy[taxonomy["sub_category"].notna()]\ntechnical = technical[technical["confidence"] >= 0.75]\ntechnical.to_csv("technical_skill_master.csv", index=False)`,
@@ -819,7 +819,7 @@ const evidenceConfigs: Record<string, EvidenceConfig> = {
     chartTitle: 'Skill-year observations by year',
     data: historyYearCounts,
     metrics: [
-      { label: 'history rows', value: '2,304', note: 'skill_demand_history_clean.csv' },
+      { label: 'history rows', value: '2,179', note: 'canonical_skill_demand_history.csv' },
       { label: 'years covered', value: '2013-2025', note: '13 yearly snapshots' },
       { label: 'peak year', value: '2023', note: '306 observations' },
     ],
@@ -832,9 +832,9 @@ const evidenceConfigs: Record<string, EvidenceConfig> = {
     chartTitle: 'Forecast methods used',
     data: forecastMethodCounts,
     metrics: [
-      { label: 'forecast rows', value: '114', note: 'forecast_results.csv' },
-      { label: 'Holt models', value: '88', note: 'long-history skills' },
-      { label: 'non-stable trends', value: '51', note: 'growing, declining, explosive' },
+      { label: 'forecast rows', value: '95', note: 'forecast_results.csv' },
+      { label: 'Holt models', value: '79', note: 'long-history skills' },
+      { label: 'non-stable trends', value: '73', note: 'growing, declining, explosive' },
     ],
     code: `if history_length >= 10:\n    method = "Holt"\nelif history_length >= 7:\n    method = "ExponentialSmoothing"\nelse:\n    method = "FeatureBased"`,
     table: forecastTrendCounts.map((item) => ({ trend: item.label, skills: item.value })),
@@ -846,9 +846,9 @@ const evidenceConfigs: Record<string, EvidenceConfig> = {
     chartTitle: 'SES tier distribution',
     data: sesTierCounts,
     metrics: [
-      { label: 'ranked skills', value: '114', note: 'ses_rankings.csv' },
-      { label: 'safe or better', value: '81', note: 'Very Safe + Safe' },
-      { label: 'top skill', value: 'Javascript', note: 'SES 0.767596' },
+      { label: 'ranked skills', value: '95', note: 'ses_rankings.csv' },
+      { label: 'safe or better', value: '34', note: 'Very Safe + Safe' },
+      { label: 'top skill', value: 'Javascript', note: 'SES 0.81359' },
     ],
     code: `ses_score = (\n    0.55 * feature_score +\n    0.25 * forecast_intelligence +\n    0.20 * cluster_score\n)`,
     table: topSesRows.map((row) => ({ skill: row.skill, ses: row.ses.toFixed(3), method: row.method, trend: row.trend })),
@@ -887,9 +887,9 @@ const evidenceConfigs: Record<string, EvidenceConfig> = {
     chartTitle: 'Knowledge base archetypes',
     data: knowledgeBaseArchetypes,
     metrics: [
-      { label: 'knowledge docs', value: '114', note: 'skill_knowledge_base.json' },
+      { label: 'knowledge docs', value: '95', note: 'skill_knowledge_base.json' },
       { label: 'demo prompts', value: '3', note: 'career_advisor_demo.json' },
-      { label: 'largest archetype', value: 'Growing', note: '55 knowledge docs' },
+      { label: 'largest archetype', value: 'High-Risk', note: '37 knowledge docs' },
     ],
     code: `docs = build_skill_documents(ses_rankings, forecasts, industry_map)\nretriever = keyword_or_faiss_retriever(docs)\nrecommendations = rank_skill_gaps(user_profile, docs)`,
     table: advisorDemoPrompts.map((prompt, index) => ({ '#': index + 1, prompt })),
@@ -901,7 +901,7 @@ const evidenceConfigs: Record<string, EvidenceConfig> = {
     chartTitle: 'Advisor context by archetype',
     data: knowledgeBaseArchetypes,
     metrics: [
-      { label: 'retrieval docs', value: '114', note: 'local knowledge base' },
+      { label: 'retrieval docs', value: '95', note: 'local knowledge base' },
       { label: 'API key status', value: 'env only', note: 'public copies redacted' },
       { label: 'fallback mode', value: 'keyword', note: 'works without FAISS/API' },
     ],
@@ -916,7 +916,7 @@ const evidenceConfigs: Record<string, EvidenceConfig> = {
     data: featureAverages,
     metrics: [
       { label: 'feature signals', value: '6', note: 'master_skill_dataset_v9.csv' },
-      { label: 'explain rows', value: '114', note: 'one per ranked skill' },
+      { label: 'explain rows', value: '95', note: 'one per ranked skill' },
       { label: 'score outputs', value: '3 parts', note: 'feature, forecast, cluster' },
     ],
     code: `explanation = {\n  "feature_contributions": feature_values * feature_weights,\n  "forecast_meta": {method, trend, confidence},\n  "cluster_context": {archetype, cluster_score},\n}`,
@@ -1038,7 +1038,7 @@ function StageEvidence({ title }: { title: string }) {
       return { type: 'scattergl', mode: 'markers', name: points[0]?.archetype ?? `Cluster ${cluster}`, x: points.map((point) => point.x), y: points.map((point) => point.y), text: points.map((point) => point.skill), marker: { color: colors[cluster], size: 9, opacity: 0.82, line: { color: '#f8fafc', width: 0.4 } }, hovertemplate: '%{text}<br>PC1: %{x:.2f}<br>PC2: %{y:.2f}<extra>%{fullData.name}</extra>' }
     })
     return <div className="mt-5 border-t border-white/8 pt-5" onClick={(event) => event.stopPropagation()}>
-      <div className="mb-3 flex flex-wrap items-end justify-between gap-2"><div><p className="section-label">Notebook evidence</p><h4 className="mt-1 text-sm font-semibold text-white">Interactive clustering diagnostics</h4></div><span className="text-[10px] text-white/40">Original v8 notebook run: 114 skills</span></div>
+      <div className="mb-3 flex flex-wrap items-end justify-between gap-2"><div><p className="section-label">Notebook evidence</p><h4 className="mt-1 text-sm font-semibold text-white">Interactive clustering diagnostics</h4></div><span className="text-[10px] text-white/40">Current canonical snapshot: 95 skills</span></div>
       <div className="grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
         <div className="min-w-0 overflow-visible rounded-xl border border-white/8 bg-[#10071d]/70 p-2">
           <InteractivePlot

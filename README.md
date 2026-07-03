@@ -35,12 +35,12 @@ The repository includes processed project datasets under `backend/data/processed
 
 Current validated snapshot:
 
-- 111 canonical skills
-- 114 raw skill rows before alias cleanup
-- 3 merged skill-alias rows
-- 2,255 canonical skill-year history rows
-- 2,304 raw history rows
-- 49 history alias rows collapsed
+- 95 canonical skills
+- 95 raw skill rows in the current SES snapshot
+- 0 merged skill-alias rows in the current replacement snapshot
+- 2,179 canonical skill-year history rows
+- 2,179 raw history rows in the current replacement snapshot
+- 0 history alias rows collapsed in the current replacement snapshot
 - 8 industry analytics groups
 - 6 PowerPoint report exports in `backend/data/Reports`
 

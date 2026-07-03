@@ -94,36 +94,36 @@ export interface SkillSummary {
   growth_rate?: number
   linkedin_demand?: number
   salary_premium?: number
+  current_usage?: number
+  future_interest?: number
+  global_adoption?: number
+  forecast_score?: number
+  forecast_score_composite?: number
   forecast_1y?: number
+  forecast_2y?: number
+  forecast_3y?: number
   forecast_trend?: string
   forecast_method?: string
+  confidence?: number
 }
 
 export interface SkillDetail extends SkillSummary {
   subcategory?: string
   description?: string
-  current_usage?: number
-  future_interest?: number
-  global_adoption?: number
   momentum_score?: number
   volatility_score?: number
   growth_consistency?: number
   cagr?: number
   trend_slope?: number
   feature_score?: number
-  forecast_score?: number
   cluster_score?: number
   ses_delta_30d?: number
   cluster_id?: number
   pca_x?: number
   pca_y?: number
-  forecast_2y?: number
-  forecast_3y?: number
   forecast_score_1y?: number
   forecast_score_2y?: number
   forecast_score_3y?: number
-  forecast_score_composite?: number
-  confidence?: number
   history_length?: number
 }
 
@@ -332,6 +332,11 @@ export interface IndustrySkill {
   ses_score?: number
   ses_tier?: string
   linkedin_demand?: number
+  current_usage?: number
+  future_interest?: number
+  growth_rate?: number
+  forecast_score?: number
+  forecast_score_composite?: number
   forecast_trend?: string
   archetype?: string
   salary_premium?: number

@@ -107,7 +107,7 @@ export default function Landing() {
             </button>
           ))}
         </div>
-        <p className="mt-5 text-xs font-medium tracking-wide text-white/55">111 canonical skills <span className="mx-2 text-fuchsia-200/70">·</span> 8 workforce industries <span className="mx-2 text-fuchsia-200/70">·</span> 3-year confidence-aware forecasts</p>
+        <p className="mt-5 text-xs font-medium tracking-wide text-white/55">95 canonical skills <span className="mx-2 text-fuchsia-200/70">·</span> 8 workforce industries <span className="mx-2 text-fuchsia-200/70">·</span> 3-year confidence-aware forecasts</p>
       </section>
     </main>
   )
