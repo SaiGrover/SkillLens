@@ -93,6 +93,11 @@ async def industry_top_skills(
             "ses_tier": s.ses_score.ses_tier if s.ses_score else None,
             "archetype": s.cluster.archetype if s.cluster else None,
             "linkedin_demand": s.linkedin_demand,
+            "current_usage": s.current_usage,
+            "future_interest": s.future_interest,
+            "growth_rate": s.growth_rate,
+            "forecast_score": s.forecast.forecast_score if s.forecast else None,
+            "forecast_score_composite": s.forecast.forecast_score if s.forecast else None,
             "forecast_trend": s.forecast.forecast_trend if s.forecast else None,
             "salary_premium": s.salary_premium,
         }

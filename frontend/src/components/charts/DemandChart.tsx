@@ -38,6 +38,22 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function DemandChart({ data, title, series = defaultSeries }: DemandChartProps) {
   const [visibleSeries, setVisibleSeries] = useState(() => new Set(series.map((item) => item.key)))
+  const visibleSeriesList = series.filter((item) => visibleSeries.has(item.key))
+  const populatedRows = data.filter((row) => visibleSeriesList.some((item) => Number.isFinite(row[item.key])))
+  const firstRow = populatedRows[0]
+  const latestRow = populatedRows[populatedRows.length - 1]
+  const latestLeader = latestRow
+    ? visibleSeriesList
+      .map((item) => ({ ...item, value: latestRow[item.key] as number }))
+      .filter((item) => Number.isFinite(item.value))
+      .sort((a, b) => b.value - a.value)[0]
+    : undefined
+  const movementLeader = firstRow && latestRow
+    ? visibleSeriesList
+      .map((item) => ({ ...item, change: (latestRow[item.key] ?? 0) - (firstRow[item.key] ?? 0) }))
+      .filter((item) => Number.isFinite(item.change))
+      .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))[0]
+    : undefined
 
   const toggleSeries = (key: string) => {
     setVisibleSeries((current) => {
@@ -89,7 +105,7 @@ export default function DemandChart({ data, title, series = defaultSeries }: Dem
           <Tooltip content={<CustomTooltip />} />
           <Legend wrapperStyle={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }} />
           <ReferenceLine x="2026" stroke="rgba(255,255,255,0.34)" strokeDasharray="4 4" label={{ value: 'Projection', fill: 'rgba(255,255,255,0.46)', fontSize: 10 }} />
-          {series.filter((item) => visibleSeries.has(item.key)).map((item) => (
+          {visibleSeriesList.map((item) => (
             <Line
               key={item.key}
               type="monotone"
@@ -102,6 +118,11 @@ export default function DemandChart({ data, title, series = defaultSeries }: Dem
           ))}
         </LineChart>
       </ResponsiveContainer>
+      {latestLeader && movementLeader && (
+        <div className="mt-3 rounded-lg border border-white/8 bg-white/[0.035] px-3 py-2 text-xs leading-relaxed text-white/48">
+          Interpretation: <span className="font-semibold text-fuchsia-100">{latestLeader.name}</span> has the strongest latest selected signal at <span className="font-semibold text-white">{Math.round(latestLeader.value)}</span>/100. The biggest start-to-latest movement is <span className="font-semibold text-fuchsia-100">{movementLeader.name}</span> ({movementLeader.change >= 0 ? '+' : ''}{Math.round(movementLeader.change)} points), so compare direction and stability rather than treating the lines as absolute market share.
+        </div>
+      )}
     </div>
   )
 }

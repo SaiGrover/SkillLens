@@ -190,6 +190,7 @@ const methods: [string, string, string][] = [
   ['Holt Trend', 'Used for skills with 10+ years of history', 'High confidence'],
   ['Exponential Smoothing', 'Used for 7-9 years of history', 'Medium confidence'],
   ['Feature-Based Projection', 'Used for emerging skills with limited history', 'Lower confidence'],
+  ['Growth-Anchored Override', 'Used for vetted skills whose recent growth anchor is more reliable than the default horizon method', 'Documented override'],
 ]
 
 /* Section */
@@ -848,7 +849,7 @@ const evidenceConfigs: Record<string, EvidenceConfig> = {
     metrics: [
       { label: 'ranked skills', value: '95', note: 'ses_rankings.csv' },
       { label: 'safe or better', value: '34', note: 'Very Safe + Safe' },
-      { label: 'top skill', value: 'Javascript', note: 'SES 0.81359' },
+      { label: 'top skill', value: 'JavaScript', note: 'SES 0.81359' },
     ],
     code: `ses_score = (\n    0.55 * feature_score +\n    0.25 * forecast_intelligence +\n    0.20 * cluster_score\n)`,
     table: topSesRows.map((row) => ({ skill: row.skill, ses: row.ses.toFixed(3), method: row.method, trend: row.trend })),

@@ -206,6 +206,7 @@ async def method_distribution(db: AsyncSession = Depends(get_db)):
                 "Holt":                "Holt's damped trend — ≥10 years of history",
                 "ExponentialSmoothing":"Additive exponential smoothing — 7–9 years of history",
                 "FeatureBased":        "Feature-weighted compound growth — <7 years of history",
+                "GrowthAnchoredOverride": "Growth-anchored override for vetted skills where recent movement is more reliable than the default horizon method",
             }.get(r[0], r[0]),
         }
         for r in result.fetchall()

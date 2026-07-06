@@ -15428,6 +15428,7 @@ const industries = [
 const industrySkillMembers: Record<string, string[]> = {
   "ai-ml": [
     "machine-learning",
+    "data-science",
     "deep-learning",
     "artificial-intelligence",
     "natural-language-processing",

@@ -12,6 +12,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 }
 
 export default function SalaryChart({ data }: { data: { skill: string; fullName?: string; premium: number }[] }) {
+  const sorted = [...data].sort((a, b) => b.premium - a.premium)
+  const leader = sorted[0]
+  const baseline = sorted[sorted.length - 1]
+  const spread = leader && baseline ? leader.premium - baseline.premium : 0
+
   return (
     <div className="glass rounded-xl border border-white/5 p-5">
       <h3 className="text-sm font-semibold text-white/80">Salary Value Signals</h3>
@@ -38,6 +43,11 @@ export default function SalaryChart({ data }: { data: { skill: string; fullName?
           <Bar dataKey="premium" name="Salary value index" fill="#a78bfa" radius={[5, 5, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
+      {leader && baseline && (
+        <div className="mt-3 rounded-lg border border-white/8 bg-white/[0.035] px-3 py-2 text-xs leading-relaxed text-white/48">
+          Interpretation: <span className="font-semibold text-fuchsia-100">{leader.fullName ?? leader.skill}</span> carries the highest salary value signal at <span className="font-semibold text-white">{leader.premium}</span>/100. The spread across these tracked skills is <span className="font-semibold text-white">{spread}</span> points, showing relative compensation strength inside this comparison set rather than pay in dollars.
+        </div>
+      )}
     </div>
   )
 }

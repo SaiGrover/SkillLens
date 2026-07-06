@@ -1,6 +1,7 @@
 import type { SkillSummary } from '@/services/api'
 import { skillDemandIndex } from '@/lib/utils'
 import { externalMarketTrend } from '@/lib/externalBenchmarks'
+import { formatCategoryLabel } from '@/lib/display'
 
 export interface SkillGuideSections {
   about: string
@@ -682,7 +683,4 @@ export function buildSkillGuide(skill: SkillSummary & { description?: string; cu
   return { about, useCases, careerOutlook, learningPath }
 }
 
-export function formatCategoryLabel(category?: string) {
-  if (!category) return 'Unassigned'
-  return category.replace(/_/g, ' / ')
-}
+export { formatCategoryLabel }

@@ -7,6 +7,7 @@ import {
 import { ArrowUpRight, BrainCircuit, LineChart, SlidersHorizontal, TrendingDown, TrendingUp } from 'lucide-react'
 import { forecastApi, LeaderboardEntry, MethodDistribution, skillsApi } from '@/services/api'
 import StatCard from '@/components/ui/StatCard'
+import { forecastTrendFromGrowth, formatCategoryLabel, formatForecastGrowth, formatForecastMethod } from '@/lib/display'
 
 const trendColors: Record<string, string> = {
   explosive: '#ec4899',
@@ -15,8 +16,8 @@ const trendColors: Record<string, string> = {
   declining: '#f59e0b',
 }
 
-function indexScale(entries: LeaderboardEntry[], key: 'forecast_1y' | 'forecast_3y') {
-  const values = entries.map((item) => item[key]).filter(Number.isFinite)
+function indexScale(entries: LeaderboardEntry[]) {
+  const values = entries.flatMap((item) => [item.forecast_1y, item.forecast_3y]).filter(Number.isFinite)
   const min = Math.min(...values)
   const max = Math.max(...values)
 
@@ -30,6 +31,10 @@ function indexScale(entries: LeaderboardEntry[], key: 'forecast_1y' | 'forecast_
 function formatGrowth(value: number) {
   const rounded = Number.isFinite(value) ? Math.round(value * 10) / 10 : 0
   return `${rounded >= 0 ? '+' : ''}${rounded}%`
+}
+
+function displayForecastGrowth(oneYear: number, threeYear: number) {
+  return formatForecastGrowth(oneYear, threeYear)
 }
 
 export default function Forecasts() {
@@ -57,7 +62,7 @@ export default function Forecasts() {
         setLeaderboard(leaderboardRes)
         setMethods(methodRes)
         setTrends(trendRes)
-        setCategoryBySkill(Object.fromEntries((skillsRes.items ?? []).map((skill) => [skill.id, skill.category ?? 'Unassigned'])))
+        setCategoryBySkill(Object.fromEntries((skillsRes.items ?? []).map((skill) => [skill.id, formatCategoryLabel(skill.category)])))
       } catch (err) {
         console.error('Error loading forecasts:', err)
       } finally {
@@ -68,28 +73,46 @@ export default function Forecasts() {
     loadForecasts()
   }, [])
 
-  const oneYearIndex = useMemo(() => indexScale(leaderboard, 'forecast_1y'), [leaderboard])
-  const threeYearIndex = useMemo(() => indexScale(leaderboard, 'forecast_3y'), [leaderboard])
+  const forecastIndex = useMemo(() => indexScale(leaderboard), [leaderboard])
   const methodsList = useMemo(() => ['All', ...Array.from(new Set(methods.map((item) => item.method)))], [methods])
   const categoryList = useMemo(() => ['All', ...Array.from(new Set(Object.values(categoryBySkill))).sort()], [categoryBySkill])
+  const visibleTrendData = useMemo(() => {
+    const counts = leaderboard.reduce<Record<string, { trend: string; count: number; avg_forecast_score: number }>>((result, item) => {
+      const oneYear = forecastIndex(item.forecast_1y)
+      const threeYear = forecastIndex(item.forecast_3y)
+      const trend = forecastTrendFromGrowth(displayForecastGrowth(oneYear, threeYear))
+      const current = result[trend] ?? { trend, count: 0, avg_forecast_score: 0 }
+      current.count += 1
+      current.avg_forecast_score += threeYear
+      result[trend] = current
+      return result
+    }, {})
+
+    return Object.values(counts).map((item) => ({
+      ...item,
+      avg_forecast_score: item.count ? item.avg_forecast_score / item.count : 0,
+    }))
+  }, [leaderboard, forecastIndex])
 
   const filteredLeaderboard = useMemo(() => leaderboard.filter((item) => {
     const query = (searchParams.get('q') ?? '').trim().toLowerCase()
     const confidence = Math.round(item.confidence * 100)
-    const trendOk = trendFilter === 'All' || item.forecast_trend.toLowerCase() === trendFilter.toLowerCase()
+    const visibleGrowth = displayForecastGrowth(forecastIndex(item.forecast_1y), forecastIndex(item.forecast_3y))
+    const visibleTrend = forecastTrendFromGrowth(visibleGrowth)
+    const trendOk = trendFilter === 'All' || visibleTrend.toLowerCase() === trendFilter.toLowerCase()
     const methodOk = methodFilter === 'All' || item.forecast_method === methodFilter
     const categoryOk = categoryFilter === 'All' || categoryBySkill[item.skill_id] === categoryFilter
     const confidenceOk = confidenceFilter === 'All'
       || (confidenceFilter === 'High' && confidence >= 80)
       || (confidenceFilter === 'Medium' && confidence >= 60 && confidence < 80)
       || (confidenceFilter === 'Low' && confidence < 60)
-    const queryOk = !query || [item.skill_name, item.forecast_method, item.forecast_trend].some((value) => value.toLowerCase().includes(query))
+    const queryOk = !query || [item.skill_name, item.forecast_method, visibleTrend].some((value) => value.toLowerCase().includes(query))
     return trendOk && methodOk && categoryOk && confidenceOk && queryOk
-  }), [leaderboard, trendFilter, methodFilter, categoryFilter, categoryBySkill, confidenceFilter, searchParams])
+  }), [leaderboard, forecastIndex, trendFilter, methodFilter, categoryFilter, categoryBySkill, confidenceFilter, searchParams])
 
   const chartData = useMemo(() => filteredLeaderboard.slice(0, 8).map((item) => {
-    const oneYear = oneYearIndex(item.forecast_1y)
-    const threeYear = threeYearIndex(item.forecast_3y)
+    const oneYear = forecastIndex(item.forecast_1y)
+    const threeYear = forecastIndex(item.forecast_3y)
     const spread = Math.max(4, Math.round((1 - item.confidence) * 18))
     const lowerBand = Math.max(0, threeYear - spread)
     const upperBand = Math.min(100, threeYear + spread)
@@ -102,13 +125,13 @@ export default function Forecasts() {
       bandRange: Math.max(0, upperBand - lowerBand),
       confidence: Math.round(item.confidence * 100),
     }
-  }), [filteredLeaderboard, oneYearIndex, threeYearIndex])
+  }), [filteredLeaderboard, forecastIndex])
 
   const avgConfidence = leaderboard.length
     ? Math.round((leaderboard.reduce((sum, item) => sum + item.confidence, 0) / leaderboard.length) * 100)
     : 0
-  const explosiveCount = trends.find((item) => item.trend.toLowerCase() === 'explosive')?.count ?? 0
-  const growingCount = trends.find((item) => item.trend.toLowerCase() === 'growing')?.count ?? 0
+  const explosiveCount = visibleTrendData.find((item) => item.trend.toLowerCase() === 'explosive')?.count ?? 0
+  const growingCount = visibleTrendData.find((item) => item.trend.toLowerCase() === 'growing')?.count ?? 0
 
   if (loading) {
     return (
@@ -186,13 +209,13 @@ export default function Forecasts() {
         <div className="glass rounded-xl border border-white/5 p-5">
           <h3 className="text-sm font-semibold text-white/85 mb-4">Trend Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={trends}>
+            <BarChart data={visibleTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis dataKey="trend" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<TrendTooltip />} cursor={{ fill: 'rgba(255,255,255,0.035)' }} />
               <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                {trends.map((item) => <Cell key={item.trend} fill={trendColors[item.trend.toLowerCase()] ?? '#8b5cf6'} />)}
+                {visibleTrendData.map((item) => <Cell key={item.trend} fill={trendColors[item.trend.toLowerCase()] ?? '#8b5cf6'} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -211,8 +234,10 @@ export default function Forecasts() {
             <span>Confidence</span>
           </div>
           {filteredLeaderboard.slice(0, 12).map((item) => {
-            const oneYear = oneYearIndex(item.forecast_1y)
-            const threeYear = threeYearIndex(item.forecast_3y)
+            const oneYear = forecastIndex(item.forecast_1y)
+            const threeYear = forecastIndex(item.forecast_3y)
+            const visibleGrowth = displayForecastGrowth(oneYear, threeYear)
+            const visibleTrend = forecastTrendFromGrowth(visibleGrowth)
             return (
             <div key={item.skill_id} className="grid grid-cols-[1.35fr_repeat(6,minmax(0,0.78fr))] gap-3 border-b border-white/5 px-5 py-3 text-sm last:border-b-0">
               <div>
@@ -221,9 +246,9 @@ export default function Forecasts() {
               </div>
               <span className="text-fuchsia-300">{oneYear.toFixed(1)}</span>
               <span className="text-violet-300">{threeYear.toFixed(1)}</span>
-              <span className={item.growth_pct < 0 ? 'text-amber-300' : 'text-emerald-300'}>{formatGrowth(item.growth_pct)}</span>
-              <span className="capitalize text-white/65">{item.forecast_trend}</span>
-              <span className="text-white/55">{item.forecast_method}</span>
+              <span className={visibleGrowth < 0 ? 'text-amber-300' : 'text-emerald-300'}>{formatGrowth(visibleGrowth)}</span>
+              <span className="capitalize text-white/65">{visibleTrend}</span>
+              <span className="text-white/55">{formatForecastMethod(item.forecast_method)}</span>
               <span className="text-emerald-300">{Math.round(item.confidence * 100)}%</span>
             </div>
             )
@@ -236,7 +261,7 @@ export default function Forecasts() {
             {methods.map((method) => (
               <div key={method.method} className="rounded-lg border border-white/5 bg-white/[0.03] p-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-medium text-white">{method.method}</p>
+                  <p className="text-sm font-medium text-white">{formatForecastMethod(method.method)}</p>
                   <span className="text-xs text-emerald-300">{Math.round(method.avg_confidence * 100)}%</span>
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-white/40">{method.description}</p>
@@ -289,7 +314,7 @@ function FilterButtons({ label, value, options, onChange }: { label: string; val
                 : 'border-white/10 bg-white/[0.03] text-white/45 hover:text-white/75'
             }`}
           >
-            {option}
+            {label === 'Method' ? formatForecastMethod(option) : option}
           </button>
         ))}
       </div>

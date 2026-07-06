@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, BrainCircuit, CheckCircle2, Compass, Search, Sparkles, Target, Wand2 } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { SkillSummary, skillsApi } from '@/services/api'
-import { formatCategoryLabel } from '@/lib/skillGuideContent'
+import { formatCategoryLabel } from '@/lib/display'
 import { skillDemandIndex } from '@/lib/utils'
 import { externalMarketTrend } from '@/lib/externalBenchmarks'
 
@@ -79,7 +79,7 @@ function roleFitScore(skill: SkillSummary, preset: RolePreset, requirement: stri
   const anchorFit = preset.anchors.some((anchor) => skillId.includes(norm(anchor)) || norm(anchor).includes(skillId)) ? 34 : 0
   const nameFit = text.includes(skill.name.toLowerCase()) ? 18 : 0
   const signal = pct(skill.ses_score) * 0.22 + demand(skill) * 0.12 + salary(skill) * 0.08 + pct(skill.growth_rate) * 0.08
-  return Math.round(categoryFit + anchorFit + nameFit + signal)
+  return Math.min(100, Math.round(categoryFit + anchorFit + nameFit + signal))
 }
 
 function reasonFor(skill: SkillSummary, preset: RolePreset, requirement: string) {
@@ -170,7 +170,7 @@ export default function Recommender() {
                 <b className="text-lg text-white">{best.skill.name}</b>
                 <p className="mt-1 text-sm text-white/60">{best.reason}</p>
                 <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                  <span className="rounded-full border border-fuchsia-300/20 bg-fuchsia-300/10 px-2 py-1 text-fuchsia-100">Fit {best.fit}</span>
+                  <span className="rounded-full border border-fuchsia-300/20 bg-fuchsia-300/10 px-2 py-1 text-fuchsia-100">Fit {best.fit}/100</span>
                   <span className="rounded-full border border-amber-300/20 bg-amber-300/10 px-2 py-1 text-amber-100">SES {pct(best.skill.ses_score)}/100</span>
                   <span className="rounded-full border border-rose-300/20 bg-rose-300/10 px-2 py-1 text-rose-100">{externalMarketTrend(best.skill) ?? 'Tracked'}</span>
                 </div>
@@ -212,7 +212,7 @@ export default function Recommender() {
                 </div>
                 <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-center">
                   <b className="block text-lg text-amber-100">{fit}</b>
-                  <span className="text-[10px] uppercase tracking-wider text-amber-100/60">fit</span>
+                  <span className="text-[10px] uppercase tracking-wider text-amber-100/60">fit /100</span>
                 </div>
               </div>
               <p className="mt-4 text-sm leading-relaxed text-white/68">

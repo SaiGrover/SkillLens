@@ -15,6 +15,7 @@ import {
 } from '@/services/api'
 import { rawLinkedInDemandIndex, skillDemandIndex } from '@/lib/utils'
 import { externalMarketTrend } from '@/lib/externalBenchmarks'
+import { formatCategoryLabel, normalizedKey } from '@/lib/display'
 
 const trackedSkillIds = ['artificial-intelligence', 'machine-learning', 'natural-language-processing', 'power-bi', 'python', 'javascript']
 const trackedSeries = [
@@ -26,6 +27,13 @@ const trackedSeries = [
   { key: 'javascript', name: 'JavaScript', color: '#fde047' },
 ]
 const pieColors = ['#a855f7', '#9333ea', '#c084fc', '#7e22ce', '#d946ef', '#6b21a8']
+const categoryGroups = [
+  { label: 'Programming', values: ['Programming', 'Software Engineering'] },
+  { label: 'Cloud & DevOps', values: ['Cloud', 'DevOps', 'Engineering Systems', 'Tools & Platforms'] },
+  { label: 'Data', values: ['Data Analytics', 'Data Engineering', 'Database'] },
+  { label: 'AI/ML', values: ['AI/ML'] },
+  { label: 'Cybersecurity', values: ['Cybersecurity'] },
+]
 
 function pct(value?: number) {
   return Math.round((value ?? 0) * 100)
@@ -61,13 +69,6 @@ function canonicalWatchKey(skill: SkillSummary) {
   if (['microsoft excel', 'advanced excel'].includes(normalized)) return 'excel'
   if (['sql server', 'postgresql', 'mysql', 'oracle'].includes(normalized)) return normalized
   return normalized
-}
-
-function formatCategoryLabel(category?: string) {
-  return (category ?? 'Unassigned')
-    .replace(/_/g, ' / ')
-    .replace(/\bAi\b/g, 'AI')
-    .replace(/\bMl\b/g, 'ML')
 }
 
 function bucketLabel(from: number, to: number) {
@@ -178,17 +179,16 @@ export default function Dashboard() {
   }, [])
 
   const categoryData = useMemo(() => {
-    const counts = skills.reduce<Record<string, number>>((acc, skill) => {
-      const label = skill.category || 'Unassigned'
-      acc[label] = (acc[label] ?? 0) + 1
-      return acc
-    }, {})
-
-    return Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6)
-      .map(([name, value]) => ({ name, value }))
+    return categoryGroups.map((group) => ({
+      name: group.label,
+      value: skills.filter((skill) => group.values.some((value) => normalizedKey(value) === normalizedKey(skill.category))).length,
+    })).filter((item) => item.value > 0)
   }, [skills])
+  const categorySummary = useMemo(() => {
+    const total = categoryData.reduce((sum, item) => sum + item.value, 0)
+    const leader = [...categoryData].sort((a, b) => b.value - a.value)[0]
+    return { total, leader }
+  }, [categoryData])
 
   const avgSafety = skills.length
     ? Math.round((skills.reduce((sum, skill) => sum + (skill.ses_score ?? 0.5), 0) / skills.length) * 1000) / 10
@@ -209,7 +209,19 @@ export default function Dashboard() {
     size: Math.max(1, Math.round((skill.salary_premium ?? 0) * 100)),
   })), [skills])
   const signalCategories = useMemo(() => ['All', ...categoryData.map((item) => item.name)], [categoryData])
-  const visibleSignals = useMemo(() => signalMap.filter((skill) => signalCategory === 'All' || skill.category === signalCategory), [signalMap, signalCategory])
+  const visibleSignals = useMemo(() => {
+    if (signalCategory === 'All') return signalMap
+    const group = categoryGroups.find((item) => item.label === signalCategory)
+    return signalMap.filter((skill) => group?.values.some((value) => normalizedKey(value) === normalizedKey(skill.category)) ?? skill.categoryLabel === signalCategory)
+  }, [signalMap, signalCategory])
+  const signalSummary = useMemo(() => {
+    const highestDemand = [...visibleSignals].sort((a, b) => b.demand - a.demand)[0]
+    const highestSafety = [...visibleSignals].sort((a, b) => b.safety - a.safety)[0]
+    const avgDemand = visibleSignals.length
+      ? Math.round(visibleSignals.reduce((sum, skill) => sum + skill.demand, 0) / visibleSignals.length)
+      : 0
+    return { highestDemand, highestSafety, avgDemand }
+  }, [visibleSignals])
   const sesHistogram = useMemo(() => Array.from({ length: 10 }, (_, index) => {
     const from = index * 10
     const to = from + 10
@@ -315,6 +327,11 @@ export default function Dashboard() {
               ))}
             </div>
           </div>
+          {categorySummary.leader && (
+            <div className="mt-4 rounded-lg border border-white/8 bg-white/[0.035] px-3 py-2 text-xs leading-relaxed text-white/48">
+              Interpretation: <span className="font-semibold text-fuchsia-100">{categorySummary.leader.name}</span> is the largest tracked category with <span className="font-semibold text-white">{categorySummary.leader.value}</span> skills. The bars show coverage breadth across <span className="font-semibold text-white">{categorySummary.total}</span> grouped skills, so a taller bar means stronger dataset representation, not automatically stronger demand.
+            </div>
+          )}
         </div>
         <div className="glass rounded-xl border border-white/5 p-5">
           <div className="mb-3 flex items-start justify-between gap-3">
@@ -398,6 +415,11 @@ export default function Dashboard() {
             <Scatter name="Skills" data={visibleSignals} fill="#e9d5ff" fillOpacity={0.76} onClick={(point: any) => point?.payload?.name && navigate(`/skills?search=${encodeURIComponent(point.payload.name)}`)} />
           </ScatterChart>
         </ResponsiveContainer>
+        {signalSummary.highestDemand && signalSummary.highestSafety && (
+          <div className="mt-3 rounded-lg border border-white/8 bg-white/[0.035] px-3 py-2 text-xs leading-relaxed text-white/48">
+            Interpretation: in the current <span className="font-semibold text-fuchsia-100">{formatCategoryLabel(signalCategory)}</span> view, <span className="font-semibold text-fuchsia-100">{signalSummary.highestDemand.name}</span> has the highest Demand Index at <span className="font-semibold text-white">{signalSummary.highestDemand.demand}</span>/100, while <span className="font-semibold text-fuchsia-100">{signalSummary.highestSafety.name}</span> has the highest SES at <span className="font-semibold text-white">{signalSummary.highestSafety.safety}</span>/100. The average visible demand is <span className="font-semibold text-white">{signalSummary.avgDemand}</span>/100; upper-right points are the strongest combined demand-and-safety candidates.
+          </div>
+        )}
       </div>
 
       <div className="glass rounded-xl border border-white/5 p-5">
@@ -406,7 +428,7 @@ export default function Dashboard() {
           <span className="text-xs text-white/35">3-year forecast ranking</span>
         </div>
         <div className="grid gap-2">
-          {insightsLoading ? <ListSkeleton /> : leaderboard.map((item, index) => (
+          {insightsLoading ? <ListSkeleton /> : [...leaderboard].sort((a, b) => b.growth_pct - a.growth_pct).map((item, index) => (
             <div key={item.skill_id} className="grid grid-cols-[32px_1fr_auto_auto] items-center gap-3 rounded-lg border border-white/5 bg-white/[0.03] px-3 py-2.5 text-sm">
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-500/15 text-violet-300">{index + 1}</span>
               <div>

@@ -8,6 +8,7 @@ import {
 import { advisorApi, IndustrySummary, industriesApi, SkillSummary, skillsApi } from '@/services/api'
 import { cn, rawLinkedInDemandIndex, skillDemandIndex } from '@/lib/utils'
 import { externalMarketTrend } from '@/lib/externalBenchmarks'
+import { formatCategoryLabel, normalizedKey } from '@/lib/display'
 
 type SortKey = 'relevance' | 'ses' | 'demand' | 'salary' | 'risk'
 type DetailTab = 'overview' | 'forecast' | 'salary' | 'related' | 'fit'
@@ -17,7 +18,7 @@ const skillDescriptionCache = new globalThis.Map<string, string>()
 const categoryChips = [
   { label: 'All Skills', values: ['All'] },
   { label: 'Programming', values: ['Programming', 'Software Engineering'] },
-  { label: 'AI / ML', values: ['AI_ML'] },
+  { label: 'AI/ML', values: ['AI/ML', 'AI_ML'] },
   { label: 'Cloud & DevOps', values: ['Cloud', 'DevOps', 'Engineering_Systems', 'Tools_Platforms'] },
   { label: 'Data', values: ['Data Analytics', 'Data Engineering', 'Database'] },
   { label: 'Cybersecurity', values: ['Cybersecurity'] },
@@ -51,7 +52,7 @@ function isFutureProof(skill: SkillSummary) {
 }
 
 function normalized(value?: string) {
-  return (value ?? '').trim().toLowerCase().replace(/\s+/g, '_')
+  return normalizedKey(value)
 }
 
 function matchesCategory(skill: SkillSummary, selected: string) {
@@ -66,7 +67,7 @@ function fallbackSkillDescription(skill: SkillSummary) {
   const demand = demandScore(skill)
   const trend = (externalMarketTrend(skill) ?? 'stable').toLowerCase()
   const strength = score >= 70 ? 'strong relative safety signals' : score >= 50 ? 'a balanced but mixed signal profile' : 'a lower relative safety signal that benefits from careful pairing'
-  return `${skill.name} is used in ${skill.category ?? 'the tracked workforce domain'} and currently shows ${strength}. Its ${trend} outlook is informed by a demand index of ${demand}/100, salary value, adoption, and forecast features; learn it alongside a complementary higher-SES skill that fits your target role.`
+  return `${skill.name} is used in ${formatCategoryLabel(skill.category) ?? 'the tracked workforce domain'} and currently shows ${strength}. Its ${trend} outlook is informed by a demand index of ${demand}/100, salary value, adoption, and forecast features; learn it alongside a complementary higher-SES skill that fits your target role.`
 }
 
 function skillVisual(category?: string) {
@@ -365,7 +366,7 @@ export default function Skills() {
                     </button>
                     <span className="rank">{(page - 1) * pageSize + index + 1}</span>
                     <span className="skill-name"><b>{skill.name}</b><small>{skill.id}</small></span>
-                    <span>{skill.category ?? 'Unassigned'}</span>
+                    <span>{formatCategoryLabel(skill.category)}</span>
                     <span className="ses-cell">{pct(skill.ses_score)} <Ring value={pct(skill.ses_score)} /></span>
                     <span><Pill tone="green">{skill.archetype ?? 'Tracked'}</Pill></span>
                     <span><Pill tone="blue">{externalMarketTrend(skill) ?? 'N/A'}</Pill></span>
@@ -546,10 +547,10 @@ function SkillPanel({
   return (
     <aside className="skill-explorer-detail-panel glass">
       <div className="detail-top">
-        <div className={cn('skill-logo bg-gradient-to-br', visual.tone)}><CategoryIcon size={24} aria-label={`${skill.category ?? 'Skill'} icon`} /></div>
+        <div className={cn('skill-logo bg-gradient-to-br', visual.tone)}><CategoryIcon size={24} aria-label={`${formatCategoryLabel(skill.category)} icon`} /></div>
         <div>
           <h2>{skill.name}</h2>
-          <div className="detail-tags"><Pill tone="blue">{skill.category ?? 'Unassigned'}</Pill><Pill tone="green">{isFutureProof(skill) ? 'Future-Proof' : externalMarketTrend(skill) ?? 'Tracked'}</Pill></div>
+          <div className="detail-tags"><Pill tone="blue">{formatCategoryLabel(skill.category)}</Pill><Pill tone="green">{isFutureProof(skill) ? 'Future-Proof' : externalMarketTrend(skill) ?? 'Tracked'}</Pill></div>
         </div>
         <button type="button" onClick={onSave} className={cn('detail-save-button', isSaved && 'saved')} title={isSaved ? 'Remove from saved skills' : 'Save skill'}>
           <Star size={20} fill={isSaved ? 'currentColor' : 'none'} />

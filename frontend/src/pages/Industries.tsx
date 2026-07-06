@@ -5,6 +5,7 @@ import { Briefcase, Building2, Network, ShieldAlert, Sparkles, TrendingUp } from
 import { IndustrySkill, IndustrySummary, industriesApi } from '@/services/api'
 import { skillDemandIndex } from '@/lib/utils'
 import { externalMarketTrend } from '@/lib/externalBenchmarks'
+import { formatCategoryLabel } from '@/lib/display'
 
 type IndustryView = IndustrySummary & {
   avgSes: number
@@ -59,6 +60,7 @@ function normalizeIndustry(industry: IndustrySummary): IndustryView {
 
   return {
     ...industry,
+    name: formatCategoryLabel(industry.name),
     avgSes,
     riskExposure,
     growth: Math.round(industry.growth_rate ?? 0),
@@ -80,6 +82,7 @@ export default function Industries() {
   const [industries, setIndustries] = useState<IndustryView[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [industrySkills, setIndustrySkills] = useState<IndustrySkill[]>([])
+  const [industrySkillsLoading, setIndustrySkillsLoading] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -108,10 +111,35 @@ export default function Industries() {
 
   useEffect(() => {
     if (!selectedId) return
-    industriesApi.skills(selectedId).then(setIndustrySkills).catch(() => setIndustrySkills([]))
+    setIndustrySkills([])
+    setIndustrySkillsLoading(true)
+    industriesApi.skills(selectedId)
+      .then(setIndustrySkills)
+      .catch(() => setIndustrySkills([]))
+      .finally(() => setIndustrySkillsLoading(false))
   }, [selectedId])
 
   const selected = industries.find((item) => item.id === selectedId) ?? industries[0]
+  const selectedDisplay = useMemo(() => {
+    if (!selected || !industrySkills.length) return selected
+
+    const avgSes = Math.round(industrySkills.reduce((sum, skill) => sum + ((skill.ses_score ?? 0) * 100), 0) / industrySkills.length)
+    const hiring = Math.round(industrySkills.reduce((sum, skill) => sum + skillDemandIndex(skill), 0) / industrySkills.length)
+    const growth = Math.round(industrySkills.reduce((sum, skill) => sum + ((skill.growth_rate ?? 0) * 100), 0) / industrySkills.length)
+    const highRiskSkills = industrySkills.filter((skill) => skill.archetype === 'High-Risk').length
+    const riskExposure = Math.round((highRiskSkills / industrySkills.length) * 100)
+    const topSkill = [...industrySkills].sort((a, b) => skillDemandIndex(b) - skillDemandIndex(a))[0]?.name ?? selected.topSkill
+
+    return {
+      ...selected,
+      avgSes,
+      hiring,
+      growth,
+      riskExposure,
+      topSkill,
+      highRiskSkills,
+    }
+  }, [selected, industrySkills])
 
   const comparisonData = useMemo(() => industries.map((item) => ({
     name: shortLabels[item.name] ?? item.name,
@@ -122,24 +150,22 @@ export default function Industries() {
   })), [industries])
 
   const archetypeData = useMemo(() => {
-    const source = selected?.archetype_distribution
-    if (source) {
-      return Object.entries(source)
-        .map(([name, value]) => ({ name, value, color: archetypeColors[name] ?? '#64748b' }))
-        .filter((item) => item.value > 0)
-    }
-
     const counts = industrySkills.reduce<Record<string, number>>((result, skill) => {
       const key = skill.archetype ?? 'Stable'
       result[key] = (result[key] ?? 0) + 1
       return result
     }, {})
 
-    return Object.entries(counts).map(([name, count]) => ({
+    if (Object.keys(counts).length) return Object.entries(counts).map(([name, count]) => ({
       name,
       value: Math.round((count / Math.max(1, industrySkills.length)) * 100),
       color: archetypeColors[name] ?? '#64748b',
     }))
+
+    const source = selected?.archetype_distribution ?? {}
+    return Object.entries(source)
+      .map(([name, value]) => ({ name, value, color: archetypeColors[name] ?? '#64748b' }))
+      .filter((item) => item.value > 0)
   }, [selected, industrySkills])
 
   const trendData = useMemo(() => {
@@ -167,7 +193,7 @@ export default function Industries() {
   }), [industries])
 
   if (loading) return <div className="flex h-[60vh] items-center justify-center text-sm text-white/50">Loading industry analytics...</div>
-  if (!selected) return <div className="py-20 text-center text-white/35">No industry data available.</div>
+  if (!selected || !selectedDisplay) return <div className="py-20 text-center text-white/35">No industry data available.</div>
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -193,17 +219,17 @@ export default function Industries() {
       <section className="industry-overview glass">
         <div>
           <p className="section-label">Selected industry</p>
-          <h2 className="section-title mt-1">{selected.name}</h2>
+          <h2 className="section-title mt-1">{selectedDisplay.name}</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/55">
-            {selected.skill_count} mapped skills, led by {selected.topSkill}. The trend label is based on the average three-year forecast movement across the mapped skills.
+            {selectedDisplay.skill_count} mapped skills, led by {selectedDisplay.topSkill}. The trend label is based on the average three-year forecast movement across the mapped skills.
           </p>
         </div>
-        <span className={`industry-trend ${selected.trend.toLowerCase().replace(/\s+/g, '-')}`}>{selected.trend}</span>
+        <span className={`industry-trend ${selectedDisplay.trend.toLowerCase().replace(/\s+/g, '-')}`}>{selectedDisplay.trend}</span>
         <div className="industry-kpis">
-          <Metric icon={Sparkles} label="Average SES" value={`${selected.avgSes} / 100`} detail="safety index" />
-          <Metric icon={Briefcase} label="Demand Index" value={`${selected.hiring} / 100`} detail="mean LinkedIn signal" />
-          <Metric icon={TrendingUp} label="3Y Forecast" value={`${selected.growth >= 0 ? '+' : ''}${selected.growth}%`} detail="average demand movement" />
-          <Metric icon={ShieldAlert} label="Risk Exposure" value={riskLabel(selected.riskExposure)} detail={`${selected.highRiskSkills} mapped skills`} />
+          <Metric icon={Sparkles} label="Average SES" value={industrySkillsLoading ? '...' : `${selectedDisplay.avgSes} / 100`} detail="safety index" />
+          <Metric icon={Briefcase} label="Demand Index" value={industrySkillsLoading ? '...' : `${selectedDisplay.hiring} / 100`} detail="mean calibrated signal" />
+          <Metric icon={TrendingUp} label="3Y Forecast" value={industrySkillsLoading ? '...' : `${selectedDisplay.growth >= 0 ? '+' : ''}${selectedDisplay.growth}%`} detail="average demand movement" />
+          <Metric icon={ShieldAlert} label="Risk Exposure" value={industrySkillsLoading ? '...' : riskLabel(selectedDisplay.riskExposure)} detail={industrySkillsLoading ? 'loading mapped skills' : `${selectedDisplay.highRiskSkills} mapped skills`} />
         </div>
       </section>
 
@@ -216,13 +242,13 @@ export default function Industries() {
             </div>
             <span><Network size={15} /> Size: demand - Color: archetype</span>
           </div>
-          <IndustryNetwork industry={selected.name} skills={industrySkills} />
+          <IndustryNetwork industry={selectedDisplay.name} skills={industrySkills} />
         </section>
 
         <section className="glass industry-distribution-card">
           <p className="section-label">Composition</p>
           <h3>Archetype mix</h3>
-          <div className="industry-donut-row">
+          {industrySkillsLoading ? <div className="flex h-[160px] items-center justify-center text-sm text-white/40">Loading mapped skill mix...</div> : <div className="industry-donut-row">
             <ResponsiveContainer width="100%" height={160}>
               <PieChart>
                 <Pie data={archetypeData} dataKey="value" nameKey="name" innerRadius={42} outerRadius={67} paddingAngle={3}>
@@ -234,7 +260,7 @@ export default function Industries() {
             <div className="industry-legend">
               {archetypeData.map((item) => <LegendRow key={item.name} color={item.color} label={item.name} value={`${item.value}%`} />)}
             </div>
-          </div>
+          </div>}
           <p className="mt-5 section-label">Forecast trend mix</p>
           <div className="industry-trend-list">
             {trendData.map((item) => <LegendRow key={item.name} color={item.color} label={item.name} value={`${item.value}`} />)}

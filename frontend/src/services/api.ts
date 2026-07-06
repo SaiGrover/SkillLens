@@ -7,6 +7,7 @@
  */
 
 import { fallbackApiResponse } from "@/data/fallbackData"
+import { forecastTrendFromGrowth, formatCategoryLabel, formatForecastGrowth, formatSkillName } from "@/lib/display"
 
 const BASE = (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8000"
 
@@ -38,8 +39,28 @@ function normalizeSkillIds<T extends SkillSummary>(items: T[]) {
       suffix += 1
     }
     seen.add(nextId)
-    return nextId === skill.id ? skill : { ...skill, id: nextId }
+    const normalized = {
+      ...skill,
+      id: nextId,
+      name: formatSkillName(skill.name),
+      category: formatCategoryLabel(skill.category),
+    }
+    return normalized
   })
+}
+
+function normalizeSkill<T extends SkillSummary>(skill: T) {
+  return normalizeSkillIds([skill])[0]
+}
+
+function normalizeLeaderboardEntry(entry: LeaderboardEntry): LeaderboardEntry {
+  const growthPct = formatForecastGrowth(entry.forecast_1y, entry.forecast_3y)
+  return {
+    ...entry,
+    skill_name: formatSkillName(entry.skill_name),
+    growth_pct: growthPct,
+    forecast_trend: forecastTrendFromGrowth(growthPct),
+  }
 }
 
 // Section
@@ -397,10 +418,10 @@ export const skillsApi = {
       items: normalizeSkillIds(result.items ?? []),
     }))
   },
-  get:            (id: string)    => api<SkillDetail>(`/api/skills/${id}`),
+  get:            (id: string)    => api<SkillDetail>(`/api/skills/${id}`).then(normalizeSkill),
   history:        (id: string)    => api<{ year: number; adoption_rate: number; demand: number }[]>(`/api/skills/${id}/history`),
   similar:        (id: string)    => api<{ id: string; name: string; ses_score?: number }[]>(`/api/skills/${id}/similar`),
-  categories:     ()              => api<string[]>("/api/skills/categories"),
+  categories:     ()              => api<string[]>("/api/skills/categories").then((items) => items.map(formatCategoryLabel)),
   topRising:      (limit = 10)   => api<SkillSummary[]>(`/api/skills/top-rising?limit=${limit}`).then(normalizeSkillIds),
   extinctionRisk: (limit = 10)   => api<SkillSummary[]>(`/api/skills/extinction-risk?limit=${limit}`).then(normalizeSkillIds),
 }
@@ -428,7 +449,7 @@ export const forecastApi = {
   futureProofLeaderboard: (limit = 10, trend?: string) => {
     const qs = new URLSearchParams({ limit: String(limit) })
     if (trend) qs.set("trend", trend)
-    return api<LeaderboardEntry[]>(`/api/forecasting/leaderboard/future-proof?${qs}`)
+    return api<LeaderboardEntry[]>(`/api/forecasting/leaderboard/future-proof?${qs}`).then((items) => items.map(normalizeLeaderboardEntry))
   },
   methodDistribution: () => api<MethodDistribution[]>("/api/forecasting/method/distribution"),
   trendDistribution:  () => api<{ trend: string; count: number; avg_forecast_score: number }[]>("/api/forecasting/trend/distribution"),
@@ -467,7 +488,10 @@ export const careerApi = {
 export const industriesApi = {
   list:   ()           => api<IndustrySummary[]>("/api/industries"),
   get:    (id: string) => api<IndustrySummary>(`/api/industries/${id}`),
-  skills: (id: string) => api<IndustrySkill[]>(`/api/industries/${id}/skills`),
+  skills: (id: string) => api<IndustrySkill[]>(`/api/industries/${id}/skills`).then((items) => items.map((skill) => ({
+    ...skill,
+    name: formatSkillName(skill.name),
+  }))),
 }
 
 // Section
