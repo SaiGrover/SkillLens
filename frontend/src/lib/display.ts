@@ -27,9 +27,10 @@ export function formatCategoryLabel(category?: string) {
   if (key === 'ai_ml' || key === 'ai_and_ml') return 'AI/ML'
   if (key === 'cloud_devops' || key === 'cloud_and_devops') return 'Cloud & DevOps'
   if (key === 'tools_platforms') return 'Tools & Platforms'
-  if (key === 'engineering_systems') return 'Engineering Systems'
+  if (key === 'engineering_systems' || key === 'systems_engineering') return 'Systems Engineering'
   if (key === 'data_analytics') return 'Data Analytics'
   if (key === 'data_engineering') return 'Data Engineering'
+  if (key === 'data_science') return 'Data Science'
   if (key === 'software_engineering') return 'Software Engineering'
   return category ?? 'Unassigned'
 }

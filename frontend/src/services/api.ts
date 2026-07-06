@@ -358,8 +358,11 @@ export interface IndustrySkill {
   growth_rate?: number
   forecast_score?: number
   forecast_score_composite?: number
+  forecast_1y?: number
+  forecast_3y?: number
   forecast_trend?: string
   archetype?: string
+  global_archetype?: string
   salary_premium?: number
 }
 

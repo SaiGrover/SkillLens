@@ -2,6 +2,10 @@
 Industries router — real per-industry analytics derived from pipeline outputs.
 """
 
+import csv
+from functools import lru_cache
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -13,6 +17,7 @@ from core.database import get_db
 from models.skill import Skill, SESScore, ClusterAssignment, Industry
 
 router = APIRouter()
+DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "processed"
 
 
 class IndustrySummary(BaseModel):
@@ -31,6 +36,41 @@ class IndustrySummary(BaseModel):
 class IndustryDetail(IndustrySummary):
     tier_distribution: dict
     archetype_distribution: dict
+
+
+def _slug(value: str) -> str:
+    return value.lower().strip().replace(" ", "-").replace("/", "-")
+
+
+@lru_cache(maxsize=1)
+def industry_skill_evidence() -> dict[str, dict[str, dict]]:
+    path = DATA_DIR / "industry_skill_map.csv"
+    if not path.exists():
+        return {}
+
+    evidence: dict[str, dict[str, dict]] = {}
+    with path.open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            industry = (row.get("industry") or "").strip()
+            skill = (row.get("skill") or "").strip()
+            if not industry or not skill:
+                continue
+
+            def number(field: str) -> Optional[float]:
+                try:
+                    return float(row[field]) if row.get(field) else None
+                except ValueError:
+                    return None
+
+            evidence.setdefault(_slug(industry), {})[_slug(skill)] = {
+                "ses_score": number("ses_score"),
+                "ses_tier": row.get("ses_tier") or None,
+                "archetype": row.get("archetype") or None,
+                "forecast_1y": number("forecast_1y"),
+                "forecast_3y": number("forecast_3y"),
+                "forecast_trend": row.get("forecast_trend") or None,
+            }
+    return evidence
 
 
 @router.get("", response_model=List[IndustrySummary])
@@ -86,20 +126,33 @@ async def industry_top_skills(
         .limit(limit)
     )
     skills = (await db.execute(stmt)).scalars().unique().all()
-    return [
-        {
+    evidence_for_industry = industry_skill_evidence().get(industry_id, {})
+    rows = []
+    for s in skills:
+        evidence = evidence_for_industry.get(s.id, {})
+        global_archetype = s.cluster.archetype if s.cluster else None
+        evidence_archetype = evidence.get("archetype")
+        use_industry_archetype = (
+            evidence_archetype
+            and ((global_archetype or "").lower() == "high-risk")
+            and evidence_archetype.lower() != "high-risk"
+        )
+        use_industry_score = use_industry_archetype and evidence.get("ses_score") is not None
+        rows.append({
             "id": s.id, "name": s.name,
-            "ses_score": s.ses_score.ses_score if s.ses_score else None,
-            "ses_tier": s.ses_score.ses_tier if s.ses_score else None,
-            "archetype": s.cluster.archetype if s.cluster else None,
+            "ses_score": evidence.get("ses_score") if use_industry_score else (s.ses_score.ses_score if s.ses_score else None),
+            "ses_tier": evidence.get("ses_tier") if use_industry_score else (s.ses_score.ses_tier if s.ses_score else None),
+            "archetype": evidence_archetype if use_industry_archetype else global_archetype,
             "linkedin_demand": s.linkedin_demand,
             "current_usage": s.current_usage,
             "future_interest": s.future_interest,
             "growth_rate": s.growth_rate,
             "forecast_score": s.forecast.forecast_score if s.forecast else None,
             "forecast_score_composite": s.forecast.forecast_score if s.forecast else None,
-            "forecast_trend": s.forecast.forecast_trend if s.forecast else None,
+            "forecast_trend": evidence.get("forecast_trend") or (s.forecast.forecast_trend if s.forecast else None),
+            "forecast_1y": evidence.get("forecast_1y") if evidence.get("forecast_1y") is not None else (s.forecast.forecast_1y if s.forecast else None),
+            "forecast_3y": evidence.get("forecast_3y") if evidence.get("forecast_3y") is not None else (s.forecast.forecast_3y if s.forecast else None),
+            "global_archetype": global_archetype,
             "salary_premium": s.salary_premium,
-        }
-        for s in skills
-    ]
+        })
+    return rows

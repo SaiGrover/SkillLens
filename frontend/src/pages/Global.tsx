@@ -39,6 +39,7 @@ export default function Global() {
   const [regions, setRegions] = useState<MappedRegion[]>([])
   const [radarData, setRadarData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const topRegion = [...regions].sort((left, right) => right.demand - left.demand)[0]
 
   useEffect(() => {
     async function loadGlobalDemand() {
@@ -90,7 +91,7 @@ export default function Global() {
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* 3D Globe */}
-        <div className="glass rounded-xl border border-white/5 overflow-hidden" style={{ height: 400 }}>
+        <div className="glass rounded-xl border border-white/5 overflow-hidden" style={{ minHeight: 400 }}>
           <div className="p-4 border-b border-white/5">
             <h3 className="text-sm font-semibold text-white/80">Skill Network Visualization</h3>
           </div>
@@ -101,6 +102,11 @@ export default function Global() {
               </Suspense>
             </NetworkBoundary>
           </div>
+          {topRegion && (
+            <ChartInterpretation>
+              Interpretation: this network is an exploratory view of regional skill demand. The strongest loaded regional signal is <b>{topRegion.region}</b> with <b>{topRegion.demand}</b>/100 demand, so use the visual for relative concentration rather than exact geographic market sizing.
+            </ChartInterpretation>
+          )}
         </div>
 
         {/* Radar */}
@@ -113,6 +119,11 @@ export default function Global() {
               <Radar name="Demand" dataKey="demand" stroke="#a78bfa" fill="#a78bfa" fillOpacity={0.15} strokeWidth={2} />
             </RadarChart>
           </ResponsiveContainer>
+          {topRegion && (
+            <ChartInterpretation>
+              Interpretation: the radar compares the top loaded regions on the same demand scale. Longer spokes indicate stronger relative demand; the chart does not include salary or growth, which are shown on the regional cards below.
+            </ChartInterpretation>
+          )}
         </div>
       </div>
 
@@ -159,6 +170,10 @@ export default function Global() {
       </div>
     </div>
   )
+}
+
+function ChartInterpretation({ children }: { children: ReactNode }) {
+  return <div className="mx-4 mb-4 rounded-lg border border-white/8 bg-white/[0.035] px-3 py-2 text-xs leading-relaxed text-white/48">{children}</div>
 }
 
 function NetworkFallback({ regions }: { regions: MappedRegion[] }) {

@@ -8,22 +8,14 @@ import {
 import { advisorApi, IndustrySummary, industriesApi, SkillSummary, skillsApi } from '@/services/api'
 import { cn, rawLinkedInDemandIndex, skillDemandIndex } from '@/lib/utils'
 import { externalMarketTrend } from '@/lib/externalBenchmarks'
-import { formatCategoryLabel, normalizedKey } from '@/lib/display'
+import { normalizedKey } from '@/lib/display'
+import { categoryLabelFor, matchesProductCategory, productCategoryChips } from '@/lib/categoryTaxonomy'
 
 type SortKey = 'relevance' | 'ses' | 'demand' | 'salary' | 'risk'
 type DetailTab = 'overview' | 'forecast' | 'salary' | 'related' | 'fit'
 
 const pageSize = 10
 const skillDescriptionCache = new globalThis.Map<string, string>()
-const categoryChips = [
-  { label: 'All Skills', values: ['All'] },
-  { label: 'Programming', values: ['Programming', 'Software Engineering'] },
-  { label: 'AI/ML', values: ['AI/ML', 'AI_ML'] },
-  { label: 'Cloud & DevOps', values: ['Cloud', 'DevOps', 'Engineering_Systems', 'Tools_Platforms'] },
-  { label: 'Data', values: ['Data Analytics', 'Data Engineering', 'Database'] },
-  { label: 'Cybersecurity', values: ['Cybersecurity'] },
-]
-
 function pct(value?: number) {
   return Math.round((value ?? 0) * 100)
 }
@@ -56,10 +48,7 @@ function normalized(value?: string) {
 }
 
 function matchesCategory(skill: SkillSummary, selected: string) {
-  if (selected === 'All' || selected === 'All Skills') return true
-  const group = categoryChips.find((chip) => chip.label === selected)
-  if (group) return group.values.some((value) => normalized(value) === normalized(skill.category))
-  return normalized(selected) === normalized(skill.category)
+  return matchesProductCategory(skill.category, selected)
 }
 
 function fallbackSkillDescription(skill: SkillSummary) {
@@ -67,7 +56,7 @@ function fallbackSkillDescription(skill: SkillSummary) {
   const demand = demandScore(skill)
   const trend = (externalMarketTrend(skill) ?? 'stable').toLowerCase()
   const strength = score >= 70 ? 'strong relative safety signals' : score >= 50 ? 'a balanced but mixed signal profile' : 'a lower relative safety signal that benefits from careful pairing'
-  return `${skill.name} is used in ${formatCategoryLabel(skill.category) ?? 'the tracked workforce domain'} and currently shows ${strength}. Its ${trend} outlook is informed by a demand index of ${demand}/100, salary value, adoption, and forecast features; learn it alongside a complementary higher-SES skill that fits your target role.`
+  return `${skill.name} is used in ${categoryLabelFor(skill.category) ?? 'the tracked workforce domain'} and currently shows ${strength}. Its ${trend} outlook is informed by a demand index of ${demand}/100, salary value, adoption, and forecast features; learn it alongside a complementary higher-SES skill that fits your target role.`
 }
 
 function skillVisual(category?: string) {
@@ -131,7 +120,7 @@ export default function Skills() {
         const items = skillRes.items ?? []
         setSkills(items)
         setSelectedId(null)
-        setCategories(Array.from(new Set(['All Skills', ...categoryChips.map((chip) => chip.label), ...categoryRes.filter(Boolean)])))
+        setCategories(Array.from(new Set(['All Skills', ...productCategoryChips.map((chip) => chip.label), ...categoryRes.filter(Boolean).map(categoryLabelFor)])))
         setIndustries(industryRes)
       } catch (err) {
         console.error('Error loading Skill Explorer:', err)
@@ -280,7 +269,7 @@ export default function Skills() {
           <section className="skill-explorer-table-card glass">
             <div className="skill-explorer-table-actions">
               <div className="skill-explorer-chip-row">
-                {categoryChips.map((chip) => (
+                {productCategoryChips.map((chip) => (
                   <button key={chip.label} onClick={() => setCategory(chip.label)} className={cn(category === chip.label && 'active')}>
                     {chip.label}<span>{skills.filter((skill) => matchesCategory(skill, chip.label)).length}</span>
                   </button>
@@ -366,7 +355,7 @@ export default function Skills() {
                     </button>
                     <span className="rank">{(page - 1) * pageSize + index + 1}</span>
                     <span className="skill-name"><b>{skill.name}</b><small>{skill.id}</small></span>
-                    <span>{formatCategoryLabel(skill.category)}</span>
+                    <span>{categoryLabelFor(skill.category)}</span>
                     <span className="ses-cell">{pct(skill.ses_score)} <Ring value={pct(skill.ses_score)} /></span>
                     <span><Pill tone="green">{skill.archetype ?? 'Tracked'}</Pill></span>
                     <span><Pill tone="blue">{externalMarketTrend(skill) ?? 'N/A'}</Pill></span>
@@ -547,10 +536,10 @@ function SkillPanel({
   return (
     <aside className="skill-explorer-detail-panel glass">
       <div className="detail-top">
-        <div className={cn('skill-logo bg-gradient-to-br', visual.tone)}><CategoryIcon size={24} aria-label={`${formatCategoryLabel(skill.category)} icon`} /></div>
+        <div className={cn('skill-logo bg-gradient-to-br', visual.tone)}><CategoryIcon size={24} aria-label={`${categoryLabelFor(skill.category)} icon`} /></div>
         <div>
           <h2>{skill.name}</h2>
-          <div className="detail-tags"><Pill tone="blue">{formatCategoryLabel(skill.category)}</Pill><Pill tone="green">{isFutureProof(skill) ? 'Future-Proof' : externalMarketTrend(skill) ?? 'Tracked'}</Pill></div>
+          <div className="detail-tags"><Pill tone="blue">{categoryLabelFor(skill.category)}</Pill><Pill tone="green">{isFutureProof(skill) ? 'Future-Proof' : externalMarketTrend(skill) ?? 'Tracked'}</Pill></div>
         </div>
         <button type="button" onClick={onSave} className={cn('detail-save-button', isSaved && 'saved')} title={isSaved ? 'Remove from saved skills' : 'Save skill'}>
           <Star size={20} fill={isSaved ? 'currentColor' : 'none'} />
@@ -613,6 +602,9 @@ function SkillPanel({
             <div className="flex items-center justify-between gap-3 text-xs text-white/45"><span>Relative demand index</span><span>Current to 3-year outlook</span></div>
             <div className="mt-2 h-16"><Sparkline values={projectedDemand} trend={externalMarketTrend(skill)} height={64} filled /></div>
             <div className="mt-1 flex justify-between text-[10px] text-white/35"><span>{history.length ? 'History' : 'Current'}</span><span>{history.length ? 'History' : '1Y'}</span><span>1Y</span><span>3Y</span></div>
+          </div>
+          <div className="mt-3 rounded-lg border border-white/8 bg-white/[0.035] px-3 py-2 text-xs leading-relaxed text-white/45">
+            Interpretation: the sparkline shows relative direction for this skill inside its local detail view. Rising shape suggests improving forecast position; flat or falling shape means the skill should be paired with stronger adjacent capabilities before treating it as a priority.
           </div>
           <InfoTile label="Trend" value={externalMarketTrend(skill) ?? 'N/A'} detail="market-aligned label" />
           <InfoTile label="Method" value={skill.forecast_method ?? 'Feature-Based'} detail="forecast model" />

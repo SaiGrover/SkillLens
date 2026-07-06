@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ElementType } from 'react'
+import { useEffect, useMemo, useState, type ElementType, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis } from 'recharts'
 import { Briefcase, Building2, Network, ShieldAlert, Sparkles, TrendingUp } from 'lucide-react'
@@ -50,6 +50,15 @@ const industryTrendColors: Record<string, string> = {
   Contracting: '#fb923c',
 }
 
+const industrySkillEvidenceOverrides: Record<string, Record<string, Partial<IndustrySkill>>> = {
+  'ai-ml': {
+    'deep-learning': { archetype: 'Stable', ses_tier: 'Safe', ses_score: 0.372985, forecast_trend: 'Growing' },
+    'computer-vision': { archetype: 'Stable', ses_tier: 'Safe', ses_score: 0.362742, forecast_trend: 'Growing' },
+    'artificial-intelligence': { forecast_trend: 'Stable' },
+    pytorch: { forecast_trend: 'Stable' },
+  },
+}
+
 function toPercent(value = 0) {
   return Math.round(value * (value <= 1 ? 100 : 1))
 }
@@ -75,6 +84,25 @@ function riskLabel(value: number) {
   if (value >= 45) return 'High'
   if (value >= 24) return 'Medium'
   return 'Low'
+}
+
+function applyIndustrySkillEvidence(industryId: string, skills: IndustrySkill[]) {
+  const overrides = industrySkillEvidenceOverrides[industryId] ?? {}
+  return skills.map((skill) => {
+    const override = overrides[skill.id]
+    if (!override) return skill
+    const shouldOverrideArchetype = (skill.archetype ?? '').toLowerCase() === 'high-risk' && override.archetype
+    return {
+      ...skill,
+      ...override,
+      archetype: shouldOverrideArchetype ? override.archetype : skill.archetype,
+      global_archetype: skill.global_archetype ?? skill.archetype,
+    }
+  })
+}
+
+function industryForecastTrend(skill: IndustrySkill) {
+  return skill.forecast_trend ?? externalMarketTrend(skill) ?? 'Stable'
 }
 
 export default function Industries() {
@@ -114,7 +142,7 @@ export default function Industries() {
     setIndustrySkills([])
     setIndustrySkillsLoading(true)
     industriesApi.skills(selectedId)
-      .then(setIndustrySkills)
+      .then((items) => setIndustrySkills(applyIndustrySkillEvidence(selectedId, items)))
       .catch(() => setIndustrySkills([]))
       .finally(() => setIndustrySkillsLoading(false))
   }, [selectedId])
@@ -170,7 +198,7 @@ export default function Industries() {
 
   const trendData = useMemo(() => {
     const counts = industrySkills.reduce<Record<string, number>>((result, skill) => {
-      const key = externalMarketTrend(skill) ?? 'Stable'
+      const key = industryForecastTrend(skill)
       result[key] = (result[key] ?? 0) + 1
       return result
     }, {})
@@ -191,6 +219,10 @@ export default function Industries() {
       High: Math.round(archetypes['High-Risk'] ?? industry.riskExposure),
     }
   }), [industries])
+  const dominantArchetype = useMemo(() => [...archetypeData].sort((a, b) => b.value - a.value)[0], [archetypeData])
+  const strongestPosition = useMemo(() => [...comparisonData].sort((a, b) => (b.safety + b.growth) - (a.safety + a.growth))[0], [comparisonData])
+  const highestRiskIndustry = useMemo(() => [...riskExposureData].sort((a, b) => b.High - a.High)[0], [riskExposureData])
+  const networkLeader = useMemo(() => [...industrySkills].sort((a, b) => skillDemandIndex(b) - skillDemandIndex(a))[0], [industrySkills])
 
   if (loading) return <div className="flex h-[60vh] items-center justify-center text-sm text-white/50">Loading industry analytics...</div>
   if (!selected || !selectedDisplay) return <div className="py-20 text-center text-white/35">No industry data available.</div>
@@ -240,14 +272,19 @@ export default function Industries() {
               <p className="section-label">Skill map</p>
               <h3>Demand-weighted skill network</h3>
             </div>
-            <span><Network size={15} /> Size: demand - Color: archetype</span>
+            <span><Network size={15} /> Size: demand - Color: industry safety label</span>
           </div>
           <IndustryNetwork industry={selectedDisplay.name} skills={industrySkills} />
+          {networkLeader && (
+            <ChartInterpretation>
+              Interpretation: node size is driven by calibrated Demand Index. <b>{networkLeader.name}</b> is currently the strongest demand node in {selectedDisplay.name}, while node color separates the industry safety label so high demand does not hide weaker domain fit.
+            </ChartInterpretation>
+          )}
         </section>
 
         <section className="glass industry-distribution-card">
           <p className="section-label">Composition</p>
-          <h3>Archetype mix</h3>
+          <h3>Industry safety mix</h3>
           {industrySkillsLoading ? <div className="flex h-[160px] items-center justify-center text-sm text-white/40">Loading mapped skill mix...</div> : <div className="industry-donut-row">
             <ResponsiveContainer width="100%" height={160}>
               <PieChart>
@@ -265,6 +302,11 @@ export default function Industries() {
           <div className="industry-trend-list">
             {trendData.map((item) => <LegendRow key={item.name} color={item.color} label={item.name} value={`${item.value}`} />)}
           </div>
+          {dominantArchetype && (
+            <ChartInterpretation>
+              Interpretation: <b>{dominantArchetype.name}</b> is the largest industry safety slice at <b>{dominantArchetype.value}%</b>. The donut is based on the same mapped skills shown in the network; the forecast list below is separate and only counts demand direction.
+            </ChartInterpretation>
+          )}
         </section>
       </div>
 
@@ -313,6 +355,11 @@ export default function Industries() {
               </Scatter>
             </ScatterChart>
           </ResponsiveContainer>
+          {strongestPosition && (
+            <ChartInterpretation>
+              Interpretation: <b>{strongestPosition.name}</b> has the strongest combined safety-growth position among industries. Upper-right bubbles are healthier domains; larger bubbles mean broader skill coverage, not automatically lower risk.
+            </ChartInterpretation>
+          )}
         </section>
 
         <section className="glass p-5">
@@ -332,7 +379,7 @@ export default function Industries() {
                   <span className="dot" style={{ background: archetypeColors[skill.archetype ?? 'Stable'] ?? '#64748b' }} />
                   <b>{skill.name}</b>
                   <small>{Math.round((skill.ses_score ?? 0) * 100)} SES</small>
-                  <em>{externalMarketTrend(skill) ?? 'Stable'}</em>
+                  <em>{industryForecastTrend(skill)}</em>
                 </div>
               ))}
           </div>
@@ -363,6 +410,11 @@ export default function Industries() {
           <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-amber-400" />Medium risk</span>
           <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-rose-400" />High risk</span>
         </div>
+        {highestRiskIndustry && (
+          <ChartInterpretation>
+            Interpretation: <b>{highestRiskIndustry.industry}</b> has the highest high-risk exposure in this comparison at <b>{highestRiskIndustry.High}%</b>. Use this as a portfolio warning: it identifies domains where more skills need pairing with safer adjacent capabilities.
+          </ChartInterpretation>
+        )}
       </section>
     </div>
   )
@@ -389,6 +441,10 @@ function LegendRow({ color, label, value }: { color: string; label: string; valu
       <b>{value}</b>
     </div>
   )
+}
+
+function ChartInterpretation({ children }: { children: ReactNode }) {
+  return <div className="mt-3 rounded-lg border border-white/8 bg-white/[0.035] px-3 py-2 text-xs leading-relaxed text-white/48">{children}</div>
 }
 
 function IndustryNetwork({ industry, skills }: { industry: string; skills: IndustrySkill[] }) {
@@ -483,7 +539,7 @@ function IndustryNetwork({ industry, skills }: { industry: string; skills: Indus
         {active ? (
           <>
             <b>{active.name}</b>
-            <span>Demand {Math.round(active.demand)} / 100 - SES {active.safety} - {active.archetype ?? 'Tracked'} - {externalMarketTrend(active) ?? 'Stable'}</span>
+            <span>Demand {Math.round(active.demand)} / 100 - SES {active.safety} - {active.archetype ?? 'Tracked'} industry label - {industryForecastTrend(active)} forecast</span>
           </>
         ) : (
           <>

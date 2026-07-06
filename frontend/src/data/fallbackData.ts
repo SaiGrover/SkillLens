@@ -15532,6 +15532,14 @@ const industrySkillMembers: Record<string, string[]> = {
     "matlab"
   ]
 }
+const industrySkillEvidenceOverrides: Record<string, Record<string, Record<string, any>>> = {
+  "ai-ml": {
+    "deep-learning": { "archetype": "Stable", "ses_tier": "Safe", "ses_score": 0.372985, "forecast_trend": "Growing" },
+    "computer-vision": { "archetype": "Stable", "ses_tier": "Safe", "ses_score": 0.362742, "forecast_trend": "Growing" },
+    "artificial-intelligence": { "forecast_trend": "Stable" },
+    "pytorch": { "forecast_trend": "Stable" }
+  }
+}
 const regions = [
   {
     "region": "North America",
@@ -15780,7 +15788,7 @@ export function fallbackApiResponse(path: string): unknown {
 
   if (pathname === '/api/industries') return industries
   const industrySkillsMatch = pathname.match(/^\/api\/industries\/([^/]+)\/skills$/)
-  if (industrySkillsMatch) { const industry = industries.find(item => item.id === industrySkillsMatch[1]) ?? industries[0]; return (industrySkillMembers[industry?.id ?? ''] ?? []).map((id) => { const skill = byId(id); return { id: skill.id, name: skill.name, ses_score: skill.ses_score, ses_tier: skill.ses_tier, linkedin_demand: skill.linkedin_demand, current_usage: skill.current_usage, future_interest: skill.future_interest, growth_rate: skill.growth_rate, forecast_score: skill.forecast_score, forecast_score_composite: skill.forecast_score_composite, forecast_trend: skill.forecast_trend, archetype: skill.archetype, salary_premium: skill.salary_premium } }) }
+  if (industrySkillsMatch) { const industry = industries.find(item => item.id === industrySkillsMatch[1]) ?? industries[0]; return (industrySkillMembers[industry?.id ?? ''] ?? []).map((id) => { const skill = byId(id); const evidence = industrySkillEvidenceOverrides[industry?.id ?? '']?.[id] ?? {}; return { id: skill.id, name: skill.name, ses_score: evidence.ses_score ?? skill.ses_score, ses_tier: evidence.ses_tier ?? skill.ses_tier, linkedin_demand: skill.linkedin_demand, current_usage: skill.current_usage, future_interest: skill.future_interest, growth_rate: skill.growth_rate, forecast_score: skill.forecast_score, forecast_score_composite: skill.forecast_score_composite, forecast_trend: evidence.forecast_trend ?? skill.forecast_trend, archetype: evidence.archetype ?? skill.archetype, global_archetype: skill.archetype, salary_premium: skill.salary_premium } }) }
   const industryMatch = pathname.match(/^\/api\/industries\/([^/]+)$/)
   if (industryMatch) return industries.find(item => item.id === industryMatch[1]) ?? industries[0]
 

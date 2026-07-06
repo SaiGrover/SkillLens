@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import {
   Database, Search, GitBranch, Layers, ShieldCheck, Network,
   LineChart, FlaskConical, Sparkles, Users, Clock, BarChart3,
@@ -184,6 +185,69 @@ const stages = [
     output: 'Interactive web platform with searchable skills, visual forecasts, industry rankings, AI-assisted career guidance, and exportable reports',
   },
 ]
+
+const mentorshipStepNotes: Record<string, string[]> = {
+  'Data Collection': [
+    'Mentorship lineage: 01_Dataset_Inventory inventories LinkedIn job records, job-skill tables, salaries, industries, Stack Overflow surveys, and Technology Skills.xlsx before modeling begins.',
+    'Why it matters: the project deliberately combines workforce hiring data with developer adoption data so SES is not based on a single platform or popularity proxy.',
+  ],
+  'Data Cleaning & Normalization': [
+    'Mentorship lineage: 02_EDA_LinkedIn, 03_EDA_StackOverflow, 04C_KeyBERT extraction, and 04D_SkillNER extraction exposed naming drift, noisy phrases, and duplicate skill aliases.',
+    'Why it matters: this is where names such as Node.js, C#, Power BI, PyTorch, JavaScript, and MATLAB become stable product-facing entities.',
+  ],
+  'Skill Universe Expansion': [
+    'Mentorship lineage: 08C expands beyond the original 35-skill proof of concept, while 08D_Final_v2_Skill_Taxonomy_Builder produces the curated technical skill universe.',
+    'Why it matters: LangChain, LLM, RAG, Power BI, and Tableau are recovered so the final product reflects modern workforce movement rather than only legacy seed skills.',
+  ],
+  'Skill Classification & Taxonomy': [
+    'Mentorship lineage: 08D classifies the expanded universe into technical, soft, domain, and noise groups before product categories are created.',
+    'Why it matters: the same taxonomy powers Skill Explorer, Industries, Recommender, Advisor context, and dashboard category counts.',
+  ],
+  'Feature Engineering': [
+    'Mentorship lineage: 09_Feature_Recalculation_Final builds the final six-signal feature matrix for the curated skill universe.',
+    'Why it matters: LinkedIn demand, salary premium, current usage, future interest, global adoption, and growth rate are normalized so unrelated technologies can be compared on one scale.',
+  ],
+  'Temporal Skill Intelligence': [
+    'Mentorship lineage: 08A, 08B, and 08E rebuild Stack Overflow skill-year histories and normalize adoption rates across changing survey schemas.',
+    'Why it matters: the project tracks long-run adoption from 2013-2025 style histories, giving mature skills deeper evidence and emerging skills explicit uncertainty.',
+  ],
+  'Skill Archetype Discovery': [
+    'Mentorship lineage: 10_Skill_Archetype_Clustering_Final applies StandardScaler, KMeans, PCA, and manual cluster naming to the six workforce features.',
+    'Why it matters: archetype labels are unsupervised behavior groups, not direct SES tiers; this explains why two skills with similar SES can carry different archetypes.',
+  ],
+  'Hybrid Forecasting': [
+    'Mentorship lineage: 11_Hybrid_Forecasting chooses Holt for 10+ years of history, Exponential Smoothing for 7-9 years, and feature-based projection for limited histories.',
+    'Why it matters: the forecast layer avoids overclaiming from sparse emerging-skill histories while still producing 1Y, 2Y, 3Y, confidence, method, score, and trend outputs.',
+  ],
+  'SES Computation': [
+    'Mentorship lineage: 12_SES_Computation combines feature intelligence, forecast intelligence, and cluster intelligence into ranked SES outputs.',
+    'Why it matters: SES is the safety score, while archetype is a behavioral cluster; the interface should explain both instead of implying they are the same label.',
+  ],
+  'Industry Analytics': [
+    'Mentorship lineage: 13_Industry_Analytics merges SES rankings, forecasts, history, and industry-skill mappings into industry_analytics.csv and industry_skill_map.csv.',
+    'Why it matters: industry metrics must be recomputed from mapped member skills when shown live, because stale aggregate fields can hide risk exposure or understate demand.',
+  ],
+  'Skill Ranking by Industry': [
+    'Mentorship lineage: the industry-skill map ranks domain-specific skills so AI/ML, analytics, cloud, cybersecurity, and software pages can show practical career context.',
+    'Why it matters: a skill can be globally useful and still matter differently by domain; this layer converts model output into career-direction guidance.',
+  ],
+  'Career Recommendation': [
+    'Mentorship lineage: 13B_RAG_Knowledge_Base builds skill documents from SES, forecasts, industry analytics, history, and industry maps.',
+    'Why it matters: recommendations should cite fit signals and gaps rather than presenting one generic path for every role.',
+  ],
+  'AI Career Advisor': [
+    'Mentorship lineage: 14_Career_Advisor combines the skill knowledge base with FAISS metadata, context building, and advisor demo outputs.',
+    'Why it matters: the advisor is retrieval-first; answers should be grounded in HSEP skill context before generation.',
+  ],
+  'Explainability Layer': [
+    'Mentorship lineage: score breakdowns expose feature values, forecast confidence/method, cluster behavior, and industry context.',
+    'Why it matters: users can inspect why a skill is safe, risky, growing, or recommended instead of trusting an opaque score.',
+  ],
+  'Dashboard & Website Output': [
+    'Mentorship lineage: the notebook outputs become the app data contract: skills, forecasts, SES rankings, industry analytics, knowledge base, advisor, reports, and methodology evidence.',
+    'Why it matters: visible UI values must reconcile with processed CSV lineage and current display helpers, especially for taxonomy labels and calibrated Demand Index.',
+  ],
+}
 
 /* Section */
 const methods: [string, string, string][] = [
@@ -958,6 +1022,10 @@ function EvidenceTable({ rows }: { rows: Record<string, string | number>[] }) {
   )
 }
 
+function EvidenceInterpretation({ children }: { children: ReactNode }) {
+  return <div className="mt-4 rounded-xl border border-white/8 bg-white/[0.025] p-3 text-xs leading-relaxed text-white/55">{children}</div>
+}
+
 function GenericStageEvidence({ config }: { config: EvidenceConfig }) {
   const labels = config.data.map((item) => item.label)
   const values = config.data.map((item) => item.value)
@@ -1005,6 +1073,9 @@ function GenericStageEvidence({ config }: { config: EvidenceConfig }) {
           {config.table && <EvidenceTable rows={config.table} />}
         </div>
       </div>
+      <EvidenceInterpretation>
+        Interpretation: this plot is evidence for the <b>{config.heading}</b> stage, not a standalone scorecard. The largest visible value is <b>{labels[values.indexOf(Math.max(...values))]}</b>, and the adjacent metrics/table show the exact notebook artifact that produced the signal.
+      </EvidenceInterpretation>
       <div className="mt-4">
         <CodeSnapshot title="Notebook logic preview" code={config.code} />
       </div>
@@ -1029,6 +1100,9 @@ function StageEvidence({ title }: { title: string }) {
         </div>
         <CodeSnapshot title="Original correlation setup" code={`feature_cols = [\n  'linkedin_demand', 'salary_premium',\n  'current_usage', 'future_interest',\n  'global_adoption_score', 'growth_rate'\n]\nsns.heatmap(df[feature_cols].corr(), annot=True)`} />
       </div>
+      <EvidenceInterpretation>
+        Interpretation: the heatmap checks whether the six workforce signals are carrying distinct information. Strong positive or negative cells warn that two features may overlap; weaker cells support keeping both signals in SES because they capture different behavior.
+      </EvidenceInterpretation>
     </div>
   }
 
@@ -1063,6 +1137,9 @@ function StageEvidence({ title }: { title: string }) {
           <div className="rounded-xl border border-white/8 bg-white/[0.025] p-3 text-xs leading-relaxed text-white/55"><b className="text-white">Silhouette outcome:</b> K=2 had the highest raw silhouette score (0.378971). The final notebook intentionally retained K=4 to support the four interpretable HSEP archetypes.</div>
         </div>
       </div>
+      <EvidenceInterpretation>
+        Interpretation: the PCA plot visualizes how skills group after scaling the six workforce signals, while the silhouette chart shows the tradeoff between pure separation and the four business-readable archetypes. K=4 is retained because the product needs Future-Proof, Growing, Stable, and High-Risk categories.
+      </EvidenceInterpretation>
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
         <CodeSnapshot title="Original K-Means sweep" code={`scores = []\nfor k in range(2, 11):\n    labels = KMeans(n_clusters=k, random_state=42, n_init=20).fit_predict(X_scaled)\n    scores.append(silhouette_score(X_scaled, labels))`} />
         <CodeSnapshot title="Original PCA projection" code={`pca = PCA(n_components=2)\ncomponents = pca.fit_transform(X_scaled)\ndf['pc1'], df['pc2'] = components[:, 0], components[:, 1]\ndf['cluster'] = kmeans.fit_predict(X_scaled)`} />
@@ -1157,6 +1234,17 @@ function FlowchartNode({
           <IOBlock label="Input" value={stage.input} variant="input" expanded={expanded} />
           <IOBlock label="Output" value={stage.output} variant="output" expanded={expanded} />
         </div>
+
+        {expanded && mentorshipStepNotes[stage.title] && (
+          <div className="mt-4 rounded-xl border border-white/8 bg-white/[0.025] p-3">
+            <p className="section-label">Mentorship notebook lineage</p>
+            <div className="mt-2 grid gap-2">
+              {mentorshipStepNotes[stage.title].map((note) => (
+                <p key={note} className="text-xs leading-relaxed text-white/55">{note}</p>
+              ))}
+            </div>
+          </div>
+        )}
 
         {expanded && <><StageResources title={stage.title} /><StageEvidence title={stage.title} /></>}
       </div>

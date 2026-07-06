@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer,
@@ -41,7 +41,6 @@ export default function Forecasts() {
   const [searchParams] = useSearchParams()
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [methods, setMethods] = useState<MethodDistribution[]>([])
-  const [trends, setTrends] = useState<{ trend: string; count: number; avg_forecast_score: number }[]>([])
   const [trendFilter, setTrendFilter] = useState('All')
   const [methodFilter, setMethodFilter] = useState('All')
   const [confidenceFilter, setConfidenceFilter] = useState('All')
@@ -53,15 +52,13 @@ export default function Forecasts() {
     async function loadForecasts() {
       try {
         setLoading(true)
-        const [leaderboardRes, methodRes, trendRes, skillsRes] = await Promise.all([
+        const [leaderboardRes, methodRes, skillsRes] = await Promise.all([
           forecastApi.futureProofLeaderboard(20),
           forecastApi.methodDistribution(),
-          forecastApi.trendDistribution(),
           skillsApi.list({ per_page: 200, sort_by: 'ses_score', sort_dir: 'desc' }),
         ])
         setLeaderboard(leaderboardRes)
         setMethods(methodRes)
-        setTrends(trendRes)
         setCategoryBySkill(Object.fromEntries((skillsRes.items ?? []).map((skill) => [skill.id, formatCategoryLabel(skill.category)])))
       } catch (err) {
         console.error('Error loading forecasts:', err)
@@ -76,23 +73,6 @@ export default function Forecasts() {
   const forecastIndex = useMemo(() => indexScale(leaderboard), [leaderboard])
   const methodsList = useMemo(() => ['All', ...Array.from(new Set(methods.map((item) => item.method)))], [methods])
   const categoryList = useMemo(() => ['All', ...Array.from(new Set(Object.values(categoryBySkill))).sort()], [categoryBySkill])
-  const visibleTrendData = useMemo(() => {
-    const counts = leaderboard.reduce<Record<string, { trend: string; count: number; avg_forecast_score: number }>>((result, item) => {
-      const oneYear = forecastIndex(item.forecast_1y)
-      const threeYear = forecastIndex(item.forecast_3y)
-      const trend = forecastTrendFromGrowth(displayForecastGrowth(oneYear, threeYear))
-      const current = result[trend] ?? { trend, count: 0, avg_forecast_score: 0 }
-      current.count += 1
-      current.avg_forecast_score += threeYear
-      result[trend] = current
-      return result
-    }, {})
-
-    return Object.values(counts).map((item) => ({
-      ...item,
-      avg_forecast_score: item.count ? item.avg_forecast_score / item.count : 0,
-    }))
-  }, [leaderboard, forecastIndex])
 
   const filteredLeaderboard = useMemo(() => leaderboard.filter((item) => {
     const query = (searchParams.get('q') ?? '').trim().toLowerCase()
@@ -109,6 +89,41 @@ export default function Forecasts() {
     const queryOk = !query || [item.skill_name, item.forecast_method, visibleTrend].some((value) => value.toLowerCase().includes(query))
     return trendOk && methodOk && categoryOk && confidenceOk && queryOk
   }), [leaderboard, forecastIndex, trendFilter, methodFilter, categoryFilter, categoryBySkill, confidenceFilter, searchParams])
+
+  const filteredTrendData = useMemo(() => {
+    const counts = filteredLeaderboard.reduce<Record<string, { trend: string; count: number; avg_forecast_score: number }>>((result, item) => {
+      const oneYear = forecastIndex(item.forecast_1y)
+      const threeYear = forecastIndex(item.forecast_3y)
+      const trend = forecastTrendFromGrowth(displayForecastGrowth(oneYear, threeYear))
+      const current = result[trend] ?? { trend, count: 0, avg_forecast_score: 0 }
+      current.count += 1
+      current.avg_forecast_score += threeYear
+      result[trend] = current
+      return result
+    }, {})
+
+    return Object.values(counts).map((item) => ({
+      ...item,
+      avg_forecast_score: item.count ? item.avg_forecast_score / item.count : 0,
+    }))
+  }, [filteredLeaderboard, forecastIndex])
+
+  const filteredMethodData = useMemo(() => {
+    const counts = filteredLeaderboard.reduce<Record<string, { method: string; count: number; confidence: number }>>((result, item) => {
+      const current = result[item.forecast_method] ?? { method: item.forecast_method, count: 0, confidence: 0 }
+      current.count += 1
+      current.confidence += item.confidence
+      result[item.forecast_method] = current
+      return result
+    }, {})
+
+    return Object.values(counts).map((item) => ({
+      method: item.method,
+      count: item.count,
+      avg_confidence: item.count ? item.confidence / item.count : 0,
+      description: methods.find((method) => method.method === item.method)?.description ?? 'Forecast method from the filtered result set',
+    }))
+  }, [filteredLeaderboard, methods])
 
   const chartData = useMemo(() => filteredLeaderboard.slice(0, 8).map((item) => {
     const oneYear = forecastIndex(item.forecast_1y)
@@ -127,11 +142,13 @@ export default function Forecasts() {
     }
   }), [filteredLeaderboard, forecastIndex])
 
-  const avgConfidence = leaderboard.length
-    ? Math.round((leaderboard.reduce((sum, item) => sum + item.confidence, 0) / leaderboard.length) * 100)
+  const avgConfidence = filteredLeaderboard.length
+    ? Math.round((filteredLeaderboard.reduce((sum, item) => sum + item.confidence, 0) / filteredLeaderboard.length) * 100)
     : 0
-  const explosiveCount = visibleTrendData.find((item) => item.trend.toLowerCase() === 'explosive')?.count ?? 0
-  const growingCount = visibleTrendData.find((item) => item.trend.toLowerCase() === 'growing')?.count ?? 0
+  const growingCount = filteredTrendData.find((item) => item.trend.toLowerCase() === 'growing')?.count ?? 0
+  const decliningCount = filteredTrendData.find((item) => item.trend.toLowerCase() === 'declining')?.count ?? 0
+  const leadingForecast = filteredLeaderboard[0]
+  const dominantTrend = [...filteredTrendData].sort((a, b) => b.count - a.count)[0]
 
   if (loading) {
     return (
@@ -156,10 +173,10 @@ export default function Forecasts() {
       </div>
 
       <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
-        <StatCard label="Ranked Forecasts" value={leaderboard.length} change="top demand projections" positive icon={<BrainCircuit size={20} />} color="violet" />
-        <StatCard label="Forecast Confidence" value={`${avgConfidence}%`} change="average model confidence" positive={avgConfidence >= 70} icon={<ArrowUpRight size={20} />} color="fuchsia" />
-        <StatCard label="Explosive Trends" value={explosiveCount} change="highest growth bucket" positive icon={<TrendingUp size={20} />} color="violet" />
-        <StatCard label="Growing Trends" value={growingCount} change="positive forecast bucket" positive icon={<TrendingDown size={20} />} color="fuchsia" />
+        <StatCard label="Matching Forecasts" value={filteredLeaderboard.length} change={`${leaderboard.length} total forecast rows`} positive icon={<BrainCircuit size={20} />} color="violet" />
+        <StatCard label="Filtered Confidence" value={filteredLeaderboard.length ? `${avgConfidence}%` : '...'} change="average for current filters" positive={avgConfidence >= 70} icon={<ArrowUpRight size={20} />} color="fuchsia" />
+        <StatCard label="Growing Trends" value={growingCount} change="positive index movement" positive icon={<TrendingUp size={20} />} color="violet" />
+        <StatCard label="Declining Trends" value={decliningCount} change="negative index movement" positive={decliningCount === 0} icon={<TrendingDown size={20} />} color="fuchsia" />
       </div>
 
       <div className="glass overflow-visible rounded-xl border border-white/5 p-3">
@@ -178,7 +195,7 @@ export default function Forecasts() {
         <div className="glass rounded-xl border border-white/5 p-5">
           <h3 className="text-sm font-semibold text-white/85 mb-1">1Y vs 3Y Forecast Index</h3>
           <p className="mb-4 text-xs text-white/35">Index scale: 0-100 across the canonical snapshot. The purple band shows forecast uncertainty from model confidence.</p>
-          <ResponsiveContainer width="100%" height={280}>
+          {chartData.length ? <ResponsiveContainer width="100%" height={280}>
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="oneYear" x1="0" y1="0" x2="0" y2="1">
@@ -203,22 +220,32 @@ export default function Forecasts() {
               <Area type="monotone" dataKey="oneYear" name="1-year" stroke="#c084fc" fill="url(#oneYear)" strokeWidth={2} />
               <Area type="monotone" dataKey="threeYear" name="3-year" stroke="#a78bfa" fill="url(#threeYear)" strokeWidth={2} />
             </AreaChart>
-          </ResponsiveContainer>
+          </ResponsiveContainer> : <EmptyForecastState title="No forecast rows match these filters" detail="Loosen one filter to compare 1Y and 3Y index movement." />}
+          {chartData.length > 0 && leadingForecast && (
+            <ChartInterpretation>
+              Interpretation: the current filters return <b>{filteredLeaderboard.length}</b> forecast rows. The chart compares the top visible rows on one shared 0-100 index, so a falling 3Y line means the skill loses relative position inside this filtered group even if raw demand is still large.
+            </ChartInterpretation>
+          )}
         </div>
 
         <div className="glass rounded-xl border border-white/5 p-5">
           <h3 className="text-sm font-semibold text-white/85 mb-4">Trend Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={visibleTrendData}>
+          {filteredTrendData.length ? <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={filteredTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis dataKey="trend" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<TrendTooltip />} cursor={{ fill: 'rgba(255,255,255,0.035)' }} />
               <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                {visibleTrendData.map((item) => <Cell key={item.trend} fill={trendColors[item.trend.toLowerCase()] ?? '#8b5cf6'} />)}
+                {filteredTrendData.map((item) => <Cell key={item.trend} fill={trendColors[item.trend.toLowerCase()] ?? '#8b5cf6'} />)}
               </Bar>
             </BarChart>
-          </ResponsiveContainer>
+          </ResponsiveContainer> : <EmptyForecastState title="No trend distribution" detail="The current filters remove every forecast row." />}
+          {dominantTrend && (
+            <ChartInterpretation>
+              Interpretation: <b>{dominantTrend.trend}</b> is the dominant visible trend with <b>{dominantTrend.count}</b> matching skills. This distribution is recalculated from the active filters, so it should change whenever trend, method, category, confidence, or search changes.
+            </ChartInterpretation>
+          )}
         </div>
       </div>
 
@@ -253,12 +280,13 @@ export default function Forecasts() {
             </div>
             )
           })}
+          {!filteredLeaderboard.length && <div className="px-5 py-8 text-center text-sm text-white/42">No forecasts match the current filters.</div>}
         </div>
 
         <div className="glass rounded-xl border border-white/5 p-5">
           <h3 className="text-sm font-semibold text-white/85 mb-4">Forecast Methods</h3>
           <div className="space-y-3">
-            {methods.map((method) => (
+            {filteredMethodData.map((method) => (
               <div key={method.method} className="rounded-lg border border-white/5 bg-white/[0.03] p-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-medium text-white">{formatForecastMethod(method.method)}</p>
@@ -268,6 +296,7 @@ export default function Forecasts() {
                 <p className="mt-2 text-xs text-white/35">{method.count} skills</p>
               </div>
             ))}
+            {!filteredMethodData.length && <p className="rounded-lg border border-white/5 bg-white/[0.03] p-4 text-sm text-white/42">No forecast methods are present in the current filter result.</p>}
           </div>
         </div>
       </div>
@@ -297,6 +326,21 @@ function TrendTooltip({ active, payload, label }: any) {
       <p><span>Skills</span><strong>{count}</strong></p>
     </div>
   )
+}
+
+function EmptyForecastState({ title, detail }: { title: string; detail: string }) {
+  return (
+    <div className="grid h-[280px] place-items-center rounded-xl border border-white/8 bg-white/[0.025] px-5 text-center">
+      <div>
+        <p className="text-sm font-semibold text-white/72">{title}</p>
+        <p className="mt-2 text-xs text-white/38">{detail}</p>
+      </div>
+    </div>
+  )
+}
+
+function ChartInterpretation({ children }: { children: ReactNode }) {
+  return <div className="mt-3 rounded-lg border border-white/8 bg-white/[0.035] px-3 py-2 text-xs leading-relaxed text-white/48">{children}</div>
 }
 
 function FilterButtons({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (value: string) => void }) {

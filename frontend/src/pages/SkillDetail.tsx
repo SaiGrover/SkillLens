@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, AlertTriangle, CheckCircle2, DollarSign, TrendingUp, Zap } from 'lucide-react'
@@ -81,6 +81,9 @@ export default function SkillDetail() {
   const risk = Math.round((1 - (skill.ses_score ?? 0.5)) * 100)
   const automation = Math.round((skill.volatility_score ?? 0.15) * 100)
   const certs = certifications[id || ''] || certifications.default
+  const latestHistory = history[history.length - 1]
+  const peakHistory = [...history].sort((a, b) => b.value - a.value)[0]
+  const industryLeader = [...industryData].sort((a, b) => b.adoption - a.adoption)[0]
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -135,6 +138,11 @@ export default function SkillDetail() {
               <Area type="monotone" dataKey="value" stroke="#a78bfa" fill="url(#demGrad)" strokeWidth={2} name={skill.name} />
             </AreaChart>
           </ResponsiveContainer>
+          {latestHistory && peakHistory && (
+            <ChartInterpretation>
+              Interpretation: latest observed adoption for {skill.name} is <b>{latestHistory.value}%</b>, with the visible peak at <b>{peakHistory.value}%</b> in {peakHistory.month}. Read this as relative adoption history, not as the calibrated Demand Index used elsewhere.
+            </ChartInterpretation>
+          )}
         </motion.div>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="glass rounded-xl border border-white/5 p-5">
@@ -148,6 +156,11 @@ export default function SkillDetail() {
               <Bar dataKey="adoption" fill="#8b5cf6" radius={[0, 4, 4, 0]} name="Adoption %" />
             </BarChart>
           </ResponsiveContainer>
+          {industryLeader && (
+            <ChartInterpretation>
+              Interpretation: <b>{industryLeader.name}</b> is the strongest adoption context in this comparison at <b>{industryLeader.adoption}%</b>. The bars are illustrative cross-industry fit signals, not a replacement for the Industries page’s mapped-skill analytics.
+            </ChartInterpretation>
+          )}
         </motion.div>
       </div>
 
@@ -196,4 +209,8 @@ export default function SkillDetail() {
       </div>
     </div>
   )
+}
+
+function ChartInterpretation({ children }: { children: ReactNode }) {
+  return <div className="mt-3 rounded-lg border border-white/8 bg-white/[0.035] px-3 py-2 text-xs leading-relaxed text-white/48">{children}</div>
 }
