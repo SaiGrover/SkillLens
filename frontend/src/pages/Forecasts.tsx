@@ -7,7 +7,7 @@ import {
 import { ArrowUpRight, BrainCircuit, LineChart, SlidersHorizontal, TrendingDown, TrendingUp } from 'lucide-react'
 import { forecastApi, LeaderboardEntry, MethodDistribution, skillsApi } from '@/services/api'
 import StatCard from '@/components/ui/StatCard'
-import { forecastTrendFromGrowth, formatCategoryLabel, formatForecastGrowth, formatForecastMethod } from '@/lib/display'
+import { forecastTrendFromGrowth, formatCategoryLabel, formatForecastGrowth, formatForecastMethod, normalizedKey } from '@/lib/display'
 
 const trendColors: Record<string, string> = {
   explosive: '#ec4899',
@@ -37,6 +37,10 @@ function displayForecastGrowth(oneYear: number, threeYear: number) {
   return formatForecastGrowth(oneYear, threeYear)
 }
 
+function forecastRowTrend(item: LeaderboardEntry, forecastIndex: (value: number) => number) {
+  return item.forecast_trend ?? forecastTrendFromGrowth(displayForecastGrowth(forecastIndex(item.forecast_1y), forecastIndex(item.forecast_3y)))
+}
+
 export default function Forecasts() {
   const [searchParams] = useSearchParams()
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
@@ -53,13 +57,16 @@ export default function Forecasts() {
       try {
         setLoading(true)
         const [leaderboardRes, methodRes, skillsRes] = await Promise.all([
-          forecastApi.futureProofLeaderboard(20),
+          forecastApi.futureProofLeaderboard(200),
           forecastApi.methodDistribution(),
           skillsApi.list({ per_page: 200, sort_by: 'ses_score', sort_dir: 'desc' }),
         ])
         setLeaderboard(leaderboardRes)
         setMethods(methodRes)
-        setCategoryBySkill(Object.fromEntries((skillsRes.items ?? []).map((skill) => [skill.id, formatCategoryLabel(skill.category)])))
+        setCategoryBySkill(Object.fromEntries((skillsRes.items ?? []).flatMap((skill) => {
+          const label = formatCategoryLabel(skill.category)
+          return [[skill.id, label], [normalizedKey(skill.name), label]]
+        })))
       } catch (err) {
         console.error('Error loading forecasts:', err)
       } finally {
@@ -77,11 +84,11 @@ export default function Forecasts() {
   const filteredLeaderboard = useMemo(() => leaderboard.filter((item) => {
     const query = (searchParams.get('q') ?? '').trim().toLowerCase()
     const confidence = Math.round(item.confidence * 100)
-    const visibleGrowth = displayForecastGrowth(forecastIndex(item.forecast_1y), forecastIndex(item.forecast_3y))
-    const visibleTrend = forecastTrendFromGrowth(visibleGrowth)
+    const visibleTrend = forecastRowTrend(item, forecastIndex)
+    const category = categoryBySkill[item.skill_id] ?? categoryBySkill[normalizedKey(item.skill_name)]
     const trendOk = trendFilter === 'All' || visibleTrend.toLowerCase() === trendFilter.toLowerCase()
     const methodOk = methodFilter === 'All' || item.forecast_method === methodFilter
-    const categoryOk = categoryFilter === 'All' || categoryBySkill[item.skill_id] === categoryFilter
+    const categoryOk = categoryFilter === 'All' || category === categoryFilter
     const confidenceOk = confidenceFilter === 'All'
       || (confidenceFilter === 'High' && confidence >= 80)
       || (confidenceFilter === 'Medium' && confidence >= 60 && confidence < 80)
@@ -94,7 +101,7 @@ export default function Forecasts() {
     const counts = filteredLeaderboard.reduce<Record<string, { trend: string; count: number; avg_forecast_score: number }>>((result, item) => {
       const oneYear = forecastIndex(item.forecast_1y)
       const threeYear = forecastIndex(item.forecast_3y)
-      const trend = forecastTrendFromGrowth(displayForecastGrowth(oneYear, threeYear))
+      const trend = forecastRowTrend(item, forecastIndex)
       const current = result[trend] ?? { trend, count: 0, avg_forecast_score: 0 }
       current.count += 1
       current.avg_forecast_score += threeYear
@@ -260,11 +267,12 @@ export default function Forecasts() {
             <span>Method</span>
             <span>Confidence</span>
           </div>
-          {filteredLeaderboard.slice(0, 12).map((item) => {
+          <div className="max-h-[640px] overflow-y-auto">
+          {filteredLeaderboard.map((item) => {
             const oneYear = forecastIndex(item.forecast_1y)
             const threeYear = forecastIndex(item.forecast_3y)
             const visibleGrowth = displayForecastGrowth(oneYear, threeYear)
-            const visibleTrend = forecastTrendFromGrowth(visibleGrowth)
+            const visibleTrend = forecastRowTrend(item, forecastIndex)
             return (
             <div key={item.skill_id} className="grid grid-cols-[1.35fr_repeat(6,minmax(0,0.78fr))] gap-3 border-b border-white/5 px-5 py-3 text-sm last:border-b-0">
               <div>
@@ -280,6 +288,7 @@ export default function Forecasts() {
             </div>
             )
           })}
+          </div>
           {!filteredLeaderboard.length && <div className="px-5 py-8 text-center text-sm text-white/42">No forecasts match the current filters.</div>}
         </div>
 

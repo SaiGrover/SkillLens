@@ -142,7 +142,7 @@ async def compare_forecasts(
 @router.get("/leaderboard/future-proof", response_model=List[LeaderboardEntry])
 async def future_proof_leaderboard(
     db: AsyncSession = Depends(get_db),
-    limit: int = Query(10, le=50),
+    limit: int = Query(10, le=200),
     trend: Optional[str] = Query(None, description="Filter by trend: Explosive, Growing, Stable, Declining"),
 ):
     """
